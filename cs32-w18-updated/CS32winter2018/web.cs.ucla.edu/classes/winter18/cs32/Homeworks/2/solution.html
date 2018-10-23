@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/2/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+<head>
+ <title>CS 32 Homework 2 Solution, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Homework 2 Solution</h2>
+</div>
+<table cellpadding="3">
+<colgroup width="15%" span="6"></colgroup>
+<tr><td><a href="#P1">Problem 1</a></td>
+    <td><a href="#P2">Problem 2</a></td>
+    <td><a href="#P3">Problem 3</a></td>
+    <td><a href="#P4">Problem 4</a></td>
+    <td><a href="#P5">Problem 5</a></td></tr>
+</table>
+<h4><a id="P1"></a>Problem 1:</h4>
+<pre>
+#include &lt;stack>
+#include &lt;string>
+
+using namespace std;
+
+const char WALL = 'X';
+const char OPEN = '.';
+const char SEEN = 'o';
+
+class Coord
+{
+  public:
+    Coord(int rr, int cc) : m_r(rr), m_c(cc) {}
+    int r() const { return m_r; }
+    int c() const { return m_c; }
+  private:
+    int m_r;
+    int m_c;
+};
+
+void explore(string maze[], stack&lt;Coord>& toDo, int r, int c)
+{
+        if (maze[r][c] == OPEN)
+        {
+             toDo.push(Coord(r,c));
+             maze[r][c] = SEEN;  // anything non-OPEN will do
+        }
+}
+
+bool pathExists(string maze[], int nRows, int nCols, int sr, int sc, int er, int ec)
+{
+    if (sr &lt; 0  ||  sr >= nRows  ||  sc &lt; 0  || sc >= nCols  ||
+        er &lt; 0  ||  er >= nRows  ||  ec &lt; 0  || ec >= nCols  ||
+        maze[sr][sc] != OPEN  ||  maze[er][ec] != OPEN)
+       return false;
+
+    stack&lt;Coord> toDo;
+    explore(maze, toDo, sr, sc);
+
+    while ( ! toDo.empty() )
+    {
+        Coord curr = toDo.top();
+        toDo.pop();
+
+        const int cr = curr.r();
+        const int cc = curr.c();
+
+        if (cr == er  &amp;&amp;  cc == ec)
+            return true;
+
+        explore(maze, toDo, cr, cc+1);  // east
+        explore(maze, toDo, cr+1, cc);  // south
+        explore(maze, toDo, cr, cc-1);  // west
+        explore(maze, toDo, cr-1, cc);  // north
+    }
+    return false;
+}
+</pre>
+<h4><a id="P2"></a>Problem 2:</h4>
+<pre>
+(4,3) (3,3) (5,3) (5,2) (5,1) (6,1) (7,1) (8,1) (8,2) (6,3) (4,4) (4,5)
+</pre>
+<h4><a id="P3"></a>Problem 3:</h4>
+<p>
+Make three changes to the Problem 1 solution:
+</p>
+<ul>
+<li><p>Change <code>#include &lt;stack></code> to <code>#include &lt;queue></code></p></li>
+<li><p>Change <code>stack&lt;Coord></code> to <code>queue&lt;Coord></code></p></li>
+<li><p>Change <code>Coord curr = toDo.top();</code> to <code>Coord curr = toDo.front();</code></p></li>
+</ul>
+<pre>
+</pre>
+<h4><a id="P4"></a>Problem 4:</h4>
+<pre>
+(4,3) (4,4) (5,3) (3,3) (4,5) (6,3) (5,2) (4,6) (5,5) (5,1) (4,7) (6,5)
+</pre>
+<p>
+The stack solution visits the cells in a <em>depth-first</em> order:  it
+continues along a path until it hits a dead end, then <em>backtracks</em>
+to the most recently visited intersection that has unexplored branches.
+Because we're using a stack, the next cell to be visited will be a
+neighbor of the <em>most</em> recently visited cell with unexplored neighbors.
+</p>
+<p>
+The queue solution visits the cells in a <em>breadth-first</em> order:  it
+visits all the cells at distance 1 from the start cell, then all those at
+distance 2, then all those at distance 3, etc.  Because we're using a queue,
+the next cell to be visited will be a neighbor of the <em>least</em> recently
+visited cell with unexplored neighbors.
+</p>
+<h4><a id="P5"></a>Problem 5:</h4>
+<pre>
+// eval.cpp
+
+#include "Map.h"  // mapping char to int
+#include &lt;string>
+#include &lt;stack>
+#include &lt;cctype>
+#include &lt;cassert>
+using namespace std;
+
+const int RET_OK_EVALUATION      = 0;
+const int RET_INVALID_EXPRESSION = 1;
+const int RET_UNDEFINED_VARIABLE = 2;
+const int RET_DIVISION_BY_ZERO   = 3;
+
+inline
+bool isLowerOrCloseParen(char ch)
+{
+    return islower(ch) || ch == ')';
+}
+
+inline
+int precedence(char ch)
+  //  Precondition:  ch is in "+-*/("
+{
+    static string ops = "+-*/(";
+    static int prec[5] = { 1, 1, 2, 2, 0 };
+    int pos = ops.find(ch);
+    assert(pos != string::npos);  // must be found!
+    return prec[pos];
+}
+
+bool convertInfixToPostfix(const string&amp; infix, string&amp; postfix)
+  // Converts an integer arithmetic expression to postfix
+  //   If infix is not a syntactically valid infix integer arithmetic
+  //   expression, the function returns false.  (postfix may or may not
+  //   be changed.)  Otherwise, postfix is set to the postfix form of
+  //   that expression, and the function returns true.
+{
+    postfix = "";
+    stack&lt;char> operatorStack;
+    char prevch = '+';  // pretend previous character was an operator
+
+    for (size_t k = 0; k != infix.size(); k++)
+    {
+        char ch = infix[k];
+        if (islower(ch))
+        {
+            if (isLowerOrCloseParen(prevch))
+                return false;  // invalid expression
+            postfix += ch;
+        }
+        else
+        {
+            switch(ch)
+            {
+              case ' ':
+                continue;  // do not set prevch to this char
+
+              case '(':
+                if (isLowerOrCloseParen(prevch))
+                    return false;  // invalid expression
+                operatorStack.push(ch);
+                break;
+
+              case ')':
+                if ( ! isLowerOrCloseParen(prevch))
+                    return false;  // invalid expression
+                for (;;)
+                {
+                    if (operatorStack.empty())
+                        return false;  // invalid expression (too many ')')
+                    char c = operatorStack.top();
+                    operatorStack.pop();
+                    if (c == '(')
+                        break;
+                    postfix += c;
+                }
+                break;
+
+              case '+':
+              case '-':
+              case '*':
+              case '/':
+                if ( ! isLowerOrCloseParen(prevch))
+                    return false;  // invalid expression
+                while ( ! operatorStack.empty()  &amp;&amp;
+                           precedence(ch) &lt;= precedence(operatorStack.top()) )
+                {
+                    postfix += operatorStack.top();
+                    operatorStack.pop();
+                }
+                operatorStack.push(ch);
+                break;
+
+              default:  // bad char
+                return false;  // invalid expression
+            }
+        }
+        prevch = ch;
+    }
+
+      // end of expression; pop remaining operators
+
+    if ( ! isLowerOrCloseParen(prevch))
+        return false;  // invalid expression
+    while ( ! operatorStack.empty())
+    {
+        char c = operatorStack.top();
+        operatorStack.pop();
+        if (c == '(')
+            return false;  // invalid expression (too many '(')
+        postfix += c;
+    }
+    if (postfix.empty())
+        return false;  // invalid expression (empty)
+
+    return true;
+}
+
+int evaluate(string infix, const Map&amp; values, string&amp; postfix, int&amp; result)
+  // Evaluates an integer arithmetic expression
+  //   If infix is a syntactically valid infix integer expression whose
+  //   only operands are single lower case letters (whether or not they
+  //   appear in the values map), then postfix is set to the postfix
+  //   form of the expression; otherwise postfix may or may not be
+  //   changed, result is unchanged, and the function returns 1.  If
+  //   infix is syntactically valid but contains at least one lower
+  //   case letter operand that does not appear in the values map, then
+  //   result is unchanged and the function returns 2.  If infix is
+  //   syntactically valid and all its lower case operand letters
+  //   appear in the values map, then if evaluating the expression
+  //   (using for each letter in the expression the value in the map
+  //   that corresponds to it) attempts to divide by zero, then result
+  //   is unchanged and the function returns 3; otherwise, result is
+  //   set to the value of the expression and the function returns 0.
+{
+      // First convert infix to postfix
+
+    if ( ! convertInfixToPostfix(infix, postfix))
+        return RET_INVALID_EXPRESSION;
+
+      // Now evaluate the postfix expression
+
+    stack&lt;int> operandStack;
+    for (size_t k = 0; k != postfix.size(); k++)
+    {
+       char ch = postfix[k];
+       if (islower(ch))
+       {
+           int val;
+           if ( ! values.get(ch, val))
+               return RET_UNDEFINED_VARIABLE;
+           operandStack.push(val);
+       }
+       else
+       {
+           int opd2 = operandStack.top();
+           operandStack.pop();
+           int opd1 = operandStack.top();
+           operandStack.pop();
+           switch (ch)
+           {
+               case '+':
+                   operandStack.push(opd1 + opd2);
+                   break;
+               case '-':
+                   operandStack.push(opd1 - opd2);
+                   break;
+               case '*':
+                   operandStack.push(opd1 * opd2);
+                   break;
+               case '/':
+                   if (opd2 == 0)
+                       return RET_DIVISION_BY_ZERO;  // divide by zero
+                   operandStack.push(opd1 / opd2);
+                   break;
+               default:  // Impossible for valid postfix string!
+                   return RET_INVALID_EXPRESSION;  // pretend it's an invalid expression
+           }
+       }
+    }
+    if (operandStack.size() != 1)  // Impossible for valid postfix string!
+        return RET_INVALID_EXPRESSION;  // pretend it's an invalid expression
+    result = operandStack.top();
+    
+    return RET_OK_EVALUATION;
+}
+</pre>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/2/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+</html>

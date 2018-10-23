@@ -1,0 +1,88 @@
+class Shape
+{
+  public:
+    Shape(double x, double y);
+    void move(double xnew, double ynew);
+    virtual void draw() const = 0;
+    virtual ~Shape();
+    double x() const;
+    double y() const;
+    ...
+  private:
+    double m_x;
+    double m_y;
+};
+
+class Circle : public Shape
+{
+  public:
+    Circle(double r, double x, double y);
+    virtual void draw() const;
+    ...
+  private:
+    double m_r;
+};
+
+class Rectangle : public Shape
+{
+  public:
+    Rectangle(double x, double y, double dx, double dy);
+    virtual void draw() const;
+    virtual double diag() const;
+    ...
+  private:
+    double m_dx;
+    double m_dy;
+};
+
+Shape::Shape(double x, double y)
+ : m_x(x), m_y(y)
+{}
+
+void Shape::move(double xnew, double ynew)
+{
+    m_x = xnew;
+    m_y = ynew;
+}
+
+Shape::~Shape()
+{}
+
+double Shape::x() const
+{
+    return m_x;
+}
+
+double Shape::y() const
+{
+    return m_y;
+}
+
+Circle::Circle(double r, double x, double y)
+ : Shape(x, y), m_r(r)
+{
+    if (r < 0)
+        ... error: radius must be non-negative ...
+}
+
+void Circle::draw() const
+{
+  ... draw a circle of radius m_r centered at (x(), y()) ...
+}
+
+Rectangle::Rectangle(double x, double y, double dx, double dy)
+ : Shape(x, y), m_dx(dx), m_dy(dy)
+{}
+
+void Rectangle::draw() const
+{
+  ... draw a line from (x(), y()) to (x()+m_dx, y()) ...
+  ... draw a line from (x()+m_dx, y()) to (x()+m_dx, y()+m_dy) ...
+  ... draw a line from (x()+m_dx, y()+m_dy) to (x(), y()+m_dy) ...
+  ... draw a line from (x(), y()+m_dy) to (x(), y()) ...
+}
+
+double Rectangle::diag() const
+{
+    return std::sqrt(m_dx*m_dx + m_dy*m_dy);
+}

@@ -1,0 +1,77 @@
+// Circle.h
+
+class Circle
+{
+  public:
+    Circle(double x, double y, double r);
+    void draw() const;
+    bool scale(double factor);
+    double radius() const;
+  private:
+    double m_x;
+    double m_y;
+    double m_r;
+      // Class invariant:  m_r > 0
+};
+
+double area(const Circle& circ);
+
+=======================================================
+
+// Circle.cpp
+
+#include "Circle.h"
+#include <iostream>
+#include <cstdlib>
+#include <cmath>
+using namespace std;
+
+Circle::Circle(double x, double y, double r)
+ : m_x(x), m_y(y), m_r(r)
+{
+    if (r <= 0)
+    {
+        cerr << "Cannot create a circle of radius " << r << endl;
+        exit(1);
+    }
+}
+
+void Circle::draw() const
+{
+    ... draw the circle ...
+}
+
+bool Circle::scale(double factor)
+{
+    if (factor <= 0)
+        return false;
+    m_r *= factor;
+    return true;
+}
+
+double Circle::radius() const
+{
+    return m_r;
+}
+
+double area(const Circle& circ)
+{
+    const double PI = 4 * atan(1.0);
+    return PI * circ.radius() * circ.radius();
+}
+
+========================================================
+
+// main.cpp
+
+#include "Circle.h"
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    Circle c(-2, 5, 10);
+    c.scale(2);
+    c.draw();
+    cout << area(c);
+}

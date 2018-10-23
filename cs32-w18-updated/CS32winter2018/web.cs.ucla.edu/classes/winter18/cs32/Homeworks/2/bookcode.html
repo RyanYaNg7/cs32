@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/2/bookcode.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:21 GMT -->
+<head>
+ <title>Pseudocode for Expression Evaluation</title>
+</head>
+<body>
+<h2>Pseudocode for Infix to Expression Evaluation</h2>
+<p>
+Source:
+<a href="http://www.pearsonhighered.com/educator/academic/product/0,1144,0132923726,00.html"
+target="_blank">
+Data Abstraction and Problem Solving with C++: Walls and Mirrors,
+Sixth Edition</a>, by Frank M. Carrano and Timothy Henry, Addison Wesley, 2013.
+</p>
+<p>
+Here is Carrano's pseudocode for the infix to postfix conversion step:
+</p>
+<pre>
+	Initialize postfix to empty
+	Initialize the operator stack to empty
+	For each character ch in the infix string
+	    Switch (ch)
+	      case operand:
+	        append ch to end of postfix
+	        break
+	      case '(':
+	        push ch onto the operator stack
+	        break
+              case ')':
+	          // pop stack until matching '('
+	        While stack top is not '('
+	          append the stack top to postfix
+	          pop the stack
+	        pop the stack  // remove the '('
+	        break
+	      case operator:
+	        While the stack is not empty and the stack top is not '('
+	                and precedence of ch <= precedence of stack top
+	            append the stack top to postfix
+                    pop the stack
+                push ch onto the stack
+                break
+	While the stack is not empty
+	    append the stack top to postfix
+            pop the stack
+</pre>
+<p>
+And here is his pseudocode for the evaluation of the postfix expression:
+</p>
+<pre>
+	Initialize the operand stack to empty
+	For each character ch in the postfix string
+	    if ch is an operand
+	        push the value that ch represents onto the operand stack
+	    else // ch is a binary operator
+	        set operand2 to the top of the operand stack
+		pop the stack
+	        set operand1 to the top of the operand stack
+		pop the stack
+		apply the operation that ch represents to operand1 and
+	            operand2, and push the result onto the stack
+	When the loop is finished, the operand stack will contain one item,
+	  the result of evaluating the expression
+</pre>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/2/bookcode.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:21 GMT -->
+</html>

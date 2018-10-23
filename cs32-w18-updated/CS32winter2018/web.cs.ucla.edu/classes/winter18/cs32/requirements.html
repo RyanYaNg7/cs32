@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/requirements.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:01:15 GMT -->
+<head>
+ <title>CS 32 General Programming Assignment Requirements</title>
+</head>
+<body>
+<h2>CS 32 General Programming Assignment Requirements</h2>
+<p>
+For each project and homework, you will turn in programs and documentation
+electronically via a webpage we will direct you to.  What you will submit
+will be a single zip file containing the files listed in the project or
+homework specification.   Because we will be using software tools to help
+us grade your projects, there are certain requirements you must follow to
+receive any points at all:
+</p>
+<ul>
+<li><p>
+The names of the files contained in the zip file must be <em>exactly</em>
+what the spec states.  For example, if it says one of the files must be
+named <code>calendar.cpp</code>, then make sure it's named
+<code>calendar.cpp</code>, not <code>calendar.cpp.txt</code> or
+<code>calendar.doc</code> or <code>calender.cpp</code> or
+<code>proj1.cpp</code> or <code>p1calendar.cpp</code>.  Even if English
+isn't your native language, or if you're a bad typist or speller, there's
+not much of an excuse for messing up here:  We don't speak Irish, but if
+told to name a file "caoilfhionn" we could at least compare what we typed
+with what was required.
+</p></li><li><p>
+The zip file must contain <em>only</em> the files required by the spec,
+unless the spec explicitly lists optional files you may include.  The
+exception to this is that if you create the zip file under macOS, it is
+acceptable if it contains the additional files that the macOS zip utility
+sometimes introduces:  <code>__MACOSX</code>, <code>.DS_Store</code>, and
+names starting with <code>._</code> that contain your file names.
+</p></li>
+</ul>
+<p>
+We are continually amazed by people who get a zero by not meeting these
+simple requirements that someone who knows nothing about C++ could meet.
+</p><p>
+<a id="compilers"></a>
+You are free to use any C++ development environment you want, but you must
+ensure that the programs you submit as source files run successfully using
+two compilers:
+</p>
+<ul>
+<li>
+One compiler must be either <a href="visualcpp.html">Visual C++</a> or
+clang++.  If you use <a href="xcode.html">Xcode on a Mac</a>, you're using
+clang++.
+</li><li>
+The other compiler must be g32 on the SEASnet Linux server
+cs32.seas.ucla.edu.  As the <a href="linux.html">g++ with Linux</a>
+writeup explains, g32 merely runs g++ in a way that catches more kinds of
+errors during execution.  <strong>As a shorthand in this class, when we
+say "build/run using g++" or "build/run using g32", we mean "build/run
+using g32 on cs32.seas.ucla.edu</strong> &mdash; that specific command
+(g32, not g++) on a SEASnet machine reached via that specific name (not
+certain other SEASnet Linux machines).
+</li>
+</ul>
+<p>
+Be sure you budget enough time to test your program using both compilers. 
+In fact, periodically during program development, test your program using
+the compiler other than the one that you use to do your primary
+development.  Rather than being a burden, this requirement to run using
+two compilers helps you improve your correctness score by assisting you in
+detecting errors in two ways:
+</p>
+<ul>
+<li>
+Different compilers might look for different questionable things to warn
+you about.  For example, if instead of the character literal
+<code>'\n'</code> you mistakenly write <code>'/n'</code>, Visual C++ says
+nothing, while the other compilers warn you about a multi-character constant.
+</li><li>
+Different compilers might produce code that behaves differently if your
+program does something with undefined behavior, such as using the value of
+an uninitialized variable or accessing an element outside the bounds of an
+array.  If running your program under two different compilers produces
+different behavior, there's a very good chance your program is doing
+something undefined, which we prohibit.
+</li>
+</ul>
+<p>
+If the program you turn in fails to build, your correctness score will be
+zero because we will be unable to test it.  Don't make the mistake of
+making a last-minute change to your program and turning it in without
+having first tested the effect of that change.  (Sometimes people think
+they made a change with no effect, like adding a comment, but didn't
+notice that their finger slipped and they also added a stray bad character
+not in a comment.)
+</p><p>
+You will get a very low correctness score, even zero, if your program does
+not handle the simplest cases correctly.  Make sure no systematic error
+causes most or all cases to fail.  If the spec says the output of your
+program must be in a certain format <em>exactly</em>, then make it so.
+It's hard to go wrong with the format if you match exactly any examples we
+give in the spec.
+</p><p>
+Your program coding must be clear, simple, and straightforward.  For
+projects (but not necessarily homeworks), your source code should have
+comments that tell the purpose of the major program segments and explain
+any tricky code.
+</p><p>
+Your programs will be scored on visible results, not effort.  A program's
+correctness score will be closely correlated with its correctness, not with
+the amount of time you spent working on it.  Using a careful, incremental
+development style, you may well spend <em>less</em> time and produce a
+<em>more</em> correct program than someone who tries to write the whole
+program at once, spends endless hours tracking down the bugs and trying to
+fix them, and runs out of time, ending up with something that fails most
+test cases.  Make a backup copy of your program whenever it's in a state
+that builds successfully and correctly implements some of the project
+requirements; that way, if you try to add another feature, mess everything
+up, and run out of time, you still have <em>something</em> you can turn it
+that will earn you some correctness points.
+</p><p>
+It is your responsibility to make sure you frequently back up a program you
+are working on to an external device or a file server so that you can
+survive a misfortune like a stolen computer or a hard drive failure.  A
+problem like this happens to someone every quarter, and it's especially sad
+when it happens on a project due date, their only backup (if any) was on the
+same machine, and they have no time to recreate all their work.
+</p><p>
+When a project requires you to submit a report, that report must be either a
+plain text file (produced by Notepad, TextEdit, nano, vim/vi, emacs, etc.)
+or a Microsoft Word document in .docx or .doc format (but not .rtf format).
+</p><p>
+The report contains a description of the design of your program, using
+<a href="pseudocode.html">pseudocode</a> where it clarifies the
+presentation.
+</p><p>
+The report also contains a list of the kinds of test data that could be
+used to thoroughly test a program that meets the spec, along with the
+actual data itself.  Notice that even if your program meets only part of
+the spec, the test data you submit must be thorough enough to test a
+program that <em>completely</em> meets the spec.  Therefore, you can write
+most of the test data from the project specification alone, even before
+you design your program.
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/requirements.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:01:17 GMT -->
+</html>

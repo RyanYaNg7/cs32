@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/3/possible-design.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+<head>
+ <title>CS 32 Project 3 Possible Design, Winter 2018</title>
+</head>
+<body>
+<p>
+Here is a possible design of the Actor inheritance hierarchy:
+</p>
+<pre>
+GraphObject
+    Actor
+        Star
+        Explosion
+        DamageableObject
+            Player
+            Alien
+                Smallgon
+                Smoregon
+                Snagglegon
+        Projectile
+            Cabbage
+            Turnip
+            Torpedo
+                PlayerLaunchedTorpedo
+                AlienLaunchedTorpedo
+        Goodie
+            ExtraLifeGoodie
+            RepairGoodie
+            TorpedoGoodie
+</pre>
+<p>
+You are not obligated to follow this design, but you must take advantage
+of inheritance to avoid large amounts of repetitive code.  The technique in
+item 7 on p. 44 of the spec is especially helpful in reducing repetition.
+For example, suppose you had code like this:
+</p>
+<pre>
+	void RepairGoodie::doSomething()
+	{
+	    ...
+	    <em>increase the player's hit points by 10</em>
+	    ...
+	}
+
+	void TorpedoGoodie::doSomething()
+	{
+	    ...
+	    <em>increase the player's number of torpedoes by 5</em>
+	    ...
+	}
+</pre>
+<p>
+where the several lines omitted code is the same in the two functions.
+You might avoid the repeated code by instead doing something like this:
+</p>
+<pre>
+	void Goodie::doSomething()
+	{
+	   ...   <em>(same as the code in the first ... in each function)</em>
+	   grantSpecificReward(<em>the player</em>);
+	   ...   <em>(same as the code in the second ... in each function)</em>
+	}
+
+	void RepairGoodie::grantSpecificReward(Player* p)
+	{
+	    <em>increase the player's hit points by 10</em>
+	}
+
+	void TorpedoGoodie::grantSpecificReward(Player* p)
+	{
+	    <em>increase the player's number of torpedoes by 5</em>
+	}
+</pre>
+<p>
+where <code>grantSpecificReward</code> is declared pure virtual in Goodie.
+This way, the subclasses of Goodie do not have to implement
+<code>doSomething</code> at all; they can just inherit Goodie's implementation
+and provide only the code that is specific to them.
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/3/possible-design.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+</html>

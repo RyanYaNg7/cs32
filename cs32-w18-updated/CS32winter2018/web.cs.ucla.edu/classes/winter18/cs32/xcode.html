@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/xcode.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+<head>
+ <title>Xcode on a Mac</title>
+</head>
+<body>
+<h2>Xcode on a Mac</h2>
+<p>
+Here's how to install Xcode on a Mac and create and run a simple C++
+program.  Xcode is an integrated development environment that uses the
+clang++ compiler to compile your programs.
+</p>
+<h3>Installing Xcode</h3>
+<p>
+Xcode 9.2 is available only for macOS Sierra 10.12.6 or later.
+Xcode 8.3.3 is available only for macOS Sierra 10.12 or later.  (Do
+<em>not</em> install Xcode 8.3.1 or 8.3, which have a bug that will affect some
+programs you'll write.)
+XCode 8.2.1 is available only for OS X El Capitan 10.11.5 or later.
+Xcode 7.3.1 is available only for OS X El Capitan 10.11 or later.
+Xcode 7.2.1 is available for OS X El Capitan 10.11 and Yosemite 10.10.
+Xcode can be downloaded for free from
+<a href="https://developer.apple.com/downloads/" target="_blank">https://developer.apple.com/downloads/</a>.
+</p>
+<h3>Creating an Xcode C++ Project</h3>
+<p>
+Xcode is designed to support developers of large systems, so to
+use it as we will initially to write programs that are small by comparison
+may seem like overkill.  However, over time you will come to appreciate some
+features (the debugger, especially).
+</p><p>
+Here is a way to set up an Xcode project to compile and run a
+simple three-file program.  A number of these steps may have alternate
+ways to achieve the same end.
+</p>
+<ol>
+<li><p>
+Start up the Xcode IDE (Integrated Development Environment).
+</p></li>
+<li><p>
+Select File / New / Project....  You will be asked to choose a template
+for your new project.  Select the macOS tab (or OS X), and in the Application
+group, select Command Line Tool.  Click Next.
+</p></li>
+<li><p>
+Pick a name for your project as the Product Name, such as "VoiceMail". 
+For Organization Name, anything will do.  For Organization Identifier,
+something simple like "cs32" is good.  For Language, select C++.  Click
+Next.  
+</p></li>
+<li><p>
+Select the folder in which you want your project folder to be created.  Click
+Create.
+</p>
+</li>
+<li><p>
+In the left frame, click once on the name <code>main.cpp</code> to open
+the file, which already has some sample code in it.  Click once again on
+the name to rename the file to what you want it to be, such as
+<code>testVoiceMail.cpp</code>.  Click outside the text box to effect the
+name change.  Replace the sample code in the edit frame with:
+</p>
+<pre>
+	#include "VoiceMail.h"
+	#include &lt;iostream>
+	using namespace std;
+
+	int main()
+	{
+	    VoiceMail vm;
+	    vm.record("Call me back ASAP!");
+	    vm.playback();
+	    vm.erase();
+	    vm.playback();
+	    cout &lt;&lt; "End of VoiceMail test" &lt;&lt; endl;
+	}
+</pre>
+</li>
+<li><p>
+In the left frame, right-click on the file folder icon with the name of
+your project (above the name of the .cpp file), and select New File....
+Select the macOS tab, and in the Source group, select C++ File.  Click
+Next.  Use <code>VoiceMail</code> for the name and leave the box checked
+for also creating a header file.  Click Next.  A save file dialog appears;
+click Create.  This will add two files to your project: 
+<code>VoiceMail.hpp</code> and <code>VoiceMail.cpp</code>.
+</p></li>
+<li><p>
+In the left frame, click once on the name <code>VoiceMail.hpp</code> to open
+the file, which already has some sample code in it.  Click once again on
+the name to rename the file to <code>VoiceMail.h</code>, the more common
+C++ convention.  Click outside the text box to effect the name change. 
+Replace the sample code in the edit frame with:
+</p>
+<pre>
+	  // VoiceMail interface
+
+	#include &lt;string>
+
+	class VoiceMail
+	{
+	  public:
+	    void record(std::string msg);
+	    void erase();
+	    void playback() const;
+	  private:
+	    std::string m_message;
+	};
+</pre>
+</li>
+<li><p>
+In the left frame, click on <code>VoiceMail.cpp</code> to open the file,
+which already has a little code in it.  Replace that code with:
+</p>
+<pre>
+	  // VoiceMail implementation
+
+	#include "VoiceMail.h"
+	#include &lt;string>
+	#include &lt;iostream>
+	using namespace std;
+
+	void VoiceMail::record(string msg)
+	{
+	    m_message = msg;
+	}
+
+	void VoiceMail::erase()
+	{
+	    m_message = "";
+	}
+
+	void VoiceMail::playback() const
+	{
+	    if (m_message.empty())
+		cout &lt;&lt; "There is no message to play back." &lt;&lt; endl;
+	    else
+		cout &lt;&lt; m_message &lt;&lt; endl;
+	}
+</pre>
+</li>
+<li><p>
+From the main menu, select View / Debug Area / Activate Console.
+</p></li>
+<li><p>
+In the upper left corner, click the Run right-facing triangle to build and
+run your program.
+</p></li>
+<li><p>
+If your program has any compilation or link errors, you'll be notified.
+Click on the little red octagon icon near the top of the window to see the
+errors. Fix the errors. Go back to step 10.
+</p></li>
+<li><p>
+If your program built successfully, your output will appear in the Output
+frame (bottom right below the edit frame).
+</p></li>
+</ol>
+<h3>Take heed</h3>
+<p>
+When running a program that takes input from the keyboard, don't type arrow
+keys in the Output frame &mdash; they send strange characters to your
+program and may even appear to reorder some of the characters delivered to
+the program.
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/xcode.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+</html>

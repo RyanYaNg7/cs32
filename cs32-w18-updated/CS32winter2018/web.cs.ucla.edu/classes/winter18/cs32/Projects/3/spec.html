@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/3/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:03:06 GMT -->
+<head>
+ <title>CS 32 Project 3, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Programming Assignment 3<br />
+NachenBlaster</h2>
+<p>
+<strong>Part 1 due 11:00 PM Thursday, February 22</strong><br/>
+<strong>Part 2 due 11:00 PM Thursday, March 1</strong><br/>
+</p>
+</div>
+<p>
+The <a href="spec.pdf">Project 3 specification document</a> is complete.
+<!--
+You should read <a href="spec3.pdf">this almost-done Project 3
+specification document</a> (containing everything except alien details).
+In a few hours, the rest of the document will appear.
+You should read <a href="spec2.pdf">this major part of the Project 3
+specification document</a> (containing all of Part #1).  In a day, the
+rest of the document will appear.
+You should read <a href="spec1.pdf">this initial part of the Project 3
+specification document</a> for an introduction to the game.  In a day or two,
+the rest of the document will appear.
+You should read the <a href="spec.pdf">Project 3 specification
+document</a> now.  In the next couple of days, there will be minor edits to
+clean up unclear wording, but there will be no substantial changes.
+The <a href="spec.pdf">Project 3 specification document</a> is complete.
+-->
+</p><p>
+3/2 4:15 pm:  If you've been having sporadic failures reporting that a star
+moved incorrectly, download and use this (hopefully final)
+<a href="p3sanity.zip">revision of the sanity checker</a>, which is driving us
+insane.
+</p><p>
+3/2 4:30 am:  The issues with the sanity checker sporadically (about one in 30
+times) reporting a failure have been fixed.  Download and use
+<a href="p3sanity.zip">this version</a>.
+</p><p>
+3/1 5:45 pm:  Here is our <a href="p3sanity.zip">sanity checker for Part 2</a>
+that <strong>must build without errors</strong> under g32.  If it does not
+also run without errors, then either you have some fundamental problem that
+may cost you a lot of points or you haven't properly implemented shooting
+projectiles or collision detection.  Download the zip file (p3sanity.zip),
+add your four files to it, then transfer it to cs32.seas.ucla.edu as the
+<a href="../../linux.html">g++ with Linux</a> writeup tells you.  Log into
+the Linux server, and unzip that zip file, which will create a directory
+named p3sanity.  Change directories into that directory and type the
+commands
+</p>
+<pre>
+	make
+	./p3sanity
+</pre>
+<p>
+You can read the code in p3sanity.cpp to see what it does:  It creates a
+StudentWorld, calls init, checks for 30 stars and a Nachenblaster, calls move
+(simulating the user typing the right arrow), checks that the stars moved
+left and the NachenBlaster moved right and an alien was created, calls move
+again (simulating the user typing a space), checks that a cabbage and another
+alien were created, calls move again, checks that the cabbage moved and
+rotated, teleports an alien to within collision range of the cabbage (by
+forcibly calling moveTo on it with those coordinates), calls move again, checks
+that the cabbage is now gone, calls cleanUp, and destroys the StudentWorld.
+If the last thing written is a SUCCESS message, your program passed the sanity
+check.
+</p>
+2/22 1:35 am:  If the sanity checker is failing in your StudentWorld
+destructor, chances are your destructor is calling cleanUp (which it ought
+to) when an earlier call to cleanUp did not leave the StudentWorld object in
+a state where cleanUp could be called again (e.g., the object has some
+dangling pointers that would be disastrous to use in delete expressions).
+</p><p>
+2/22 1:15 am:  If you downloaded the Windows skeleton before 2/22 1:15 am,
+please replace three files with these versions:
+<a href="GraphObject.h">GraphObject.h</a>, 
+<a href="SpriteManager.h">SpriteManager.h</a>, and
+<a href="GameController.cpp">GameController.cpp</a>.
+</p><p>
+2/21 11:45 pm:  The spec says  on p. 49 for what to turn in for Part #1
+<em>We may also devise a simple test framework that runs under g32; if we
+do, your code must build without errors in that framework. If it does not
+also run without errors, that indicates some fundamental problem that will
+probably cost you a lot of points.</em>  Here is that test framework that
+<strong>must build without errors</strong>, our
+<a href="oldp3sanity.zip">Project 3 sanity checker</a>.  Download that zip file
+(p3sanity.zip), add your four files to it, then transfer it to
+cs32.seas.ucla.edu as the <a href="../../linux.html">g++ with Linux</a>
+writeup tells you.  Log into the Linux server, and unzip that zip file,
+which will create a directory named p3sanity.  Change directories into that
+directory and type the commands
+</p>
+<pre>
+	make
+	./p3sanity
+</pre>
+<p>
+This creates a StudentWorld, calls init, calls move once (simulating the user
+typing the up arrow key), call cleanUp, and destroys the StudentWorld.
+The sanity check is passed if init creates 30 stars and a Nachenblaster,
+move moves the stars to the left by one pixel and the Nachenblaster up six
+pixels, cleanUp deletes all actors in the game, and execution of the program
+does not cause a runtime crash.  (The test does not check for an alien being
+created by the call to move, or anything else other than what's required for
+Part #1.)  If the test is passed, a SUCCESS message is the last thing written.
+</p><p>
+2/20 9:00 AM:  We are addressing the abrupt visual effect of objects like
+stars disappearing on the left rather abruptly.  It will be a simple
+change, affecting you only by changing a couple of numeric constants.
+More to come when we work out the details.
+</p><p>
+2/19 12:20 PM:  For each type of goodie, the list of what it must do during
+each tick was updated to add a step to check if it has flown off the screen.
+</p><p>
+To see what the game looks like in action:
+</p>
+<ul>
+<li>
+Windows:  Open <a href="NachenBlaster-sample-windows.zip">the Windows sample
+executable zip file</a> and drag the folder named NachenBlaster in it to
+your desktop.  In that desktop folder, double-click on the NachenBlaster
+application.  On the SEASnet Windows server, you may have to move the folder
+to C:\Users\<em>yourusername</em> instead of the desktop.
+</li><li>
+macOS:  You'll need to have XQuartz and freeGLUT installed to run the
+program.
+<ol>
+<li>
+Install <a href="http://xquartz.org/" target="_blank">XQuartz</a>:
+<ol type="a">
+<li>
+Click the download link, open the downloaded .dmg file, double-click on
+XQuartz.pkg, and follow the installation instructions.
+</li><li>
+Log out and log back in again.
+</li><li>
+To verify the installation, open a Terminal window and run the command
+<code>echo $DISPLAY</code>.  That should produce one line of output that
+ends with <code>org.macosforge.xquartz:0</code>.
+</li>
+</ol>
+</li><li>
+Install freeGLUT:
+<ol type="a">
+<li>
+Install the <a href="http://brew.sh/" target="_blank">homebrew</a> package
+manager.
+</li><li>
+Open a Terminal window and run the command <code>brew install freeglut</code>.
+</li>
+</ol>
+</li><li>
+Unzip <a href="NachenBlaster-sample-mac.zip">the Mac sample executable zip
+file</a>.  In that zip file is a file named README.txt that tells you how
+to launch the program.
+</li>
+</ol>
+</li><li>
+Linux:  We haven't yet ported the program to Linux.
+<ol>
+<li>
+Install OpenGL and freeGLUT (already installed on the SEASnet Linux
+servers cs32.seas.ucla.edu, lnxsrv06.seas.ucla.edu, lnxsrv07.seas.ucla.edu,
+and lnxsrv09.seas.ucla.edu):
+<ul>
+<li>Ubuntu: <code>sudo apt-get install freeglut3 freeglut3-dev</code></li>
+<li>Fedora: <code>sudo yum install freeglut freeglut-devel</code></li>
+</ul>
+</li><li>
+Unzip <a href="NachenBlaster-sample-linux.zip">the sample executable
+zip</a>.  Change into the NachenBlaster directory.  In that directory
+there is a file named README that tells you how to launch the program. 
+You won't hear any sound effects.  We haven't tested the Linux version
+beyond ensuring it builds and tries to connect to an X11 server, but it
+should work if you set your DISPLAY environment variable correctly, which
+we haven't had a chance to try.
+</li>
+</ol>
+</li>
+</ul>
+<p>
+You can also download the project skeletons with the code we've written,
+for <a href="NachenBlaster-skeleton-windows.zip">Windows</a>,
+<a href="NachenBlaster-skeleton-mac.zip">Mac</a>, or
+<a href="linux.html">Linux</a>, and make sure you can build and run them. 
+All they'll do is have you lose a life each time you hit Enter, but at
+least you can verify that the graphics library works.
+</p><p>
+The <strong>only</strong> files you will modify are Actor.h, Actor.cpp,
+StudentWorld.h, and StudentWorld.cpp.  Indeed, those will be the only code
+files you'll turn in, so in implementing your solution, you must
+<strong>not</strong> depend on any changes you make to code files other than
+those four.
+</p><p>
+At some point in Project 3, you may find the
+<a href="../../stringstreams.html">Stringstreams</a> writeup helpful.
+</p>
+<p style="margin-bottom:0">
+Note for Visual C++ users:  If the Windows skeleton doesn't build for you,
+you probably need to ensure that your project is using Windows SDK Version
+10.0.15063.0.  To do this:
+</p>
+<ol style="margin-top:0">
+<li>
+Launch the Visual Studio Installer, find your version of Visual Studio,
+and select Modify.  In the list on the right side of optional packages,
+make sure SDK 10.0.15063.0 is selected.
+</li><li>
+After modifying your Visual Studio installation, open the project in Visual
+Studio and right-click on Solution 'NachenBlaster' above the list of source
+files.  Select Retarget Solution and choose the newly installed version of
+the SDK.
+</li><li>
+Build the project.
+</li>
+</ol>
+<p style="margin-bottom:0">
+Notes for Xcode users:
+</p>
+<ul style="margin-top:0">
+<li>
+You might get a message at startup relating to the Assets
+directory.  If you want to fix the issue just for this project, select
+File / Project Settings... and for Derived Data Location, select
+Project-relative Location.  If instead you want to fix it for every
+project you create with Xcode, select Xcode / Preferences... and for the
+Derived Data, select Relative.
+</li><li>
+If your version of Xcode is too old, you'll get a message about the xcodeproj
+file being an incompatible project version.  If your Mac is such that you
+cannot install a recent version of Xcode to solve this problem, use this
+<a href="NachenBlaster-skeleton-macold.zip">skeleton for old Xcode
+versions</a>.
+</li>
+</ul>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/3/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:47 GMT -->
+</html>

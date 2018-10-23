@@ -1,0 +1,44 @@
+class Circle
+{
+  public:
+    Circle(double x, double y, double r);
+      // no other Circle constructors are declared, so there's no default
+      // constructor
+    ...
+  private:
+    double m_x;
+    double m_y;
+    double m_r;
+};
+
+Circle::Circle(double x, double y, double r)
+ : m_x(x), m_y(y), m_r(r)
+{
+    if (r <= 0)
+    {
+        ... write some error message ...
+        exit(1);
+    }
+}
+
+class StickFigure
+{
+  public:
+    StickFigure(double bl, double headDiameter, string nm, double hx, double hy);
+    ...
+  private:
+    Circle m_head;
+    string m_name;
+    double m_bodyLength;
+};
+
+StickFigure::StickFigure(double bl, double headDiameter, string nm,
+							double hx, double hy)
+ : m_head(hx, hy, headDiameter/2), m_name(nm), m_bodyLength(bl)
+{
+    if (bl <= 0)
+    {
+        ... write some error message ...
+        exit(1);
+    }
+}

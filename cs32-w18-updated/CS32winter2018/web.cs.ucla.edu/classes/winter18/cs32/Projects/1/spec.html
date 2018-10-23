@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/1/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:49 GMT -->
+<head>
+ <title>CS 32 Project 1, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Programming Assignment 1<br />
+It's a Gas</h2>
+<p>
+<strong>Time due: 11:00 PM Tuesday, January 16</strong>
+</p>
+</div>
+<p>
+The appendix to this document is the specification of the last CS 31 project
+from a previous quarter.  We will provide you with a
+correct<a href="#endnote1"><sup>1</sup></a><a id="ref1"></a> solution to
+that project.  Your assignment is to (1) organize the code for the
+solution in appropriate header and implementation files, and (2) implement
+a new feature.
+</p>
+<p>
+You should read <a href="cs31p7spec.html">the appendix</a> now.  It describes
+a game in which a player has to avoid passing out in a city of bean eaters.
+You will be working with <a href="cs31p7soln.cpp">this code that implements the
+game</a>.  Notice that it is a single file.  (Just so you know,
+<a href="cs31p7testing.html">the way we tested its correctness</a> is similar
+to how we'll test the correctness of the programs you write in CS 32.)
+</p>
+<h3>Organize the code</h3>
+<p>
+Take the single source file, and divide it into appropriate header files and
+implementation files, one pair of files for each class.  Place the main
+routine in its own file named <code>main.cpp</code>.  Make sure each file
+<code>#include</code>s the headers it needs.  Each header file must
+have include guards.
+</p><p>
+Now what about the global constants?  Place them in their own header
+file named <code>globals.h</code>.  And what about utility functions like
+<code>randInt</code> or <code>clearScreen</code> that are used by
+more than one class implementation?  Place them in their own
+implementation file named <code>utilities.cpp</code>, and place their
+prototype declarations in <code>globals.h</code>.  (Note that for utility
+functions like <code>decodeDirection</code> that are used by only one class
+implementation, it would be better to declare and implement them in that
+class's implementation file, not in <code>globals.h</code>.)
+</p><p>
+The <a href="../../visualcpp.html">Visual C++ 2017</a> and the
+<a href="../../xcode.html">Xcode</a> writeups demonstrate how to create a
+multi-file project.  From the collection of the eleven files produced as a
+result of this part of the project, make sure you can build an executable
+file that behaves exactly the same way as the original single-file
+program.  Make sure you can also do this with <a href="../../linux.html">g++
+with Linux</a>.
+</p>
+<h3>Add a feature</h3>
+<p>
+If you try running the updated programs (the
+<a href="newgas.exe">Windows version</a>, the
+<a href="newgasmac.zip">Mac version</a>, or the
+<a href="newgas.html">Linux version</a> of the full game, and the
+<a href="newminigas.exe">Windows version</a>, the
+<a href="newminigasmac.zip">Mac version</a>, or the
+<a href="newminigas.html">Linux version</a> of the smaller version of
+the game), you'll see they have one new command you can type:
+<code>h</code> for history.  This command shows you for each grid point
+how many times at that location a Flatulan was preached to but was not
+converted:  dot means 0, a letter character A through Y means 1
+through 25 (A means 1, B means 2, etc.) and Z means 26 or more.
+</p>
+<p>
+Your task is to implement this functionality.  You will need to do the
+following:
+</p>
+<ul>
+<li>
+<p>
+Define a class named <code>History</code> with the following public interface:
+</p>
+<pre>
+	class History
+	{
+	  public:
+	    History(int nRows, int nCols);
+	    bool record(int r, int c);
+	    void display() const;
+	};
+</pre>
+<ul>
+<li>
+The constructor initializes a History object that corresponds to a City with
+<code>nRows</code> rows and <code>nCols</code> columns.  You may assume (i.e.,
+you do not have to check) that it will be called with a first argument that
+does not exceed <code>MAXROWS</code> and a second that does not exceed
+<code>MAXCOLS</code>, and that neither argument will be less than 1.
+</li>
+<li>
+The <code>record</code> function is to be called to notify the History object
+that a Flatulan was preached to but was not converted at a grid point.  The
+function returns false if row <code>r</code>, column <code>c</code> is not
+within the City; otherwise, it returns true after recording what it needs
+to.  This function expects its parameters to be expressed in the same
+coordinate system as the City (e.g., row 1, column 1 is the
+upper-left-most position).
+</li>
+<li>
+The <code>display</code> function clears the screen and displays the history
+grid as the posted programs do.  This function <em>does</em> clear the
+screen, display the history grid, and write an empty line after the
+history grid; it does <em>not</em> print the <code>Press enter to
+continue.</code> after the display.  (Note to Xcode users:  It is
+acceptable that clearScreen() just writes a newline instead of clearing
+the screen if you launch your program from within Xcode, since the Xcode
+output window doesn't have the capability of being cleared.)
+</li>
+</ul>
+<p>
+The class declaration (with any private members you choose to add to support
+your implementation) must be in a file named <code>History.h</code>, and
+the implementation of the History class's member functions must be in
+<code>History.cpp</code>.  If you wish, you may add a public destructor to the
+History class.  You must <em>not</em> add any other <em>public</em> members
+to the class.  (This implies, for example, that you must <em>not</em> add
+a public default constructor.)  The only member function of the History
+class that may write to <code>cout</code> is <code>History::display</code>.
+</p>
+</li>
+<li>
+<p>
+Add a data member of type History (<em>not</em> of type pointer-to-History) to
+the City class, and provide this public function to access it; notice that it
+returns a <em>reference</em> to a History object.
+</p>
+<pre>
+	class City
+	{
+	  &hellip;
+	  History&amp; history();
+	  &hellip;
+	};
+</pre>
+</li>
+<li>
+<p>
+When a Flatulan is preached to but not converted, its City's history
+object must be notified about the position it was at when preached to.
+</p>
+</li>
+<li>
+<p>
+Have the Game recognize the new <code>h</code> command, tell the City's
+history object to display the history grid, and then print the <code>Press
+enter to continue.</code> prompt and wait for the user to respond. 
+(<code>cin.ignore(10000,'\n');</code> does that nicely.)  Typing the
+<code>h</code> command does not count as the player's turn.  
+</p>
+</li>
+</ul>
+<h3>Turn it in</h3>
+<p>
+By Monday, January 15, there will be a link on the class webpage that will
+enable you to turn in your source files.  You do not have to turn in a report
+or other documentation for this project.  What you will turn in for this
+project will be one zip file containing <em>only</em> the thirteen files you
+produced, no more and no less.  The files must have these names
+<em>exactly</em>:
+</p>
+<table align="center" cellpadding="10">
+<tr>
+<td>Flatulan.h</td>
+<td>Player.h</td>
+<td>History.h</td>
+<td>City.h</td>
+<td>Game.h</td>
+<td>globals.h</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Flatulan.cpp</td>
+<td>Player.cpp</td>
+<td>History.cpp</td>
+<td>City.cpp</td>
+<td>Game.cpp</td>
+<td>utilities.cpp</td>
+<td>main.cpp</td>
+</tr>
+</table>
+<p>
+The zip file itself may be named whatever you like.
+</p><p>
+If we take these thirteen source files, we must be able to successfully
+build an executable using
+g32<a href="#endnote2"><sup>2</sup></a><a id="ref2"></a> and one using
+either Visual C++ or clang++ &mdash; you must not introduce compilation or
+link errors.
+</p><p>
+If you do not follow the requirements in the above paragraphs, your score on
+this project will be zero.  "Do you mean that if I do everything right except
+misspell a file name or include an extra file or leave off one semicolon,
+I'll get no points whatsoever?"  Yes.  That seems harsh, but attention to
+detail is an important skill in this field.  A draconian grading policy
+certainly encourages you to develop this skill.
+</p><p>
+The only exception to the requirement that the zip file contain exactly
+thirteen files of the indicated names is that if you create the zip file
+under macOS, it is acceptable if it contains the additional files that
+the macOS zip utility sometimes introduces:  <code>__MACOSX</code>,
+<code>.DS_Store</code>, and names starting with <code>._</code> that
+contain your file names.
+</p><p>
+To not get a zero on this project, your program must meet these requirements
+as well:
+</p>
+<ul>
+<li>
+<p>
+Except to add the member function <code>City::history</code> or to change
+<code>string</code> to <code>std::string</code>, you must not make any
+additions or changes to the public interface of any of the classes.  (You
+are free to make changes to the private members and to the implementations
+of the member functions.)  The word <code>friend</code> and the word
+sequence <code>pragma once</code> must not appear in any of the files you
+submit.
+</p>
+</li><li>
+<p>
+Your program must not use any global variables whose values may change
+during execution.  Global <em>constants</em> (e.g. <code>MAXROWS</code>)
+are all right.
+</p>
+</li><li>
+<p>
+Except in <code>Game::play</code> (or a function it calls) and
+<code>History::display</code>, your program must write no output to
+<code>cout</code> beyond what is already in the program or is required by
+this spec.  If you want to print things out for debugging purposes, write
+to <code>cerr</code> instead of <code>cout</code>.  When we test your
+program, we will cause everything written to <code>cerr</code> to be
+discarded instead &mdash; we will never see that output, so you may leave
+those debugging output statements in your program if you wish.
+</p>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must build successfully under both g32 and either Visual C++ or clang++:
+</p>
+<pre>
+	#include "Game.h"
+	#include "Game.h"
+	#include "City.h"
+	#include "City.h"
+	#include "History.h"
+	#include "History.h"
+	#include "Player.h"
+	#include "Player.h"
+	#include "Flatulan.h"
+	#include "Flatulan.h"
+	#include "globals.h"
+	#include "globals.h"
+	int main()
+	{}
+</pre>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must build successfully under both g32 and either Visual C++ or clang++:
+</p>
+<pre>
+	#include "History.h"
+	int main()
+	{
+	    History h(2, 2);
+	    h.record(1, 1);
+	    h.display();
+	}
+</pre>
+<p>
+<code>History.h</code> must not contain any <code>#include</code> line that, if
+removed, still allows the above replacement <code>main.cpp</code> to compile
+successfully under both g32 and either Visual C++ or clang++.
+</p>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must build successfully under both g32 and either Visual C++ or clang++:
+</p>
+<pre>
+	#include "Flatulan.h"
+	int main()
+	{
+	    Flatulan f(nullptr, 1, 1);
+	}
+</pre>
+<p>
+<code>Flatulan.h</code> must not contain any <code>#include</code> line that, if
+removed, still allows the above replacement <code>main.cpp</code> to compile
+successfully under both g32 and either Visual C++ or clang++.
+</p>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must build successfully under both g32 and either Visual C++ or clang++:
+</p>
+<pre>
+	#include "Player.h"
+	int main()
+	{
+	    Player p(nullptr, 1, 1);
+	}
+</pre>
+<p>
+<code>Player.h</code> must not contain any <code>#include</code> line that, if
+removed, still allows the above replacement <code>main.cpp</code> to compile
+successfully under both g32 and either Visual C++ or clang++.
+</p>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must build successfully under both g32 and either Visual C++ or clang++:
+</p>
+<pre>
+	#include "City.h"
+	int main()
+	{
+	    City c(10, 18);
+	    c.addPlayer(2, 2);
+	}
+</pre>
+<p>
+<code>City.h</code> must not contain any <code>#include</code> line that,
+if removed, still allows the above replacement <code>main.cpp</code> to
+compile successfully under both g32 and either Visual C++ or clang++,
+except that City.h should include <code>globals.h</code>.  (Even if
+<code>History.h</code> includes <code>globals.h</code> and
+<code>City.h</code> includes <code>History.h</code>, good practice says
+that the author of <code>City.h</code> who wants to use
+<code>MAXFLATULANS</code> and knows that it's declared in
+<code>globals.h</code> shouldn't have to wonder whether some other header
+already includes <code>globals.h</code>.)
+</p>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must build successfully under both g32 and either Visual C++ or clang++:
+</p>
+<pre>
+	#include "globals.h"
+	#include "Player.h"
+	#include "City.h"
+	int main()
+	{
+	    City c(10, 20);
+	    Player p(&amp;c, 2, 3);
+	}
+</pre>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must build successfully under both g32 and either Visual C++ or clang++:
+</p>
+<pre>
+	#include "City.h"
+	#include "Player.h"
+	int main()
+	{
+	    City c(10, 20);
+	    Player p(&amp;c, 2, 3);
+	}
+</pre>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must build successfully under both g32 and either Visual C++ or clang++:
+</p>
+<pre>
+	#include "Player.h"
+	#include "City.h"
+	int main()
+	{
+	    City c(10, 20);
+	    Player p(&amp;c, 2, 3);
+	}
+</pre>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must build successfully under both g32 and either Visual C++ or clang++:
+</p>
+<pre>
+        #include "City.h"
+        #include "History.h"
+	#include &lt;iostream>
+	using namespace std;
+
+        int main()
+        {
+            City c(2, 3);
+            c.addPlayer(1, 2);
+	    do
+	    {
+	        c.addFlatulan(2, 1);
+	        c.preachToFlatulansAroundPlayer();
+	    } while (c.nFlatulansAt(2, 1) == 0);
+            c.history().display();
+	    cout &lt;&lt; "===" &lt;&lt; endl;
+        }
+</pre>
+<p>
+When executed, it must clear the screen (<em>&agrave; la</em>
+<code>City::display</code>), and write the following four lines:
+</p>
+<pre>
+        ...   <em>&lt;== This is the first line that must be written.</em>
+        A..   <em>&lt;== This is the second line that must be written.</em>
+              <em>&lt;== This empty line is the third line that must be written.</em>
+	===   <em>&lt;== This is the fourth line that must be written.</em>
+</pre>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must <em>not</em> build successfully; attempting to compile it should produce
+an error message like <code>'p' uses undefined class 'Player'</code> or
+<code>variable has incomplete type 'Player'</code> or <code>variable 'Player
+p' has initializer but incomplete type</code> (and perhaps other error
+messages):
+</p>
+<pre>
+	#include "Flatulan.h"
+	#include "City.h"
+	int main()
+	{
+	    City a(10, 20);
+	    Player p(&amp;a, 2, 3);
+	    Flatulan f(&amp;a, 1, 1);
+	}
+</pre>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must <em>not</em> build successfully; attempting to compile it should produce
+an error message like <code>'f' uses undefined class 'Flatulan'</code> or
+<code>variable has incomplete type 'Flatulan'</code> or <code>variable 'Flatulan
+f' has initializer but incomplete type</code> (and perhaps other error
+messages):
+</p>
+<pre>
+	#include "Player.h"
+	#include "City.h"
+	int main()
+	{
+	    City a(10, 20);
+	    Player p(&amp;a, 2, 3);
+	    Flatulan f(&amp;a, 1, 1);
+	}
+</pre>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must <em>not</em> build successfully; attempting to compile it should produce
+an error message like <code>'c' uses undefined class 'City'</code> or
+<code>variable has incomplete type 'City'</code> or <code>variable 'City
+c' has initializer but incomplete type</code> (and perhaps other error
+messages):
+</p>
+<pre>
+        #include "globals.h"
+        #include "Flatulan.h"
+        #include "Player.h"
+        int main()
+        {
+            City a(10, 10);
+        }
+</pre>
+</li><li>
+<p>
+If we replace your <code>main.cpp</code> file with the following, the program
+must <em>not</em> build successfully; attempting to compile it should produce
+an error message like <code>'History' : no appropriate default constructor
+available</code> or <code>no matching constructor for initialization of
+'History'</code> or <code>no matching function for call to
+'History::History()'</code> (and perhaps other error messages):
+</p>
+<pre>
+	#include "History.h"
+	int main()
+	{
+	    History h;
+	}
+</pre>
+</li><li>
+If a .cpp file uses a class or function declared in a particular header file,
+then it should #include that header.  The idea is that someone writing a .cpp
+file should not worry about which header files include other header files.
+For example, a .cpp file using an A object and a B object should include
+both A.h (where presumably the class A is declared) and B.h (where B is
+declared), without considering whether or not A.h includes B.h or vice versa.
+</p>
+</li><li>
+<p>
+In your .h and .cpp files, for any #include of a header defining one of the
+classes in this project (e.g., <code>#include "Game.h"</code>), if you can
+replace that header with an incomplete type declaration of the class it
+defines (e.g. <code>class Game;</code>) and all code that must compile
+does compile, and all code that must not compile does not compile, then
+you must do so.
+</p>
+</li>
+</ul>
+<p>
+To create a zip file on a SEASnet machine, you can select the thirteen
+files you want to turn in, right click, and select "Send To / Compressed
+(zipped) Folder". Under macOS, copy the files into a new folder, select
+the folder in Finder, and select File / Compress "<em>folderName</em>";
+make sure you <em>copied</em> the files into the folder instead of
+creating aliases to the files.
+</p>
+<h3>Advice</h3>
+<p>
+Developing your solution incrementally will make your work easier.  Start
+by making sure you can build and run the original program successfully with
+the one source file having the name <code>main.cpp</code>.  Then, starting
+with Flatulan, say, produce <code>Flatulan.h</code>, removing the code
+declaring the Flatulan class from <code>main.cpp</code>, but leaving in
+<code>main.cpp</code> the implementation of the Flatulan member functions. 
+Get that two-file solution to work.  Also, make sure you meet those of the
+requirements above that involve only the <code>Flatulan.h</code> header.
+</p><p>
+Next, split off <code>Player.h</code>, testing the now three-file solution
+and also making sure you meet those of the requirements above that involve
+only the <code>Flatulan.h</code> and <code>Player.h</code> headers.  Continue
+in this manner until you've produced all the required headers (except
+<code>History.h</code>, since you're not yet adding the history feature),
+the whole program still works, and you meet all the applicable requirements.
+</p><p>
+Now split off the member function implementations of, say, Flatulan, putting
+them in <code>Flatulan.cpp</code>.  Test everything again.  You see where this
+is going.  The basic principle is to <em>not</em> try to produce all the
+files at once, because many misconceptions you have will affect many files.
+This will make it difficult to fix all those problems, since many of them will
+interfere with each other.  By tackling one file at a time, and importantly,
+not proceeding to another until you've got everything so far working, you'll
+keep the job manageable, increasing the likelihood of completing the project
+successfully and, as a nice bonus, reducing the amount of time you spend on it.
+</p>
+<h3>Help</h3>
+<p>
+While we will provide you assistance in clarifying what this assignment is
+asking for and in using g32 and either Visual C++ or clang++, we will
+otherwise offer minimal help with this assignment.  This is to give you a
+chance to honestly evaluate your own current programming ability.  If you
+find that you're having trouble with the C++ program itself (not simply
+the Visual C++, Xcode, or g++ environment, which may be new to you), then you
+may want to reconsider your decision to take this class this quarter. 
+Perhaps you've let your C++ programming skills get rusty, or maybe you
+didn't learn the material in CS 31 or its equivalent very well.  If you
+decide to take the course later, what you should do between now and then
+is program, program, program!  Solve some old or current CS 31 or PIC 10A
+or early PIC 10B projects, and read and do the exercises in a good
+introductory programming text using C++.  You'll have to be self-motivated
+to make time for that, but the payoff will be a greater likelihood for
+success in CS 32.
+</p>
+<hr/>
+<h4>Endnotes</h4>
+<p style="text-size: smaller">
+<a id="endnote1"></a>
+<a href="#ref1"><sup>1</sup></a> "Correct" in terms of what a CS 31 student
+would know.  For example, a CS 31 student wouldn't know that sometimes you
+need to write a copy constructor, so the posted solution ignores that
+issue.  (You don't have to worry about that issue for this project, either.)
+</p>
+<p style="text-size: smaller">
+<a id="endnote2"></a>
+<a href="#ref2"><sup>2</sup></a> As the
+<a href="../../requirements.html">Project Requirements</a> document tells
+you, "build using g32" is shorthand for "build using g32 on
+cs32.seas.ucla.edu" &mdash; that specific command (g32, not g++) on a
+SEASnet machine reached via that specific name.
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/1/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:17 GMT -->
+</html>

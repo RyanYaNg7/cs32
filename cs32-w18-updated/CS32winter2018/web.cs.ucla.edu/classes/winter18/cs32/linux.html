@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/linux.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+<head>
+ <title>g++ with Linux</title>
+</head>
+<body>
+<h2>g++ with Linux</h2>
+<p>
+Every program you submit as source files must run successfully on the
+SEASnet Linux server cs32.seas.ucla.edu using the g32 command we have set
+up, which is merely a special way of running g++ that catches more kinds
+of errors during execution.
+</p><p>
+What we're presenting here is a minimal set of instructions for helping a
+Windows or Mac user transfer a C++ program to that SEASnet Linux server to
+build and run.  There are other ways to do this than what we show; the
+more you know about Linux, the more you can simplify or eliminate certain
+steps.
+</p><p>
+Let's assume you have a Visual C++ or an Xcode project consisting of the
+three source files from the <a href="visualcpp.html">Visual C++ 2017</a>
+writeup or the <a href="xcode.html">Xcode on a Mac</a> writeup:
+<code>VoiceMail.h</code>, <code>VoiceMail.cpp</code>, and
+<code>testVoiceMail.cpp</code>.  (Note: It is inconvenient in Linux if the
+name of a file contains space characters, so avoid giving your files such
+names.)  Here's what to do to run the program on the SEASnet cs32 Linux
+server:
+</p>
+<ol>
+<li>
+<p>
+First, note that you will be able to log into that SEASnet Linux server only
+from
+</p>
+<ul>
+<li>
+a machine on the UCLA campus network, or
+</li><li>
+the Windows-based remote
+<a href="http://seasnet.ucla.edu/classes/seasnet-terminal-server"
+target="_blank">SEASnet Terminal Server</a>; or
+</li><li>
+another machine (e.g., your own computer off-campus), provided you first
+connect to the
+<a href="https://www.it.ucla.edu/bol/services/virtual-private-network-vpn-clients"
+target="_blank">campus VPN</a> (Virtual Private Network) server, which
+makes it look like your machine is on the campus network.
+</li>
+</ul>
+</li><li>
+<p>
+Create a zip file containing your three source files.  Let's suppose you
+named the zip file <code>VM.zip</code>.
+</p>
+</li><li>
+<p>
+(Windows users) Put the zip file on your Windows desktop on a SEASnet machine.
+Make sure you <em>copy</em> the file; don't just create a shortcut linking
+to it.  Note: A few people each quarter find that step 7 below produces
+produces the error message <code>unzip:  cannot find or open
+Desktop/VM.zip, Desktop/VM.zip.zip or Desktop/VM.zip.ZIP.</code>  If that
+happens to you, return to this step and copy your zip file to
+<code>Z:\Desktop</code> or to
+<code>\\labsamba2.seas.ucla.edu\<em>yourUserName</em>\Desktop</code> instead
+of just dragging the file's icon to the desktop.
+</p><p>
+(Mac users) Put the zip file onto your desktop.  Launch the Terminal
+application.  In Terminal, run the command <code>scp Desktop/VM.zip
+<em>yourSEASaccount</em>@cs32.seas.ucla.edu:Desktop</code> and enter
+your SEASnet account password when prompted.  This copies your file from
+your Mac to the SEASnet cs32 Linux server.
+</p><p>
+If that command results in a scary warning about DNS spoofing, then run
+the command <code>ssh <em>yourSEASaccount</em>@cs32.seas.ucla.edu
+date</code> and answer yes to the question it asks.  Then try the
+<code>scp</code> command again.
+</p>
+</li><li>
+<p>
+(Windows users) From your Windows desktop on a SEASnet machine, double
+click the icon labelled "Putty" (<strong>not</strong> "SSH LnxSrv").  Type
+<code>cs32.seas.ucla.edu</code> for the Host Name in the dialog box. If a
+dialog box titled "PuTTY Security Alert" appears, click its Yes button. 
+In the PuTTY console window (titled something like "lnxsrv07.seas.ucla.edu
+- PuTTY"), log in to the Linux server with your SEASnet login name.  When
+prompted for your password, type it in; the characters you type for your
+password will not produce anything on the screen, not even bullets.
+</p><p>
+If there is no Putty icon, then double click on either "SSH LnxSrv" or
+"SSH UGrad" or "SSH Grad".  Log in.  After you've typed your password,
+then in response to the command prompt, type
+<code>ssh <em>yourSEASaccount</em>@cs32.seas.ucla.edu</code> and your
+password again when prompted.
+</p><p>
+(Mac users) From the Terminal application, run the command <code>ssh
+<em>yourSEASaccount</em>@cs32.seas.ucla.edu</code> and enter your SEASnet
+account password when prompted.  This logs you into the Linux server. 
+</p>
+</li><li>
+<p>
+You will now be interacting with the command interpreter program (the
+<em>shell</em>), whose default prompt is something like
+<code>bash-4.4$</code> or <code>[<em>yourname</em>@lnxsrv07 ~]$</code>. 
+For each command you type, the shell will execute it and then prompt you
+for the next command.  The shell is case-sensitive, so pay attention to
+the distinction between lower and upper case.
+</p><p>
+About two or three people per quarter discover that a mistake was made when
+their SEASnet account was set up.  To verify you're not one of them, run the
+following command to list the contents of your desktop:
+</p>
+<pre>
+	ls Desktop
+</pre>
+<p>
+If it produces the output <code>ls: cannot access Desktop: No such file or
+directory</code>, or if it does not show the name of the zip file you put
+on your desktop (e.g., <code>VM.zip</code>), then either you did not follow
+these instructions correctly or you are one of the rare people whose
+SEASnet account setup wasn't done quite right.  In the latter case, contact
+the SEASnet Help Desk in Boelter 2684 or at help@seas.ucla.edu; don't do so
+in the former case, or you'll be wasting their time with your foolishness.
+</p>
+</li><li>
+<p>
+Our special way of running g++ is via a new command, g32, which you will have
+to set up.  If you have never previously run the following command, run it
+now; you will never have to run it again.  If you do run it again, it will
+confirm that you are set up for running g32 on the SEASnet Linux server.
+</p>
+<pre>
+	curl -s -L http://cs.ucla.edu/classes/winter18/cs32/Utilities/setupg32 | bash
+</pre>
+</li><li>
+<p>
+Unbundle the zip file into its own directory called, say, <code>proj0</code>:
+</p>
+<pre>
+	unzip -j -a -d proj0 Desktop/VM.zip
+</pre>
+</li><li>
+<p>
+Make <code>proj0</code> the <em>current directory</em> (i.e., the default
+directory for now in which files will be found or created):
+</p>
+<pre>
+	cd proj0
+</pre>
+<p>
+Like many Linux commands, if this command works, it doesn't say anything, so
+the shell would then just print its next prompt.
+</p>
+</li><li>
+<p>
+Verify that the expected three files are present by listing the contents of
+the current directory:
+</p>
+<pre>
+	ls
+</pre>
+<p>
+File names in Linux are case-sensitive.  You'll have a problem if one of
+your .cpp files says <code>#include "VoiceMail.h"</code> but the
+.h file is named <code>voicemail.h</code>.  You could use the
+move command to change the name of the file:
+</p>
+<pre>
+	mv voicemail.h VoiceMail.h
+</pre>
+</li><li>
+<p>
+Build an executable file from the source files.  If we would like the
+executable file to be named <code>vm</code>, we'd say
+</p>
+<pre>
+	g32 -o vm *.cpp
+</pre>
+<p>
+The <code>*.cpp</code> saves us typing individual file names by matching
+all the files whose names end in <code>.cpp</code>.  Notice that we do not
+list any <code>.h</code> files.
+(You don't have to know this, but the setup process in step 6 modified the
+file <code>~/.profile</code> to create a bash function that causes the
+above command to be executed as if it were <code>/usr/local/cs/bin/g++
+-std=c++14 -Wall -Wextra -Wno-sign-compare -Werror=return-type 
+-Wl,--rpath=/usr/local/cs/lib64 -fsanitize=address -fsanitize=undefined
+-fsanitize=bounds -fno-omit-frame-pointer -o vm *.cpp</code> instead.  The
+<code>/usr/local/cs/bin/g++</code>
+invokes g++ version 7.2.0; the SEASnet server's default is version 4.8.5. 
+The <code>-std=c++14</code> enables C++14 language features.  The
+<code>-Wall</code> option asks the compiler to warn you about many
+questionable constructs; the <code>-Wextra -Wno-sign-compare</code> asks
+for warnings about even more questionable constructs.  The
+<code>-Werror=return-type</code> causes a certain warning to be treated as
+an error.  The other added options cause certain runtime errors to
+terminate your program with an error message instead of silently
+continuing and wreaking havoc.)
+</p><p>
+Compiler diagnostic messages are of the form
+</p>
+<pre>
+	<em>fileName</em>:<em>lineNumber</em>:<em>columnNumber</em>:<em>message</em>
+</pre>
+<p>
+If the compiler detects any problems that you want to fix, then since we're
+assuming you're doing your primary development using Visual C++ or Xcode,
+you should make changes to your original Windows or Mac files.  After
+checking in Visual C++ or Xcode that the modified program works as you
+expect it to, go back to step 1.
+</p>
+</li><li>
+<p>
+To execute the program <code>vm</code> that you built, you'd just say
+</p>
+<pre>
+	vm
+</pre>
+<p>
+(If that doesn't work, try
+</p>
+<pre>
+	./vm
+</pre>
+<p>
+instead.)
+</p>
+</li><li>
+<p>
+To exit the shell, say
+</p>
+<pre>
+	exit
+</pre>
+</li>
+</ol>
+<p>
+If you want to examine a file under Linux, a simple text editor you can use is
+Nano.
+<pre>
+	nano testVoiceMail.cpp
+</pre>
+You can navigate with the arrow keys.  The bottom two lines of the display
+show you some commands you can type.  For example, control-C (indicated in
+the bottom display as <code>^C</code>) shows you what line number the cursor
+is on.  Control-O saves any changes you make to the file, and control-X exits
+the editor.
+</p><p>
+We strongly recommend that you don't test your program using g32 just once,
+only after you're satisfied with it under Visual C++ or Xcode.  Instead, do it
+periodically during your development, and certainly do it when you're trying
+to find an elusive bug.  Sometimes people have spent hours trying to track
+down a problem during execution using Visual C++ when the g32 command
+would have immediately given them a warning that pointed to the mistake.
+Also, sometimes a program that appeared to work correctly under Visual C++
+or Xcode relied on undefined behavior, but happened to get lucky for the
+student in a way that wasn't reproduced when we tested the program;
+testing using g32 might have shown different behavior, which would have
+suggested to the student that something was amiss.
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/linux.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+</html>

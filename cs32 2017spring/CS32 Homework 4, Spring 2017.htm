@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0066)http://web.cs.ucla.edu/classes/spring17/cs32/Homeworks/4/spec.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+ <title>CS32 Homework 4, Spring 2017</title>
+</head>
+<body>
+<div align="right">
+Spring 2017 CS 32 
+</div>
+<div align="center">
+<h2>Homework 4</h2>
+<p>
+<strong>Time due: 11:00 PM Tuesday, May 30</strong>
+</p>
+</div>
+<ol>
+<li>
+<p>
+The files <a href="http://web.cs.ucla.edu/classes/spring17/cs32/Homeworks/4/Set.h">Set.h</a> and
+<a href="http://web.cs.ucla.edu/classes/spring17/cs32/Homeworks/4/Set.cpp">Set.cpp</a> contain the definition and
+implementation of Set implemented using a doubly-linked list.  A
+client who wants to use a Set has to change the typedef in Set.h,
+and within one source file, cannot have two Sets containing different
+types.
+</p><p>
+Eliminate the typedef, and change Set to be a class template, so that
+a client can say
+</p>
+<pre>	#include "Set.h"
+	#include &lt;string&gt;
+	using std::string;
+	...
+	Set&lt;int&gt; si;
+	Set&lt;string&gt; ss;
+	si.insert(7);
+	ss.insert("7-Up");
+	...
+</pre>
+<p>
+Also, change <code>unite</code> and <code>subtract</code> to be
+function templates.
+</p><p>
+(Hint:  Transforming the typedef-based solution is a mechanical task that
+takes only five minutes if you know what needs to be done.  What makes
+this problem non-trivial for you is that you haven't done it before; the
+syntax for declaring templates is new to you, so you may not get it right
+the first time.)
+<!--
+Have you looked at Chapter 8, pp. 419-426?)
+-->
+</p><p>
+(Hint:  Template typename parameters don't have to be named with single
+letters like <code>T</code>; they can be names of your choosing.  You might
+find that by choosing the name <code>ItemType</code>, you'll have many fe</p></li></ol></body></html>

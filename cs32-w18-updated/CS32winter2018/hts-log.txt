@@ -1,0 +1,15 @@
+HTTrack3.49-2 launched on Sat, 17 Mar 2018 22:59:11 at http://web.cs.ucla.edu/classes/winter18/cs32/
+(httrack http://web.cs.ucla.edu/classes/winter18/cs32/ -O /Users/Ryan/Desktop/CS32winter2018 )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+00:10:21	Warning: 	File not parsed, looks like binary: web.cs.ucla.edu/classes/winter18/cs32/Projects/1/newgas.linux
+00:10:21	Warning: 	File not parsed, looks like binary: web.cs.ucla.edu/classes/winter18/cs32/Projects/1/newminigas.linux
+00:10:43	Warning: 	File not parsed, looks like binary: web.cs.ucla.edu/classes/winter18/cs32/Projects/1/gas.linux
+00:10:49	Warning: 	File not parsed, looks like binary: web.cs.ucla.edu/classes/winter18/cs32/Projects/1/minigas.linux
+
+HTTrack Website Copier/3.49-2 mirror complete in 1 hours 11 minutes 38 seconds : 144 links scanned, 143 files written (74380271 bytes overall) [74085319 bytes received at 17237 bytes/sec], 486777 bytes transferred using HTTP compression in 66 files, ratio 30%, 2.3 requests per connection
+(No errors, 4 warnings, 0 messages)

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/pseudocode.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:32:38 GMT -->
+<head>
+ <title>Pseudocode</title>
+</head>
+<body>
+<h2>Pseudocode</h2>
+<p>
+Pseudocode is usually a more effective means of communicating an algorithm
+than a narrative paragraph.  Pseudocode should not be merely a
+statement-by-statement rephrasing of the code&nbsp;&mdash;&nbsp;how would that
+be any clearer than the code itself?  For example, if we had to describe the
+algorithm for finding the average length of the words in a string as
+implemented by this code:
+</p>
+<pre>
+	<em>...</em>
+	int totLength = 0;
+	int nWords = 0;
+	for (size_t pos = 0; ; )
+	{
+	      // find start of word
+	    while (pos != s.size()  &&  ! isalpha(s[pos]))
+		pos++;
+
+	      // if no word, break
+	    if (pos == s.size())
+		break;
+
+	    size_t start = pos;
+
+	      // find end of word
+	    do
+	    {
+		pos++;
+	    } while (pos != s.size()  &&  isalpha(s[pos]));
+
+	    totLength += pos - start;
+	    nWords++;
+	}
+	if (nWords == 0)
+	    cout << "There are no words in the string" << endl;
+	else
+	    cout << "The average word length is "
+	         << static_cast<double>(totLength) / nWords << endl;
+	<em>...</em>
+</pre>
+<p>
+a suitable pseudocode rendition would be:
+</p>
+<pre>
+	<em>...</em>
+	<em>repeatedly:
+	    find start of next word
+	    if no remaining words,
+		break
+	    find end of word
+	    add word length to running total
+	    increment number of words
+	write average length, or that there were no words</em>
+	<em>...</em>
+</pre>
+<p>
+whereas the following is too detailed to give a clear understanding of what's
+going on, and just restates almost every line of code:
+</p>
+<pre>
+	<em>...</em>
+	<em>set total length to 0
+	set number of words to 0
+	repeatedly:
+	    while current character is not alphabetic
+		go on to next character
+	    if no remaining words,
+		break
+	    save start position of the word
+	    while current character is alphabetic
+		go on to next character
+	    add word length to total length
+	    increment number of words
+	if there were no words,
+	    write the no word message
+	else
+	    write the average length of the words</em>
+	<em>...</em>
+</pre>
+<p>
+A narrative description like the following is practically useless; it's
+too detailed and completely hides the structure of the code:
+</p>
+<blockquote>
+First, set the total length to 0 and the number of words to 0.  Then go
+into a loop.  Inside the loop, first start a loop that checks every character
+until it finds a letter.  If there was no letter, break out of the outer loop.
+Otherwise, save the start position of the word.  Then start another loop that
+checks every character looking for a non-letter marking the end of the word.
+Add the length of the word to the total length and increment the number of
+words.  When the outer loop is all done, if the number of words is 0, write
+the no word message, otherwise, write the average length.
+</blockquote>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/pseudocode.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:32:38 GMT -->
+</html>

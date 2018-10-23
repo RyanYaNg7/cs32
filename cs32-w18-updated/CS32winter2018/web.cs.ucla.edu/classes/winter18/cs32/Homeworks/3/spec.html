@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/3/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:29 GMT -->
+<head>
+ <title>CS32 Homework 3, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Homework 3</h2>
+<p>
+<strong>Time due: 11:00 PM Wednesday, February 14</strong>
+</p>
+</div>
+<ol>
+<li>
+<p>
+You are developing investment portfolio management software for the bizarre
+and reclusive CEO of NachenGames.  Every investment has a name and the price
+for it was bought.  Each type of investment has a distinctive description.
+Most types of investments are non-fungible, but a few are fungible.  (Goods
+of a particular type are fungible if they are freely interchangeable:  One
+dollar as good as another, one gallon of unleaded gas is as good as another,
+one share of Amazon stock is as good as another.  Non-fungible goods
+include tickets to a performance (some seats are better than others),
+apartments (some have better locations, views, fixtures), and sculptures
+(the original Michelangelo David is not interchangeable with a replica)).
+</p><p>
+Declare and implement the classes named in the sample program below in such
+a way that the program compiles, executes, and produces exactly the output
+shown.  Do not change the implementations of <code>display</code> or
+<code>main</code>.
+</p>
+<pre>
+#include &lt;iostream>
+#include &lt;string>
+using namespace std;
+
+<em>Your declarations and implementations would go here</em>
+
+void display(const Investment* inv)
+{
+    cout &lt;&lt; inv->name();
+    if (inv->fungible())
+        cout &lt;&lt; " (fungible)";
+    cout &lt;&lt; ": " &lt;&lt; inv->description() &lt;&lt; " bought for $" &lt;&lt; inv->purchasePrice() &lt;&lt; endl;
+}
+
+int main()
+{
+    Investment* portfolio[4];
+    portfolio[0] = new Painting("Salvator Mundi", 450300000);
+      // Stock holdings have a name, value, and ticker symbol
+    portfolio[1] = new Stock("Alphabet", 100000, "GOOGL");
+    portfolio[2] = new Stock("Symantec", 50000, "SYMC");
+    portfolio[3] = new House("4 Privet Drive", 660000);
+
+    for (int k = 0; k &lt; 4; k++)
+        display(portfolio[k]);
+
+      // Clean up the investments before exiting
+    cout &lt;&lt; "Cleaning up" &lt;&lt; endl;
+    for (int k = 0; k &lt; 4; k++)
+        delete portfolio[k];
+}
+</pre>
+<p>
+Output produced:
+</p>
+<pre>
+Salvator Mundi: painting bought for $450300000
+Alphabet (fungible): stock trading as GOOGL bought for $100000
+Symantec (fungible): stock trading as SYMC bought for $50000
+4 Privet Drive: house bought for $660000
+Cleaning up
+Destroying Salvator Mundi, a painting
+Destroying Alphabet, a stock holding
+Destroying Symantec, a stock holding
+Destroying the house 4 Privet Drive
+</pre>
+<p>
+Decide which function(s) should be pure virtual, which should be non-pure
+virtual, and which could be non-virtual.  Experiment to see what output is
+produced if you mistakenly make a function non-virtual when it should be
+virtual instead.
+</p><p>
+To force you to explore the issues we want you to, we'll put some constraints
+on your solution:
+</p>
+<ul>
+<li>
+You must not declare any struct or class other than Investment, Painting,
+Stock, and House.
+</li><li>
+The Investment class must not have a default constructor.  The only
+constructor you may declare for Investment must have exactly two
+parameters.  Those parameters must be of a builtin type or of type string,
+and must be useful parameters.
+</li><li>
+Although the expression <code>new Stock("Apple", 30000, "AAPL")</code> is
+fine, the expression <code>new Investment(X, Y)</code>, no matter what types
+<code>X</code> and <code>Y</code> are, must produce compilation errors. 
+(A client can create a particular <em>kind</em> of investment, like a
+<code>Stock</code>, but is not allowed to create an object that is just a
+plain <code>Investment</code>.)
+</li><li>
+Other than constructors and destructors (which can't be const), all member
+functions must be const member functions.
+</li><li>
+No two functions with non-empty bodies may have the same implementation, or
+implementations that have the same effect for a caller.  For example,
+there's a better way to deal with the <code>name()</code> function than to
+have each kind of file declare and identically implement a name function. 
+(Notice that <code>{ return "painting"; }</code> and <code>{ return "house";
+}</code> do not have the same effect, but <code>{ return "painting";
+}</code> and <code>{ string s("pain"); return s + "ting"; }</code> have
+the same effect, which is to return <code>"painting"</code>.)
+</li><li>
+No implementation of a <code>name()</code> or <code>purchasePrice()</code>
+function may call any other function.
+</li><li>
+All data members must be declared <code>private</code>.  You may declare
+member functions <code>public</code> or <code>private</code>.  Your solution
+must <em>not</em> declare any <code>protected</code> members (which we're not
+covering in this class).  Your solution must not contain the word
+<code>friend</code>.
+</li><li>
+So that everyone's solutions are more consistent, purchase prices should be of
+type int.
+</li>
+</ul>
+<p>
+In a real program, you'd probably have separate Investment.h, Investment.cpp,
+Painting.h, Painting.cpp, etc., files.  For simplicity for this problem,
+you'll just put everything in one file.  What you'll turn in for this
+problem will be a file named <code>investment.cpp</code> containing the
+definitions and implementations of the four classes, and nothing more. 
+(In other words, turn in <strong>only</strong> the program text that replaces
+<code><em>Your declarations and implementations would go here</em></code>.)
+</p>
+</li>
+<li>
+<p>
+The following is a declaration of a function that takes a double and returns
+true if a particular property of that double is true, and false otherwise.
+(Such a function is called a <em>predicate</em>.)
+</p>
+<pre>
+	bool somePredicate(double x);
+</pre>
+<p>
+Here is an example of an implementation of the predicate <em>x is
+negative</em>:
+</p>
+<pre>
+	bool somePredicate(double x)
+	{
+	    return x &lt; 0;
+	}
+</pre>
+<p>
+Here is an example of an implementation of the predicate
+<em>sin e<sup><font size="-1">x</font></sup> is greater than cos x</em>:
+</p>
+<pre>
+	bool somePredicate(double x)
+	{
+	    return sin(exp(x)) > cos(x); // include &lt;cmath> for std::sin, etc.
+	}
+</pre>
+<p>
+Here are five functions, with descriptions of what they are supposed to do.
+They are incorrectly implemented.  The first four take an array of doubles
+and the number of doubles to examine in the array; the last takes two
+arrays of doubles and the number of doubles to examine in each:
+</p>
+<pre>
+	  // Return false if the somePredicate function returns false for at
+	  // least one of the array elements; return true otherwise.
+	bool allTrue(const double a[], int n)
+	{
+	    return false;  // This is not always correct.
+	}
+
+	  // Return the number of elements in the array for which the
+	  // somePredicate function returns false.
+	int countFalse(const double a[], int n)
+	{
+	    return -999;  // This is incorrect.
+	}
+
+	  // Return the subscript of the first element in the array for which
+	  // the somePredicate function returns false.  If there is no such
+	  // element, return -1.
+	int firstFalse(const double a[], int n)
+	{
+	    return -999;  // This is incorrect.
+	}
+
+	  // Return the subscript of the smallest double in the array (i.e.,
+	  // the one whose value is &lt;= the value of all elements).  If more
+	  // than one element has the same smallest value, return the smallest
+	  // subscript of such an element.  If the array has no elements to
+	  // examine, return -1.
+	int indexOfMin(const double a[], int n)
+	{
+	    return -999;  // This is incorrect.
+	}
+
+	  // If all n2 elements of a2 appear in the n1 element array a1, in
+	  // the same order (though not necessarily consecutively), then
+	  // return true; otherwise (i.e., if the array a1 does not include
+	  // a2 as a not-necessarily-contiguous subsequence), return false.
+	  // (Of course, if a2 is empty (i.e., n2 is 0), return true.)
+	  // For example, if a1 is the 7 element array
+	  //    10 50 40 20 50 40 30
+	  // then the function should return true if a2 is
+	  //    50 20 30
+	  // or
+	  //    50 40 40
+	  // and it should return false if a2 is
+	  //    50 30 20
+	  // or
+	  //    10 20 20
+	bool includes(const double a1[], int n1, const double a2[], int n2)
+	{
+	    return false;  // This is not always correct.
+	}
+</pre>
+<p>
+Your implementations of those first three functions must call the function
+named <code>somePredicate</code> where appropriate instead of hardcoding a
+particular expression like <code>x &lt; 0</code> or <code>sin(exp(x)) >
+cos(x)</code>.  (When you test your code, we don't care what predicate you
+have the function named <code>somePredicate</code> implement: <em>x
+&lt; 0</em> or <em>x == 42</em> or <em>sqrt(log(x*x+1)) > 2</em> or whatever,
+is fine.)
+</p>
+<p>
+Replace the incorrect implementations of these functions with correct ones that
+use recursion in a useful way; your solution must not use the keywords
+<code>while</code>, <code>for</code>, or <code>goto</code>.  You must not use
+global variables or variables declared with the keyword <code>static</code>,
+and you must not modify the function parameter lists.  You must not use any
+references or pointers as parameters except for the parameters representing
+arrays.  (Remember that a function parameter <code>x</code> declared
+<code>T x[]</code> for any type <code>T</code> means exactly the same thing
+as if it had been declared <code>T* x</code>.)  If any of the parameters
+<code>n</code>, <code>n1</code>, or <code>n2</code> is negative, act as if it
+were zero.
+</p>
+<p>
+Here is an example of an implementation of <code>allTrue</code> that does
+<em>not</em> satisfy these requirements because it doesn't use recursion and
+it uses the keyword <code>for</code>:
+</p>
+<pre>
+	bool allTrue(const double a[], int n)
+	{
+	    for (int k = 0; k &lt; n; k++)
+	    {
+	        if ( ! somePredicate(a[k]))
+	            return false;
+	    }
+	    return true;
+	}
+</pre>
+<p>
+You will not receive full credit if the <code>allTrue</code>,
+<code>countFalse</code>, or <code>firstFalse</code> functions cause each
+value <code>somePredicate</code> returns to be examined more than once.
+Consider all operations that a function performs that compares two doubles
+(e.g. <code>&lt;=</code>, <code>==</code>, etc.).  You will not receive
+full credit if for nonnegative <code>n</code>, the <code>indexOfMin</code>
+function causes operations like these to be performed more than
+<code>n</code> times, or the <code>includes</code> function causes them to
+be performed more than <code>n1</code> times.  For example, this
+non-recursive (and thus unacceptable for this problem) implementation of
+<code>indexOfMin</code> performs a &lt;= comparison of two doubles many,
+many more than <code>n</code> times, which is also unacceptable:
+<pre>
+	int indexOfMin(const double a[], int n)
+	{
+	    for (int k1 = 0; k1 &lt; n; k1++)
+	    {
+	        int k2;
+	        for (k2 = 0; k2 &lt; n &amp;&amp; a[k1] <= a[k2]; k2++)
+	            ;
+		if (k2 == n)
+	            return k1;
+	    }
+	    return -1;
+	}
+</pre>
+<p>
+Each of these functions can be implemented in a way that meets the spec
+without calling any of the other four functions.  (If you implement a
+function so that it <em>does</em> call one of the other functions, then it
+will probably not meet the limit stated in the previous paragraph.)
+</p>
+<p>
+For this part of the homework, you will turn in one file named
+<code>linear.cpp</code> that contains the five functions and nothing more:
+no implementation of <code>somePredicate</code> and no main routine.
+(Our test framework will precede the functions with an implementation of a
+function named <code>somePredicate</code> that takes a double and returns a
+bool.)
+</p>
+</li>
+<li>
+<p>
+Replace the implementation of <code>pathExists</code> from
+<a href="../2/spec.html">Homework 2</a> with one that does not use an
+auxiliary data structure like a stack or queue, but instead uses
+recursion in a useful way.  Here is pseudocode for a solution:
+</p>
+<pre>
+	<em>If the start location is equal to the ending location, then we've
+	    solved the maze, so return true.
+	Mark the start location as visted.
+	For each of the four directions,
+	    If the location one step in that direction (from the start
+		location) is unvisited,
+		    then call pathExists starting from that location (and
+				ending at the same ending location as in the
+				current call).
+			 If that returned true,
+			     then return true.
+	Return false.</em>
+</pre>
+<p>
+(If you wish, you can implement the pseudocode for loop with a series of four
+if statements instead of a loop.)
+</p>
+<p>
+You may make the same simplifying assumptions that we allowed you to make
+for Homework 2 (e.g., that the maze contains only Xs and dots).
+</p>
+<p>
+For this part of the homework, you will turn in one file named
+<code>maze.cpp</code> that contains the Coord class (if you use it) and the
+<code>pathExists</code> function and nothing more.
+</p>
+</li>
+<li>
+<p>
+Replace the incorrect implementations of the <code>countIncludes</code> and
+the <code>order</code> functions below with correct ones that use recursion in
+a useful way.  Except in the code for the <code>split</code> function that we
+give you below, your solution must not use the keywords <code>while</code>,
+<code>for</code>, or <code>goto</code>.  You must not use global variables
+or variables declared with the keyword <code>static</code>, and you must
+not modify the function parameter lists.  You must not use any references
+or pointers as parameters except for the parameters representing arrays and
+the parameters of the <code>exchange</code> function we provided.  If any
+of the parameters <code>n1</code>, <code>n2</code>, or <code>n</code> is
+negative, act as if it were zero.
+</p>
+<pre>
+	  // Return the number of ways that all n2 elements of a2 appear
+	  // in the n1 element array a1 in the same order (though not
+	  // necessarily consecutively).  The empty sequence appears in a
+	  // sequence of length n1 in 1 way, even if n1 is 0.
+	  // For example, if a1 is the 7 element array
+	  //	10 50 40 20 50 40 30
+	  // then for this value of a2     the function must return
+	  //	10 20 40			1
+	  //	10 40 30			2
+	  //	20 10 40			0
+	  //	50 40 30			3
+	int countIncludes(const double a1[], int n1, const double a2[], int n2)
+	{
+	    return -999;  // This is incorrect.
+	}
+
+	  // Exchange two doubles
+	void exchange(double&amp; x, double&amp; y)
+	{
+	    double t = x;
+	    x = y;
+	    y = t;
+	}
+
+	  // Rearrange the elements of the array so that all the elements
+	  // whose value is > splitter come before all the other elements,
+	  // and all the elements whose value is &lt; splitter come after all
+	  // the other elements.  Upon return, firstNotGreater is set to the
+	  // index of the first element in the rearranged array that is
+	  // &lt;= splitter, or n if there is no such element, and firstLess is
+	  // set to the index of the first element that is &lt; splitter, or n
+	  // if there is no such element.
+	  // In other words, upon return from the function, the array is a
+	  // permutation of its original value such that
+	  //   * for 0 &lt;= i &lt; firstNotGreater, a[i] > splitter
+	  //   * for firstNotGreater &lt;= i &lt; firstLess, a[i] == splitter
+	  //   * for firstLess &lt;= i &lt; n, a[i] &lt; splitter
+	  // All the elements > splitter end up in no particular order.
+	  // All the elements &lt; splitter end up in no particular order.
+	void split(double a[], int n, double splitter,
+	                                    int&amp; firstNotGreater, int&amp; firstLess)
+	{
+	    if (n &lt; 0)
+	        n = 0;
+	
+	      // It will always be the case that just before evaluating the loop
+	      // condition:
+	      //  firstNotGreater &lt;= firstUnknown and firstUnknown &lt;= firstLess
+	      //  Every element earlier than position firstNotGreater is > splitter
+	      //  Every element from position firstNotGreater to firstUnknown-1 is
+	      //    == splitter
+	      //  Every element from firstUnknown to firstLess-1 is not known yet
+	      //  Every element at position firstLess or later is &lt; splitter
+	
+	    firstNotGreater = 0;
+	    firstLess = n;
+	    int firstUnknown = 0;
+	    while (firstUnknown &lt; firstLess)
+	    {
+	        if (a[firstUnknown] &lt; splitter)
+	        {
+	            firstLess--;
+	            exchange(a[firstUnknown], a[firstLess]);
+	        }
+	        else
+	        {
+	            if (a[firstUnknown] > splitter)
+	            {
+	                exchange(a[firstNotGreater], a[firstUnknown]);
+	                firstNotGreater++;
+	            }
+	            firstUnknown++;
+	        }
+	    }
+	}
+
+	  // Rearrange the elements of the array so that
+	  // a[0] >= a[1] >= a[2] >= ... >= a[n-2] >= a[n-1]
+	  // If n &lt;= 1, do nothing.
+	void order(double a[], int n)
+	{
+	    return;  // This is not always correct.
+	}
+</pre>
+<p>
+(Hint:  Using the <code>split</code> function, the <code>order</code>
+function can be written in fewer than eight short lines of code.)
+</p>
+<p>
+Consider all operations that a function performs that compares two doubles
+(e.g. <code>&lt;=</code>, <code>==</code>, etc.).  You will not receive
+full credit if for nonnegative <code>n1</code> and <code>n2</code>, the
+<code>countIncludes</code> function causes operations like these to be
+called more than <code>factorial(n1+1) /
+(factorial(n2)*factorial(n1+1-n2))</code> times.  The
+<code>countIncludes</code> function can be implemented in a way that meets
+the spec without calling any of the functions in problem 2.  (If you
+implement it so that it <em>does</em> call one of those functions, then it
+will probably not meet the limit stated in this paragraph.)
+</p>
+<p>
+For this part of the homework, you will turn in one file named
+<code>tree.cpp</code> that contains the four functions above and nothing more.
+</p>
+</li>
+</ol>
+<h3>Turn it in</h3>
+<p>
+By Tuesday, February 13, there will be a link on the class webpage that will
+enable you to turn in this homework. Turn in one zip file that contains your
+solutions to the homework problems.  The zip file must contain one to four of
+the four files <code>investment.cpp</code>, <code>linear.cpp</code>,
+<code>maze.cpp</code>, and <code>tree.cpp</code>, depending on how many of the
+problems you solved.  Your code must be such that if we insert it into a
+a suitable test framework with a main routine and appropriate #include
+directives, it compiles.  (In other words, it must have no missing
+semicolons, unbalanced parentheses, undeclared variables, etc.)   You must
+verify that your code works correctly using g32 and either Visual C++ or
+clang++.
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/3/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:29 GMT -->
+</html>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/2/faq.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:47 GMT -->
+<head>
+ <title>CS 32 Project 2 FAQ, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Project 2 FAQ</h2>
+</div>
+<ol>
+<li>
+<p>
+<strong>Should I insert a new item into the linked list at the front or the
+back?</strong>
+</p><p>
+Imagine doing it one way.  Now imagine doing it the other way.  Does either
+way cause a violation of the specification?  No?  Then it's just an
+implementation detail of your choosing.
+</p>
+</li>
+<li>
+<p>
+<strong>
+I'm thinking of implementing a private member function that returns a pointer
+to a nested class/struct.  How do I do that?
+</strong>
+</p>
+<p>
+Consider this:
+</p>
+<pre>
+	class M
+	{
+	  ...
+	  struct N
+	  {
+	    ...
+	  };
+	  N* f();
+	  ...
+	};
+
+	N* M::f()     // Error!  Compiler doesn't recognize N.
+	{
+	  ...
+	}
+
+	M::N* M::f()  // Oh, M's N!  This will compile.
+	{
+	  ...
+	}
+</pre>
+<p>
+There's a C++ language rule that says roughly that the return type part of the
+definition of a member function of a class M isn't in the scope of M, so a
+name from M (like N) needs to be qualified (like M::N).  Oddly enough, the
+parameter list <em>is</em> in the scope of M, so if M declared a function
+<code>void g(N* n)</code>, the implementation could begin
+<code>void M::g(N* n)</code> if you wish (or <code>void M::g(M::N* n)</code>,
+of course).
+</p>
+</li>
+<li>
+<strong>
+<p>
+Does this compile?  If so, what is its output?
+</p>
+<pre>
+	void f(const int&amp; x, int&amp; y)
+	{
+	    y = x + 1;
+	}
+
+	int main()
+	{
+	    int k = 0;
+	    f(k, k);
+	    cout &lt;&lt; k &lt;&lt; endl;
+	}
+</pre>
+</strong>
+<p>
+Yes, it compiles, and the output is <code>1</code>.  The declaration 
+<code>const int&amp; x;</code> says that <em>through the name
+<code>x</code></em>, the function is <em>not</em> allowed to modify the object
+<code>x</code> refers to, so an assignment like <code>x = 42</code> would not
+compile.  The declaration <code>int&amp; y;</code> says that <em>through
+the name <code>y</code></em>, the function <em>is</em> allowed to modify
+the object <code>y</code> refers to.  So in the call <code>f(k, k)</code>,
+the function can modify <code>k</code> if it does so through the name
+<code>y</code>.
+</p>
+</li>
+<li>
+<p>
+<strong>How can I test for memory leaks?</strong>
+</p><p>
+That's a hard problem in general.  If we limit it to checking whether we leak
+any linked list nodes, where each linked list node contains an object of the
+ValueType, say, of the Map, then we can do it this way:  Declare the
+value type of the Map to be a special class we'll write, one that
+will keep track of <em>all</em> creations and deletions of objects of that
+special type.  We can do this by instrumenting every constructor and the
+destructor of that special class.  Then we run our tests and see if the
+number of destructions equals the number of constructions, as shown in some
+<a href="memleak.cpp">sample code</a>.
+</p><p>
+Using g32 on cs32.seas.ucla.edu to run your program will also reveal memory
+leaks.
+</p>
+</li>
+</ol>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/2/faq.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:49 GMT -->
+</html>

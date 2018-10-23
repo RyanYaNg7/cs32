@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/visualcpp.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:53 GMT -->
+<head>
+ <title>Visual C++ 2017</title>
+</head>
+<body>
+<h2>Visual C++ 2017</h2>
+<p>
+Microsoft Visual C++ 2017 is installed on the SEASnet lab machines and the
+SEASnet Terminal Server (which you can
+<a href="http://seasnet.ucla.edu/classes/seasnet-terminal-server"
+target="_blank">remotely access</a> from any Windows or Mac computer with a
+high-speed Internet connection), so you don't <em>have</em> to install Visual
+Studio 2017 if you want to use it.
+</p><p>
+(A naming note:  Visual C++ 2017 is also known as Visual C++ 15.0; Visual
+C++ 2015 is also known as Visual C++ 14.0.)
+</p>
+<h3>Obtaining Visual C++ 2017</h3>
+<p>
+If you would like to use Visual C++ 2017 on your own computer running Windows,
+you can download
+<a href="https://imagine.microsoft.com/en-us/Catalog/Product/530"
+target="_blank">Visual Studio Community 2017</a> for free from Microsoft
+and install it.  (As a student, you have free access to other Microsoft
+developer tools through their
+<a href="http://imagine.microsoft.com/en-us/catalog"
+target="_blank">Imagine</a> program.)  Early on, you'll be presented with a
+window showing "Workloads".  <strong>Be sure to check Desktop development
+with C++.</strong>  Click Intall to continue.
+</p><p>
+Note that although you can install trial versions of Visual Studio
+Professional or Visual Studio Enterprise if you want to, using them for CS
+31 or CS 32 would be like using a flamethrower to light a candle when a
+match would do.
+</p>
+<h3>Creating a Visual C++ Project</h3>
+<p>
+Visual C++ is designed to support developers of large systems, so to use
+it as we will to write programs that are small by comparison may seem like
+overkill.  However, over time you will come to appreciate some features
+(the debugger, especially).
+</p><p>
+Here is a way to set up a Visual C++ project to compile and run a
+simple three-file program.  A number of these steps may have alternate
+ways to achieve the same end.
+</p>
+<ol>
+<li><p>
+Start up the Visual C++ IDE (Integrated Development Environment).
+If you don't have a shortcut on the Desktop, then from the taskbar you'll
+probably select something like Start / All Programs / Visual Studio 2017 or
+Start / All Programs / Microsoft Visual Studio 2017.  The first time you
+fire it up after installation, it may take a couple of minutes to get you
+to the start page.  If it asks you to sign in, you may just click "Not
+now, maybe later" if you wish.  If it says "Start with a familiar
+environment", for the Development Settings, select Visual C++ from the
+drop-down list.  (If you're not offered Visual C++ as a choice but see
+other languages, you forgot to specify a custom installation when you
+installed Visual Studio Community.)  Click the Start Visual Studio button.
+</p></li>
+<li><p>
+From the menu, select File / New / Project...
+</p>
+<p style="text-align: center">
+<img src="Images/vsstart.png" height="360" width="526" alt="Visual Studio Start Page" />
+</p>
+</li>
+<li><p>
+In the New Project dialog, select Empty Project in the middle panel.  In
+the text boxes below, enter for Name a project name, such as "VoiceMail". So
+that you can more easily find your projects later, you might want to
+change the Location to something like "C:\CS32" on your own machine, or
+"Z:\CS32" on a SEASnet machine.  On a SEASnet machine, even if you don't
+use a simple location like "Z:\CS32", at least change the initial part of
+the location from "\\labsamba2.seas.ucla.edu\yourusername\" to "Z:\".  In
+general, to make reading error messages easier in step 10, a short location
+like "C:\CS32" or "Z:\CS32" is better than a long one like
+"\\labsamba2.seas.ucla.edu\yourusername\my documents\visual studio 2017\projects",
+and a short project name like "hello" or "P1" is better than a long one
+like "example CS32 project".
+</p><p>
+Click OK.  (If you're on a SEASnet machine you may then see a dialog
+saying "The Project location is not fully trusted by the CLR runtime."
+It's harmless to click OK to dismiss it.)
+</p>
+<p style="text-align: center">
+<img src="Images/vsnewproj.png" height="360" width="521" alt="Visual C++ New Project Page" />
+</p>
+</li>
+<li><p>
+<a id="step4"></a>
+Select Project / Properties.  In the Property Pages dialog, in the left panel,
+select Configuration Properties / Linker / System.  In the right panel, select
+SubSystem, and in the drop down list to its right, Console (/SUBSYSTEM:CONSOLE).
+Click OK.
+</p>
+<p style="text-align: center">
+<img src="Images/vsprojprop.png" height="360" width="552" alt="Visual C++ Project Properties Page" />
+</p>
+</li>
+<li><p>
+Select Project / Add New Item...  In the Add New Item dialog, select C++
+File (.cpp) in the middle panel.  Enter a source file name, such as
+"testVoiceMail", in the Name text box below.  Click Add.
+</p>
+<p style="text-align: center">
+<img src="Images/vsadditem.png" height="360" width="521" alt="Visual C++ Add New Item Page" />
+</p>
+</li>
+<li><p>
+Edit the testVoiceMail.cpp file in the window that appears.  Type in a
+program like
+</p>
+<pre>
+	#include "VoiceMail.h"
+	#include &lt;iostream>
+	using namespace std;
+
+	int main()
+	{
+	    VoiceMail vm;
+	    vm.record("Call me back ASAP!");
+	    vm.playback();
+	    vm.erase();
+	    vm.playback();
+	    cout &lt;&lt; "End of VoiceMail test" &lt;&lt; endl;
+	}
+</pre>
+</li>
+<li><p>
+From the Project menu, select Add New Item.  This time, in the Add New
+Item dialog, select Header File (.h) in the middle panel, and enter the
+header file name "VoiceMail" in the Name text box below.  Edit the
+VoiceMail.h file in the window that appears:
+</p>
+<p style="text-align: center">
+<img src="Images/vsadditemh.png" height="360" width="521" alt="Visual C++ Add New Item Page" />
+</p>
+<pre>
+	  // VoiceMail interface
+
+	#include &lt;string>
+
+	class VoiceMail
+	{
+	  public:
+	    void record(std::string msg);
+	    void erase();
+	    void playback() const;
+	  private:
+	    std::string m_message;
+	};
+</pre>
+</li>
+<li><p>
+From the Project menu, select Add New Item.  This last time, select
+C++ File (.cpp) in the middle panel, and enter the source file
+name "VoiceMail" in the Name text box below.  Edit the
+VoiceMail.cpp file in the window that appears:
+</p>
+<pre>
+	  // VoiceMail implementation
+
+	#include "VoiceMail.h"
+	#include &lt;string>
+	#include &lt;iostream>
+	using namespace std;
+
+	void VoiceMail::record(string msg)
+	{
+	    m_message = msg;
+	}
+
+	void VoiceMail::erase()
+	{
+	    m_message = "";
+	}
+
+	void VoiceMail::playback() const
+	{
+	    if (m_message.empty())
+		cout &lt;&lt; "There is no message to play back." &lt;&lt; endl;
+	    else
+		cout &lt;&lt; m_message &lt;&lt; endl;
+	}
+</pre>
+</li>
+<li><p>
+<a id="step9"></a>
+From the Debug menu, select Start Without Debugging.  This will save any
+changed files, compile the source files, and run the resulting executable
+if there were no build errors.  (If you select Start Debugging, or if you
+forgot to do step 4, or if you launch your program by finding and
+double-clicking on the .exe file, your console window screen will
+disappear as soon as your program finishes executing, which you don't
+want.)
+</p><p>
+If you see a dialog box that says "This project is out of date: ... Would you
+like to build it?", check the "Do not show this dialog again" checkbox before
+clicking Yes.
+</p>
+</li>
+<li><p>
+If your program has any compile-time or link errors, a dialog box will appear
+telling you there were build errors.  Check the "Do not show this dialog
+again" checkbox before clicking No, you don't want to continue.  The
+Output window below your source file will list the errors.  Double-click
+the first error message to see what it's referring to in your code.  Fix
+the error.  You can click on and fix other errors as well, but be aware
+that sometimes one mistake produces multiple error messages, so your first
+fix may resolve those problems as well.  Go back to step 9.
+</p></li>
+<li><p>
+If your program runs, its output will appear in a new console window that
+pops up.  When your program finishes, that console window will display the
+text
+</p>
+<pre>
+	Press any key to continue . . .
+</pre>
+<p>
+Press any key to dismiss the console window.
+</p></li>
+</ol>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/visualcpp.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+</html>

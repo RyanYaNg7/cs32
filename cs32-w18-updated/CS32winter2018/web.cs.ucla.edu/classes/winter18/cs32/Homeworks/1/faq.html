@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/1/faq.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:31 GMT -->
+<head>
+ <title>CS 32 Homework 1 FAQ, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Homework 1 FAQ</h2>
+</div>
+<ol>
+<li>
+<p>
+<strong>
+For problem 3 (and 5), what's an easy way to flip my test routine between
+testing a Map from <code>std::string</code> to <code>double</code> and a Map
+from <code>int</code> to <code>std::string</code>?
+</strong>
+</p>
+<p>
+Here's one technique that lets you flip by commenting out or uncommenting
+just one line in <code>testMap.cpp</code>:
+<pre>
+    #include "Map.h"
+    #include &lt;iostream>
+    #include &lt;cassert>
+    using namespace std;
+
+    // To test a Map from string to double, leave the following line commented out;
+    // to test a Map from int to string, remove the "//".
+
+    // #define INT_TO_STRING
+
+    #ifdef INT_TO_STRING
+
+    const KeyType DUMMY_KEY = 9876543;
+    const ValueType DUMMY_VALUE = "Ouch";
+    const KeyType NO_SUCH_KEY = 42; 
+    const KeyType KEY1 = 123456789;
+    const ValueType VALUE1 = "Wow!";
+
+    #else // assume string to double
+
+    const KeyType DUMMY_KEY = "hello";
+    const ValueType DUMMY_VALUE = -1234.5;
+    const KeyType NO_SUCH_KEY = "abc"; 
+    const KeyType KEY1 = "xyz";
+    const ValueType VALUE1 = 9876.5;
+
+    #endif
+
+    int main()
+    {
+        Map m;
+        assert(m.empty());
+        ValueType v = DUMMY_VALUE;
+        assert( !m.get(NO_SUCH_KEY, v)  &amp;&amp;  v == DUMMY_VALUE); // v unchanged by get failure
+        m.insert(KEY1, VALUE1);
+        assert(m.size() == 1);
+        KeyType k = DUMMY_KEY;
+        assert(m.get(0, k, v)  &amp;&amp;  k == KEY1  &amp;&amp;  v == VALUE1);
+        cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+    }
+</pre>
+<p>
+When your <code>Map.h</code> has the type aliases specifying
+<code>KeyType</code> as <code>int</code> and <code>ValueType</code> as
+<code>std::string</code>, then by making the symbol INT_TO_STRING defined,
+the #ifdef will select the code that initializes the constants
+<code>DUMMY_KEY</code>, etc., in a way that is consistent with the Map. 
+Similarly, if the type aliases specify a Map from string to double, you would
+comment out the #define of INT_TO_STRING; this would cause the #ifdef to
+select the #else part, which initializes the constants appropriately for
+that kind of Map.
+</p>
+</li>
+<li>
+<strong>
+<p>
+I have an egg carton with two rows of six eggs each.  In the row
+nearer to the back of the carton, the eggs are white; in the other, they're
+brown.  I'd like to exchange the rows, changing from
+</p>
+<pre>
+        ======back=======
+	W1 W2 W3 W4 W5 W6
+	B1 B2 B3 B4 B5 B6
+</pre>
+<p>
+to
+</p>
+<pre>
+        ======back=======
+	B1 B2 B3 B4 B5 B6
+	W1 W2 W3 W4 W5 W6
+</pre>
+<p>
+I have no extra egg cartons, and I can't set an egg on the table or it
+will roll off.  Can I do it using just my two hands?
+<p>
+</strong>
+<p>
+Yes.
+</p>
+</li>
+</ol>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/1/faq.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:31 GMT -->
+</html>

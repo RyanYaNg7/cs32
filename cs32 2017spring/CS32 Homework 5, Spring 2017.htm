@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0066)http://web.cs.ucla.edu/classes/spring17/cs32/Homeworks/5/spec.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+ <title>CS32 Homework 5, Spring 2017</title>
+</head>
+<body>
+<div align="right">
+Spring 2017 CS 32 
+</div>
+<div align="center">
+<h2>Homework 5</h2>
+<p>
+<strong>Time due: 11:00 PM Thursday, June 8</strong>
+</p>
+</div>
+<p>
+This homework is a good study guide for the final.  The final will be open
+book, open notes.  We don't expect you to memorize every last detail of
+every algorithm, so a skill you should develop is the ability to locate an
+algorithm in a reference source, trace through it, and understand it.  If
+it's not in exactly the form your application requires, you should be able
+to adapt it.
+</p>
+<ol>
+<li>
+<p>
+Consider the following binary search tree, ordered using the &lt; relationship:
+</p>
+<div align="center">
+<img src="./CS32 Homework 5, Spring 2017_files/tree.gif" alt="binary search tree">
+</div>
+<ol type="a">
+<li>
+<p>
+Using the simplest binary search tree (BST) insertion algorithm (no
+balancing), show the tree that results after inserting into the above tree
+the nodes 80, 65, 75, 15, 35 and 25 in that order.  (If you're not skilled
+with a drawing tool, use a simple text form of the tree.  For example, the
+tree depicted above could be shown as
+</p>
+<pre>                                50
+
+                         20            60
+
+                   10        40            70
+
+                          30
+</pre>
+<p>
+Use enough space to distinguish left children from right children. Another
+way to represent the tree in text form (that distinguishes left children
+from right children) is
+</p>
+<pre>50
+  20
+    10
+    40
+      30
+      xx
+  60
+    xx
+    70
+</pre>
+</li>
+<li>
+<p>
+After inserting the nodes mentioned in part a, what would be printed out
+by in-order, pre-order, and post-order traversals of the tree (assume your
+traversal function prints out the number at each node as it is visited)?
+</p>
+</li>
+<li>
+<p>
+After inserting the nodes mentioned in part a, what is the resulting BST
+after you delete the node 30, then the node 20?  (Again, just use a simple
+deletion algorithm with no balancing.  If you have an option of making a
+choice, any correct choice is acceptable.)
+</p>
+</li>
+</ol>
+</li>
+<li>
+<p>
+In some binary search trees, each node has a left child pointer, a right
+child pointer and a parent pointer.  The parent pointer of a node points
+to its parent (duh!), or is nullptr if the node is the root node.  This
+problem will examine such trees.
+</p>
+<ol type="a">
+<li>
+<p>
+Show a C++ structure/class definition for a binary tree node that has both
+child node pointers and a parent node pointer.  Assume the data stored in
+each node is an int.
+</p>
+</li>
+<li>
+<p>
+Write pseudocode to insert a new node into a binary search tree with
+parent pointers.  (Hint: You can find binary search tree insertion code on
+pp. 471-473).
+</p>
+</li>
+</ol>
+</li>
+<li>
+<p>
+<em>Either wait until after Wednesday's lecture to do this problem, or watch
+the <a href="http://web.cs.ucla.edu/classes/spring17/cs32/Codeexamples/index.html">heaps</a> online lecture.</em>
+</p>
+<p>
+Consider the following operations on an initially empty heap h; this heap
+is a maxheap, so the biggest item is at the top.  The heap is represented
+as a binary tree:
+</p>
+<pre>	h.insert(3);
+	h.insert(6);
+	h.insert(2);
+	h.insert(0);
+	h.insert(10);
+	h.insert(4);
+	int item;
+	h.remove(item);	// Removes the biggest item from the heap, and puts it in item
+	h.insert(9);
+	h.insert(8);
+	h.remove(item);
+</pre>
+<ol type="a">
+<li>
+<p>
+Show the resulting heap (As in problem 1a, show the tree in some
+recognizable form.)
+</p>
+</li>
+<li>
+<p>
+Show how your heap from part a would be represented in an array.
+</p>
+</li>
+<li>
+<p>
+After executing <code>h.remove(item);</code> one more time, show the array
+that results.
+</p>
+</li>
+</ol>
+</li>
+<li>
+<p>
+Note:  A <code>pair&lt;T1, T2&gt;</code> is a simple struct with two data
+members, one of type T1 and one of type T2.  A <code>set&lt;K&gt;</code> and a
+<code>map&lt;K, V&gt;</code> are organized as binary search trees; an
+<code>unordered_set&lt;K&gt;</code> and an <code>unordered_map&lt;K, V&gt;</code> are
+organized as hash tables that never allow the load factor to exceed some
+constant, and a loop that visits every item in a hash table of N items is O(N).
+</p><p>
+Suppose UCLA has <strong>C</strong> courses each of which has on average
+<strong>S</strong> students enrolled.  For this problem, courses are
+represented by strings (e.g. "CS 32"), and students by their int UIDs.
+We will consider a variety of data structures, and for each determine the
+big-O time complexity of the appropriate way to use that data structure to
+determine whether a particular student <em>s</em> is enrolled in course
+<em>c</em>.  For example, if the data structure were
+<code>vector&lt;pair&lt;string, vector&lt;int&gt;&gt;&gt;</code>, where each pair in the outer
+vector represents a course and all the students in that course, with those
+students being sorted in order, then if the pairs are in no particular order
+in the outer vector, the answer would be O(C + log S).  (The reason is that
+we'd have to do a linear search through the outer vector to find the course,
+which is O(C), and then after that do a binary search of the S students in
+the sorted vector for that course, which is O(log S).)  In these problems,
+we're just looking for the answer; you don't need to write the reason.
+</p>
+<ol type="a">
+<li><code>vector&lt;pair&lt;string, list&lt;int&gt;&gt;&gt;</code>, where each
+pair in the outer vector represents a course and all the students in that
+class, with those students being sorted in order. The pairs are in no
+particular order in the outer vector.  What is the big-O complexity to
+determine whether a particular student <em>s</em> is enrolled in course
+<em>c</em>?</li>
+<li><code>map&lt;string, list&lt;int&gt;&gt;</code>, where the students in each
+list are in no particular order.  What is the big-O complexity to
+determine whether a particular student <em>s</em> is enrolled in course
+<em>c</em>?</li>
+<li><code>map&lt;string, set&lt;int&gt;&gt;</code>.  What is the big-O
+complexity to determine whether a particular student <em>s</em> is
+enrolled in course <em>c</em>?</li>
+<li><code>unordered_map&lt;string, set&lt;int&gt;&gt;</code>.  What is the big-O
+complexity to determine whether a particular student <em>s</em> is
+enrolled in course <em>c</em>?</li>
+<li><code>unordered_map&lt;string, unordered_set&lt;int&gt;&gt;</code>.  What is
+the big-O complexity to determine whether a particular student <em>s</em>
+is enrolled in course <em>c</em>?</li>
+<li>Suppose we have the data structure
+<code>map&lt;string, set&lt;int&gt;&gt;</code> and we wish for a
+particular course <em>c</em> to write the id numbers of <em>all</em> the
+students in that course in sorted order.  What is the big-O complexity?
+</li>
+<li>Suppose we have the data structure
+<code>unordered_map&lt;string, unordered_set&lt;int&gt;&gt;</code> and we wish for a
+particular course <em>c</em> to write the id numbers of <em>all</em> the
+students in that course in sorted order (perhaps using an additional
+container to help with that).  What is the big-O complexity?
+</li>
+<li>Suppose we have the data structure
+<code>unordered_map&lt;string, set&lt;int&gt;&gt;</code> and we wish for a
+particular student <em>s</em> to write <em>all</em> the courses that student
+is enrolled in, in no particular order.  What is the big-O complexity?
+</li>
+</ol>
+</li>
+<!-- *********
+<li>
+<p>
+(We might not get to the material you need to answer this until Wednesday,
+so unless you look at Chapter 13 in the book, you'll probably hold off on
+this problem until after Wednesday's class.  It's not one that takes much
+time to do.)
+</p>
+<ol type="a">
+<li>
+<p>
+Show an adjacency matrix and an adjacency list for the following graph.
+</p>
+<div align="center">
+<img src="graph1.gif" alt="a graph" />
+</div>
+</li>
+<li>
+<p>
+If you perform a depth-first traversal through this graph starting from
+vertex E, what vertices are visited, and in what order?  There is more
+than one answer to this question, so list all the answers.
+</p>
+</li>
+</ol>
+</li>
+********* -->
+</ol>
+<h3>Turn it in</h3>
+<p>
+By Wednesday, June 7, there will be a link on the class webpage that will
+enable you to turn in this homework. Turn in one zip file that contains your
+solutions to the homework problems.  The zip file should contain one file:
+</p>
+<ul>
+<li>
+<p>
+hw.doc, hw.docx, or hw.txt, a Word document or a text file with your
+solutions to the problems.
+</p>
+</li>
+</ul>
+
+
+</body></html>

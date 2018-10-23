@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/fileio.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+<head>
+ <title>File I/O</title>
+</head>
+<body>
+<div align="center">
+<h2>File I/O</h2>
+</div>
+<p>
+In order to read input from a file instead of from the keyboard, or write
+output to a file instead of to the screen, you must use the C++ facilities
+for file input and/or output.  To begin with, use these headers:
+</p>
+<pre>
+	#include &lt;iostream>
+	#include &lt;fstream>
+</pre>
+<p>
+Including the <code>&lt;fstream></code> header defines two classes:
+<code>std::ifstream</code>, the <em>input file stream</em> class, and
+<code>std::ofstream</code>, the <em>output file stream</em> class.  For the
+rest of this tutorial, assume we've said <code>using namespace std;</code>
+so that we can leave off the <code>std::</code>.
+</p>
+<h4>Output</h4>
+<p>
+Let's examine output first, since it's simpler.  If we want to write
+output to a file named <code>results.txt</code>, we create an
+<code>ofstream</code> object attached to that file, and write to that
+object.  Here is sample code:
+</p>
+<pre>
+	ofstream outfile("results.txt");   // outfile is a name of our choosing.
+	if ( ! outfile )		   // Did the creation fail?
+	{
+	    cerr &lt;&lt; "Error: Cannot create results.txt!" &lt;&lt; endl;
+	    <em>... return with failure ...   </em>
+	}
+	outfile &lt;&lt; "This will be written to the file" &lt;&lt; endl;
+	outfile &lt;&lt; "2 + 2 = " &lt;&lt; 2+2 &lt;&lt; endl;
+</pre>
+<p>
+The first line creates an <code>ofstream</code> object named
+<code>outfile</code> (which we could have called whatever we wanted) and
+attempts to attach it to the file named <code>results.txt</code>.  If
+<code>results.txt</code> does not already exist, it will be created;
+otherwise, the old contents of that file are wiped out so that what this
+program writes will be the new contents of the file.
+</p>
+<p>
+If you specify a complete path name, like "C:/CS32/P4/results.txt" (note the
+use of forward slashes), the file will be in the folder you'd expect on a
+Windows machine, C:\CS32\P4.  If you do not specify a complete path name
+and you've launched the program from the Visual Studio environment, the
+file will be in the same folder as your C++ source file; if you launch it
+from a Windows command line or the shell running in a macOS Terminal
+window or under Linux, the file will be in the current directory; if you
+launch it from Xcode, the file will be in the
+<em>yourProject</em>/DerivedData/<em>yourProject</em>/Build/Products/Debug
+folder, which is a good reason to give a simpler complete pathname like
+"/Users/<em>yourUsername</em>/CS32/P4/results.txt" or "/Users/<em>yourUserName</em>/Desktop/results.txt".
+</p>
+<p>
+It's possible the attempt to create the file may fail.  If so, the stream
+object <code>outfile</code> knows internally that it is in a failure state
+instead of a good state.  You can test the state of the stream:  the
+expression <code>!outfile</code> yields true if <code>outfile</code> is in a
+failure state, and false otherwise.
+</p>
+<p>
+If the file was successfully created, you may write to it just as you would to
+<code>cout</code> or <code>cerr</code>.
+</p>
+<h4>Input</h4>
+<p>
+If we want to read input from a file instead of the keyboard, we create an
+<code>ifstream</code> object attached to that file and read from that
+object.  If the file doesn't already exist, the <code>ifstream</code>
+object will be in a failure state.
+</p>
+<pre>
+	ifstream infile("data.txt");    // infile is a name of our choosing
+	if ( ! infile )		        // Did opening the file fail?
+	{
+	    cerr &lt;&lt; "Error: Cannot open data.txt!" &lt;&lt; endl;
+	    <em>... return with failure ...   </em>
+	}
+</pre>
+<p>
+As with output files, if you specify a complete path name, like
+"C:/CS32/P4/data.txt" (note the use of forward slashes), the program will look
+for the file in the folder you'd expect, C:\CS32\P4.  If you do not
+specify a complete path name, the program will look in the same folder
+it would create a file in if you didn't supply a complete path name (see the
+Output section above).
+</p>
+<p>
+We can now read from the file by reading from the stream <code>infile</code>.
+There are a number of ways we can read from the stream.  To read an integer:
+</p>
+<pre>
+	int k;
+	infile >> k;
+	  // If you want to consume and ignore the rest of the line the
+	  // number is found on, follow this with
+	infile.ignore(10000, '\n');
+</pre>
+<p>
+To read a <code>std::string</code>:
+</p>
+<pre>
+	std::string s;
+	infile >> s;         // read the next word into s
+	  // or
+	getline(infile, s);  // read a whole line into s
+</pre>
+<p>
+To read the next character from the input, whether it's a letter, blank,
+newline, or whatever:
+</p>
+<pre>
+	char c;
+	infile.get(c);
+</pre>
+<p>
+When reading input, there's a possibility that the operation will fail because
+there are no more characters in the file to be read (i.e., we have encountered
+the end of the file).  In that case, the <code>ifstream</code> object will be
+put into a failure state.  Also, if an attempt to read a number fails because
+the first non-whitespace encountered is not a valid part of a number (e.g.,
+it's a <code>z</code>, the stream will be put into a failure state.  Here are
+some examples:
+</p>
+<pre>
+	  // Example 1
+	std::string s;
+	getline(infile, s);
+	if ( ! infile)
+	    cerr << "End of file when trying to read a string" << end;
+
+	  // Example 2 - read and process each line of a file until end
+	std::string s;
+	  // getline returns infile; the while tests its success/failure state
+	while (getline(infile, s))
+	{
+	    <em>... process</em> s
+	}
+
+	  // Example 3 - read and process each character of a file until end
+	char c;
+	  // get returns infile; the while tests its success/failure state
+	while (infile.get(c))
+	{
+	    <em>... process</em> c
+	}
+
+	  // Example 4 - read and process each integer in a file until end
+	int k;
+	  // operator>> returns infile; the while tests its success/failure state
+	while (infile >> k)
+	{
+	    <em>... process</em> k
+	}
+</pre>
+<!--
+<p>
+When reading input, there's a possibility that the operation will fail because
+there are no more characters in the file to be read (i.e., we have encountered
+the end of the file).  This leads to a common idiom for reading and processing
+every character of a file, one by one:
+</p>
+<pre>
+	char c;
+	while (infile.getc(c))
+	{
+	    <em>... process</em> c
+	}
+</pre>
+<p>
+The expression in the while loop will attempt to read the next character
+from the file, putting the stream in a failure state if the attempt fails
+(i.e., we've reached end of file), in which case we leave the loop.
+</p>
+-->
+<p>
+<strong>Caution:</strong>  Some misinformed people mistakenly believe that the
+pattern for reading input until end of file is <code>while (!infile.eof()) {
+infile.get(c); <em>... process</em> c <em>...</em> }</code>.  This is wrong!
+(If you care why, it's because the <code>eof</code> member function does not
+return true until <em>after</em> an attempt to read past the end of file is
+made.)
+</p>
+<h4>Stream parameters</h4>
+<p>
+Suppose we wanted to write a function that writes some output to either a
+file or to the screen, at the option of the caller of the function.  We can
+do this by having the function accept as a parameter a reference to the desired
+output stream:
+</p>
+<pre>
+	void greet(ostream&amp; outf)    // outf is a name of our choosing
+	{
+	    outf &lt;&lt; "Hello" &lt;&lt; endl;
+	}
+</pre>
+<p>
+Notice that the type named in the parameter declaration is
+<code>ostream</code>, not <code>ofstream</code>, and that the parameter is
+passed by reference.  An <code>ostream</code> reference can refer to any
+kind of output stream:  to <code>cout</code> or to any <code>ofstream</code>
+attached to a file.  (This is because <code>ostream</code> is a base class
+of <code>ofstream</code>.)  Here's an example:
+</p>
+<pre>
+	int main()
+	{
+	    ofstream outfile("greeting.txt");
+	    if ( ! outfile )
+	    {
+	        cerr &lt;&lt; "Error: Cannot create greeting.txt!" &lt;&lt; endl;
+	        return 1;
+	    }
+	    greet(outfile); // writes Hello to the file greetings.txt
+	    greet(cout);    // writes Hello to the screen
+	}
+</pre>
+<p>
+Similarly, if we wanted to have a function read input from either a file or
+the keyboard, we'd have it take a parameter that is a reference to a general
+input stream (an <code>istream</code>):
+</p>
+<pre>
+	int countLines(istream&amp; inf)   // inf is a name of our choosing
+	{
+	    int lineCount = 0;
+	    string line;
+	    while (getline(inf, line))
+		    lineCount++;
+	    return lineCount;
+	}
+
+	int main()
+	{
+	    ifstream infile("data.txt");
+	    if ( ! infile )
+	    {
+	        cerr &lt;&lt; "Error: Cannot open data.txt!" &lt;&lt; endl;
+	        return 1;
+	    }
+	    int fileLines = countLines(infile);  // reads from the file data.txt
+	    cout &lt;&lt; "data.txt has " &lt;&lt; fileLines &lt;&lt; " lines." &lt;&lt; endl;
+	    cout &lt;&lt; "Type lines, then ctrl-Z (Windows) or ctrl-D (UNIX):" &lt;&lt; endl;
+	    int keyboardLines = countLines(cin); // reads from keyboard
+	    cout &lt;&lt; "You typed " &lt;&lt; keyboardLines &lt;&lt; " lines." &lt;&lt; endl;
+	}
+</pre>
+<p>
+To indicate end of file for keyboard input (i.e., to tell the program that
+there's no more that will <em>ever</em> be typed in for the rest of this
+run of the program), type control-Z on a line by itself (Windows), or control-D
+on a line by itself (UNIX).  That character does <em>not</em> get delivered to
+the program; instead, <code>cin</code> will internally record that it is in
+a failure state.  Consider the <code>countLines</code> example above, when it
+is called with <code>cin</code> as the input stream that the parameter
+<code>inf</code> will refer to.  When in response to the call to
+<code>getline</code> the user just types control-Z (or control-D),
+<code>cin</code> is put in a failure state, and the <code>getline</code> call
+yields false, so control leaves the loop.
+</p>
+<p>
+Here's a summary of some names the library defines:
+</p>
+<dl>
+<dt><code>istream</code></dt><dd>The general input stream type.</dd>
+<dt><code>ifstream</code></dt><dd>The input file stream type; an
+<code>ifstream</code> object will be associated with a particular file.  An
+<code>ifstream</code> object is one kind of <code>istream</code>.</dd>
+<dt><code>cin</code></dt><dd>The input stream object associated with the
+keyboard.  <code>cin</code> is another kind of <code>istream</code> object.</dd>
+<dt><code>ostream</code></dt><dd>The general output stream type.</dd>
+<dt><code>ofstream</code></dt><dd>The output file stream type; an
+<code>ofstream</code> object will be associated with a particular file. 
+An <code>ofstream</code> object is one kind of <code>ostream</code>.</dd>
+<dt><code>cout</code></dt><dd>The output stream object associated with the
+screen.  <code>cout</code> is another kind of <code>ostream</code> object.</dd>
+</dl>
+<p>
+The names <code>ifstream</code> and <code>ofstream</code> are defined by the
+header <code>&lt;fstream></code>.  The other four are defined by the header
+<code>&lt;iostream></code>.  Generally, if you include
+<code>&lt;fstream></code> you must also include <code>&lt;iostream></code>.
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/fileio.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+</html>

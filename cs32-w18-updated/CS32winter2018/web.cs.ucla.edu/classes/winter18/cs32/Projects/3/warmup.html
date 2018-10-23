@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/3/warmup.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:47 GMT -->
+<head>
+ <title>CS 32 Project 3 Warmup, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Project 3 Warmup<h2>
+</div>
+<p>
+We anticipate that many people working on Project 3 will spend a lot of
+time debugging something that arises from a common novice misunderstanding.
+To save you that time later, we'll give you a chance to make that mistake
+in a simpler context, so you can work out that issue and how it manifests
+itself.  (It may turn out that you don't have that misunderstanding, so
+you won't have any problems during this warmup.  Still, keep this warmup in
+mind, because you may still make the mistake in Project 3.)
+</p><p>
+You will not turn in any of the code you write because of this warmup.
+Be sure, though, to run them under g32 to be sure there are no memory leaks.
+</p><p>
+Material about vectors, lists, and iterators are in lecture9-updated.pptx in
+the <a href="http://careynachenberg.weebly.com/cs-slides.html">slides for
+lecture 1</a> and the <a href="../../l2/index.html">STL lectures and slides</a>
+for lectures 2&amp;3.
+</p>
+<ol>
+<li>
+Implement the <code>removeOdds</code> function:
+<pre>
+	#include &lt;list>
+	#include &lt;vector>
+	#include &lt;algorithm>
+	#include &lt;iostream>
+	#include &lt;cassert>
+	using namespace std;
+
+	  // Remove the odd integers from li.
+	  // It is acceptable if the order of the remaining even integers is not
+	  // the same as in the original list.
+	void removeOdds(list&lt;int>&amp; li)
+	{
+	}
+
+	void test()
+	{
+	    int a[8] = { 2, 8, 5, 6, 7, 3, 4, 1 };
+	    list&lt;int> x(a, a+8);  // construct x from the array
+	    assert(x.size() == 8 &amp;&amp; x.front() == 2 &amp;&amp; x.back() == 1);
+	    removeOdds(x);
+	    assert(x.size() == 4);
+	    vector&lt;int> v(x.begin(), x.end());  // construct v from x
+	    sort(v.begin(), v.end());
+	    int expect[4] = { 2, 4, 6, 8 };
+	    for (int k = 0; k &lt; 4; k++)
+	        assert(v[k] == expect[k]);
+	}
+
+	int main()
+	{
+	    test();
+	    cout &lt;&lt; "Passed" &lt;&lt; endl;
+	}
+</pre>
+</li>
+<li>
+Implement the <code>removeOdds</code> function:
+<pre>
+	#include &lt;vector>
+	#include &lt;algorithm>
+	#include &lt;iostream>
+	#include &lt;cassert>
+	using namespace std;
+
+	  // Remove the odd integers from v.
+	  // It is acceptable if the order of the remaining even integers is not
+	  // the same as in the original vector.
+	void removeOdds(vector&lt;int>&amp; v)
+	{
+	}
+
+	void test()
+	{
+	    int a[8] = { 2, 8, 5, 6, 7, 3, 4, 1 };
+	    vector&lt;int> x(a, a+8);  // construct x from the array
+	    assert(x.size() == 8 &amp;&amp; x.front() == 2 &amp;&amp; x.back() == 1);
+	    removeOdds(x);
+	    assert(x.size() == 4);
+	    sort(x.begin(), x.end());
+	    int expect[4] = { 2, 4, 6, 8 };
+	    for (int k = 0; k &lt; 4; k++)
+	        assert(x[k] == expect[k]);
+	}
+
+	int main()
+	{
+	    test();
+	    cout &lt;&lt; "Passed" &lt;&lt; endl;
+	}
+</pre>
+</li>
+<li>
+Implement the <code>removeBad</code> function:
+<pre>
+	#include &lt;list>
+	#include &lt;vector>
+	#include &lt;algorithm>
+	#include &lt;iostream>
+	#include &lt;cassert>
+	using namespace std;
+
+	vector&lt;int> destroyedOnes;
+
+	class Movie
+	{
+	  public:
+	    Movie(int r) : m_rating(r) {}
+	    ~Movie() { destroyedOnes.push_back(m_rating); }
+	    int rating() const { return m_rating; }
+	  private:
+	    int m_rating;
+	};
+
+	  // Remove the movies in li with a rating below 50 and destroy them.
+	  // It is acceptable if the order of the remaining movies is not
+	  // the same as in the original list.
+	void removeBad(list&lt;Movie*>&amp; li)
+	{
+	}
+
+	void test()
+	{
+	    int a[8] = { 85, 80, 30, 70, 20, 15, 90, 10 };
+	    list&lt;Movie*> x;
+	    for (int k = 0; k &lt; 8; k++)
+	        x.push_back(new Movie(a[k]));
+	    assert(x.size() == 8 &amp;&amp; x.front()->rating() == 85 &amp;&amp; x.back()->rating() == 10);
+	    removeBad(x);
+	    assert(x.size() == 4 &amp;&amp; destroyedOnes.size() == 4);
+	    vector&lt;int> v;
+	    for (list&lt;Movie*>::iterator p = x.begin(); p != x.end(); p++)
+	    {
+	        Movie* mp = *p;
+	        v.push_back(mp->rating());
+	    }
+	      // Aside:  In C++11, the above loop could be
+	      //     for (auto p = x.begin(); p != x.end(); p++)
+	      //     {
+	      //         Movie* mp = *p;
+	      //         v.push_back(mp->rating());
+	      //     }
+	      // or    
+	      //     for (auto p = x.begin(); p != x.end(); p++)
+	      //     {
+	      //         auto mp = *p;
+	      //         v.push_back(mp->rating());
+	      //     }
+	      // or    
+	      //     for (Movie* mp : x)
+	      //         v.push_back(mp->rating());
+	      // or    
+	      //     for (auto mp : x)
+	      //         v.push_back(mp->rating());
+	    sort(v.begin(), v.end());
+	    int expect[4] = { 70, 80, 85, 90 };
+	    for (int k = 0; k &lt; 4; k++)
+	        assert(v[k] == expect[k]);
+	    sort(destroyedOnes.begin(), destroyedOnes.end());
+	    int expectGone[4] = { 10, 15, 20, 30 };
+	    for (int k = 0; k &lt; 4; k++)
+	        assert(destroyedOnes[k] == expectGone[k]);
+	    for (list&lt;Movie*>::iterator p = x.begin(); p != x.end(); p++)
+	        delete *p;
+	}
+
+	int main()
+	{
+	    test();
+	    cout &lt;&lt; "Passed" &lt;&lt; endl;
+	}
+</pre>
+</li>
+<li>
+Implement the <code>removeBad</code> function:
+<pre>
+	#include &lt;vector>
+	#include &lt;algorithm>
+	#include &lt;iostream>
+	#include &lt;cassert>
+	using namespace std;
+
+	vector&lt;int> destroyedOnes;
+
+	class Movie
+	{
+	  public:
+	    Movie(int r) : m_rating(r) {}
+	    ~Movie() { destroyedOnes.push_back(m_rating); }
+	    int rating() const { return m_rating; }
+	  private:
+	    int m_rating;
+	};
+
+	  // Remove the movies in v with a rating below 50 and destroy them.
+	  // It is acceptable if the order of the remaining movies is not
+	  // the same as in the original vector.
+	void removeBad(vector&lt;Movie*>&amp; v)
+	{
+	}
+
+	void test()
+	{
+	    int a[8] = { 85, 80, 30, 70, 20, 15, 90, 10 };
+	    vector&lt;Movie*> x;
+	    for (int k = 0; k &lt; 8; k++)
+	        x.push_back(new Movie(a[k]));
+	    assert(x.size() == 8 &amp;&amp; x.front()->rating() == 85 &amp;&amp; x.back()->rating() == 10);
+	    removeBad(x);
+	    assert(x.size() == 4 &amp;&amp; destroyedOnes.size() == 4);
+	    vector&lt;int> v;
+	    for (int k = 0; k &lt; 4; k++)
+	        v.push_back(x[k]->rating());
+	    sort(v.begin(), v.end());
+	    int expect[4] = { 70, 80, 85, 90 };
+	    for (int k = 0; k &lt; 4; k++)
+	        assert(v[k] == expect[k]);
+	    sort(destroyedOnes.begin(), destroyedOnes.end());
+	    int expectGone[4] = { 10, 15, 20, 30 };
+	    for (int k = 0; k &lt; 4; k++)
+	        assert(destroyedOnes[k] == expectGone[k]);
+	    for (vector&lt;Movie*>::iterator p = x.begin(); p != x.end(); p++)
+	        delete *p;
+	}
+
+	int main()
+	{
+	    test();
+	    cout &lt;&lt; "Passed" &lt;&lt; endl;
+	}
+</pre>
+</li>
+<li>
+Make sure you understand why the code below passes the first two tests but
+fails the third.  Draw pictures if necessary.  Don't be a cabbagehead and
+forget the lesson you learn from this problem when working on Project 3.
+<pre>
+#include &lt;iostream>
+#include &lt;vector>
+#include &lt;list>
+using namespace std;
+
+const int MAGIC = 11223344;
+
+void test()
+{
+    bool allValid = true;
+
+    vector&lt;int> v1(5, MAGIC);
+    int k = 0;
+    for ( ; k != v1.size(); k++)
+    {
+        if (v1[k] != MAGIC)
+        {
+            cout &lt;&lt; "v1[" &lt;&lt; k &lt;&lt; "] is " &lt;&lt; v1[k] &lt;&lt; ", not " &lt;&lt; MAGIC &lt;&lt;"!" &lt;&lt; endl;
+            allValid = false;
+        }
+        if (k == 2)
+        {
+            for (int i = 0; i &lt; 5; i++)
+                v1.push_back(MAGIC);
+        }
+    }
+    if (allValid  &amp;&amp;  k == 10)
+        cout &lt;&lt; "Passed test 1" &lt;&lt; endl;
+    else
+        cout &lt;&lt; "Failed test 1" &lt;&lt; endl;
+
+    allValid = true;
+    list&lt;int> l1(5, MAGIC);
+    k = 0;
+    for (list&lt;int>::iterator p = l1.begin(); p != l1.end(); p++, k++)
+    {
+        if (*p != MAGIC)
+        {
+            cout &lt;&lt; "Item# " &lt;&lt; k &lt;&lt; " is " &lt;&lt; *p &lt;&lt; ", not " &lt;&lt; MAGIC &lt;&lt;"!" &lt;&lt; endl;
+            allValid = false;
+        }
+        if (k == 2)
+        {
+            for (int i = 0; i &lt; 5; i++)
+                l1.push_back(MAGIC);
+        }
+    }
+    if (allValid  &amp;&amp;  k == 10)
+        cout &lt;&lt; "Passed test 2" &lt;&lt; endl;
+    else
+        cout &lt;&lt; "Failed test 2" &lt;&lt; endl;
+
+    allValid = true;
+    vector&lt;int> v2(5, MAGIC);
+    k = 0;
+    for (vector&lt;int>::iterator p = v2.begin(); p != v2.end(); p++, k++)
+    {
+        if (k >= 20)  // prevent infinite loop
+            break;
+        if (*p != MAGIC)
+        {
+            cout &lt;&lt; "Item# " &lt;&lt; k &lt;&lt; " is " &lt;&lt; *p &lt;&lt; ", not " &lt;&lt; MAGIC &lt;&lt;"!" &lt;&lt; endl;
+            allValid = false;
+        }
+        if (k == 2)
+        {
+            for (int i = 0; i &lt; 5; i++)
+                v2.push_back(MAGIC);
+        }
+    }
+    if (allValid  &amp;&amp;  k == 10)
+        cout &lt;&lt; "Passed test 3" &lt;&lt; endl;
+    else
+        cout &lt;&lt; "Failed test 3" &lt;&lt; endl;
+}
+
+int main()
+{
+    test();
+}
+</pre>
+</li>
+</ol>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/3/warmup.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:47 GMT -->
+</html>

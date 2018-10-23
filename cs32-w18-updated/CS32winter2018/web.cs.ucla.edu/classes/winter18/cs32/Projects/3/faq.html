@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/3/faq.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:47 GMT -->
+<head>
+ <title>CS 32 Project 3 FAQ, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Project 3 FAQ</h2>
+</div>
+<ol>
+<li>
+<p>
+<strong>How can I get started writing code?</strong>
+</p><p>
+Start with this task:  Re-read the spec, paying attention only to mentions
+of stars.  Implement a field of 30 stars that don't move.  This can be
+done in about five lines of StudentWorld code and five lines of Actor
+code.  Once you do this, you'll be surprised at what a psychological boost
+it is to see the graphics on the screen.  With three more lines of code,
+you can get the stars to drift left (although they continue to drift
+off-screen or bunch up at the left, depending on your implementation). 
+Fewer than twenty more lines of code gets rid of those that move
+off-screen, with no memory leaks.  (The <a href="warmup.html">Project 3
+warmup</a> is useful for that.)  Add two more lines of code to introduce
+new stars, and you have a continuously drifting star field.  You're done
+with stars!
+</p>
+</li>
+<li>
+<p>
+<strong>How do I generate random numbers?</strong>
+</p><p>
+GameConstants.h has a function <code>int randInt(int min, int max)</code>
+that returns a random int in the range [min, max].
+</p>
+</li>
+<li>
+<p>
+<strong>May we use <code>protected</code> members?</strong>
+</p><p>
+You must not use protected <em>data</em> members.  You may use protected member
+<em>functions</em> if you wish.
+</p>
+</li>
+<li>
+<p>
+<strong>May we use <code>friend</code>?</strong>
+</p><p>
+No.
+</p>
+</li>
+<li>
+<p>
+<strong>Suppose that while calling <em>doSomething()</em> for each actor during
+a given tick, we create a new actor.  Must we call <em>doSomething()</em> for
+the new actor on the current tick?</strong>
+</p><p>
+It's you choice whether or not you do.  Of course, on the next tick,
+<em>doSomething()</em> will be called on all actors including that new one.
+</p>
+</li>
+<li>
+<strong>Suppose there's a requirement about an interaction between an
+object of type A (e.g., a Smallgon) and an object of type B (e.g., a
+cabbage).  If the spec says that the A object has to manage that
+interaction or that both the A and the B objects have to manage it, but I
+find it more convenient to have the only the B object manage it, is it
+acceptable to have the only the B object manage it if the result is
+essentially the same?
+</strong>
+</p><p>
+Yes.
+</p>
+</li>
+<li>
+<p>
+<strong>As part of writing <em>a high-level description of each of your public
+member functions</em> (spec p. 50), do we have to write pseudocode?
+</strong>
+</p><p>
+Only for the more complex functions, of which there are probably comparatively
+few.
+</p>
+</li>
+<li>
+<strong>
+<p>
+Why is a program compiled with g32 giving me a runtime error like this?
+</p>
+<pre>
+	Actor.cpp:<em>lineNum</em>:&hellip;: runtime error: member call on address &hellip;
+	which does not point to an object of type '<em>someType</em>'
+	&hellip;: note: object has invalid vptr
+</pre>
+</strong>
+<p>
+A derived class constructor (at the indicated line number) is calling a
+function implemented in the derived or base class before the base class
+constructor has even been called.  As far as the compiler knows, this could
+be dangerous, since the base object and the data members of the derived
+object have not yet been initialized &mdash; what if the function depends
+on their values?
+</p>
+</li>
+<li>
+<strong>
+Could you please tell me a story about type casting?
+</strong>
+<p>
+Sure.  Suppose we have the following class hierarchy:
+</p>
+<pre>
+	class Shape { ... };  // no fill function
+	class LineSegment : public Shape { ... } // no fill function
+	class Arc : public Shape { ... } // no fill function
+	class ClosedFigure : public Shape
+	{...
+	    virtual void fill(Color c) = 0;
+	};
+	class Circle : public ClosedFigure
+	{...
+	    virtual void fill(Color c) { ... }
+	};
+	class Rectangle : public ClosedFigure
+	{...
+	    virtual void fill(Color c) { ... }
+	};
+
+	Shape* f() { ... }
+</pre>
+<p>
+Only shapes that enclose an area can be filled with a color; you can't fill
+the nonexistent interior of a line segment or an arc, but you can fill a
+closed figure like a circle or a rectangle.
+</p><p>
+Suppose we call f, and the circumstances of the call are such that we
+<em>know</em> with certainty that for this particular call of f, the Shape*
+that it returns is a pointer to the Shape part of a Circle.  We'd like to
+fill that circle.  Here's what <em>won't</em> work:
+</p>
+<pre>
+	Shape* sp = f();  // Suppose f() returns a pointer to the Shape part of a Circle
+	sp->fill(RED);  // Error!  Shape did not declare fill.
+
+	Circle* cp = f();  // Error!  No automatic conversion from Shape* to Circle*
+	rp->fill(RED);
+
+	ClosedFigure* cfp = f();  // Error!  No automatic conversion from Shape* to ClosedFigure*
+	cfp->fill(RED);
+</pre>
+<p>
+Although the conversion from a Derived* to a Base* (an <em>upcast</em>) is
+automatic, we have to explicitly ask for a conversion from a Base* to a
+Derived* (a <em>downcast</em>).  Using <code>static_cast</code>, we had
+better be right:  The behavior is undefined if the Base* doesn't actually
+point to a Derived object of the that type.
+</p>
+<pre>
+	Shape* sp = f();  // Suppose f() returns a pointer to the Shape part of a Circle
+	Circle* cp = static_cast&lt;Circle*>(sp);
+	cp->fill(RED);
+
+	ClosedFigure* cfp = static_cast&lt;ClosedFigure*>(sp);
+	cfp->fill(RED);
+
+	static_cast&lt;Circle*>(sp)->fill(RED);
+	static_cast&lt;ClosedFigure*>(sp)->fill(RED);
+
+	Rectangle* rp = static_cast&lt;Rectangle*>(sp);  // Undefined behavior!
+	rp->fill(RED);
+</pre>
+<p>
+For most compilers, the undefined behavior shows up as the call to fill doing
+something weird or crashing.  Code compiled with g32 will report the bad
+downcast itself as a runtime error.
+</p>
+</li>
+</ol>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/3/faq.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:47 GMT -->
+</html>

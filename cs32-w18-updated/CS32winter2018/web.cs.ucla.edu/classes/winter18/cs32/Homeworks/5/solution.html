@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/5/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+<head>
+ <title>CS32 Homework 5 Solution, Winter 2017</title>
+</head>
+<body>
+<div align="right">
+Winter 2017 CS 32 
+</div>
+<div align="center">
+<h2>Homework 5 Solution</h2>
+</div>
+<table cellpadding="3">
+<colgroup width="60%"></colgroup>
+<colgroup></colgroup>
+<tr><td><a href="#P1">Problem 1</a></td>
+    <td><a href="#P3">Problem 3</a></td></tr>
+<tr><td><a href="#P2">Problem 2</a></td>
+    <td><a href="#P4">Problem 4</a></td></tr>
+</table>
+<h4><a id="#P1"></a>Problem 1:</h4>
+<ol type="a">
+<li>
+<pre>
+                    50
+
+        20                  60
+
+  10          40                     70
+
+    15     30                    65       80
+
+         25  36                         74
+</pre>
+</li>
+<li>
+<pre>
+  In-order: 10 15 20 25 30 36 40 50 60 65 70 74 80
+ Pre-order: 50 20 10 15 40 30 25 36 60 70 65 80 74
+Post-order: 15 10 25 36 30 40 20 65 74 80 70 60 50
+</pre>
+</li>
+<li>
+<p>
+One possibility is
+</p>
+<pre>
+                    50
+
+        25                  60
+
+  10          40                     70
+
+    15     36                    65       80
+
+                                        74
+</pre>
+<p>
+Other possibilities have the left subtree of 50 being
+</p>
+<pre>
+        15
+
+  10          40
+
+           36
+
+         25
+</pre>
+<p>
+or
+</p>
+<pre>
+        15
+
+  10          40
+
+           25
+
+             36
+</pre>
+</li>
+</ol>
+<h4><a id="#P2"></a>Problem 2:</h4>
+<ol type="a">
+<li>
+<pre>
+struct Node
+{
+    int data;
+    Node* left;
+    Node* right;
+    Node* parent;
+};
+</pre>
+</li>
+<li>
+<pre>
+void insertAuxiliary(Node*&amp; n, int value, Node* par)
+{
+    if (n == nullptr)
+        set n to point to a new Node whose data field is set to value,
+          whose left and right children are null, and whose parent field
+          is set to par.
+    else if (value &lt; n->data)
+        insertAuxiliary(n->left, value, n);
+    else
+        insertAuxiliary(n->right, value, n);
+}
+
+void insert(Node*&amp; n, int value)
+{
+  insertAuxiliary(n, value, nullptr);  // pass nullptr as parent of root
+}
+</pre>
+</li>
+</ol>
+<h4><a id="#P3"></a>Problem 3:</h4>
+<ol type="a">
+<li>
+<pre>
+    8
+ 
+ 3     6
+
+0 2   4
+</pre>
+</li>
+<li>
+<pre>
+8 3 6 0 2 4
+</pre>
+</li>
+<li>
+<pre>
+6 3 4 0 2
+</pre>
+</li>
+</ol>
+<h4><a id="#P4"></a>Problem 4:</h4>
+<ol type="a">
+<li>
+O(C + S).  We'd have to do a linear search through the outer vector to
+find the course, which is O(C), and then after that do a linear search of
+the S students in the list, which is O(S).  We can't do a binary search in a
+linked list in logarithmic time, because it takes linear time just to get to
+the middle item of a list, sorted or not.
+</li>
+<li>
+O((log C) + S).  A BST-based map finds the course in O(log C) time,
+and after that we do a linear search of the S students in the list.
+</li>
+<li>
+O(log C + log S).  A BST-based map finds the course in O(log C) time,
+and a BST-based set finds the student in O(log S) time.  Notice that
+a mathematically equivalent way to write this is O(log CS), but that
+form makes it harder to understand why it's right.
+</li>
+<li>
+O(log S).  A hash-based map finds the course in O(1) time, and a BST-based
+set finds the student in O(log S) time.  Notice that a constant like 1 is
+dominated by a function that grows with S, so we write O(log S) instead of
+O(1 + log S).
+</li>
+<li>
+O(1).  A hash-based map finds the course in O(1) time, and a hash-based
+set finds the student in O(1) time.
+</li>
+<li>
+O((log C) + S).  A BST-based map finds the course in O(log C) time, and we
+can visit all S items in order in a BST-based set in O(S) time.
+</li>
+<li>
+O(S log S).  A hash-based map finds the course in O(1) time, and although we
+can visit all S items in a hash-based set in O(S) time, they'd be in whatever
+order the hash function caused them to be scattered across the buckets. 
+We have to sort them.  It takes O(S) steps to get them into and out of an
+auxiliary vector, say, and O(S log S) to sort them.
+</li>
+<li>
+O(C log S).  The hash-based map is keyed on the course, not the student, so
+it's not organized to look up students efficiently.  Our only choice is to
+check every course and see in O(log S) time whether the student is in its
+set of students.  Since we have to do the O(log S) operation for each of the
+C courses, it's O(C log S).
+</li>
+</ol>
+<!-- *********
+<h4><a id="#P5"></a>Problem 5:</h4>
+<ol type="a">
+<li>
+<p>
+Adjacency matrix (entries shown as blank are 0; row is source, col is
+destination):
+</p>
+<pre>
+   A B C D E F G H I
+  +-----------------
+A |  1 1
+B |              1
+C |      1 1
+D |  1           1
+E |            1
+F |            1   1
+G |    1         1
+H |            1
+I |    1
+</pre>
+<p>
+Adjacency list:
+</p>
+<pre>
+A -> B C
+B -> H
+C -> D E
+D -> B H
+E -> G
+F -> G I
+G -> C H
+H -> G
+I -> C
+</pre>
+</li>
+<li>
+<p>
+<pre>
+E G C D B H
+E G C D H B
+E G H C D B
+</pre>
+</li>
+</ol>
+********** -->
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/5/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+</html>

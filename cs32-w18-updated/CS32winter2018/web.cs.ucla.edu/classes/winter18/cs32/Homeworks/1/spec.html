@@ -1,0 +1,782 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/1/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:31 GMT -->
+<head>
+ <title>CS32 Homework 1, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Homework 1</h2>
+<p>
+<strong>Time due: 11:00 PM Tuesday, January 23</strong>
+</p>
+</div>
+<p>
+Here is a C++ class definition for an abstract data type <strong>Map
+from <code>string</code> to <code>double</code></strong>, representing the
+concept of a function mapping <code>string</code>s to <code>double</code>s.
+(For example, we could represent a collection of students and their GPAs: 
+"Fred" maps to 2.956, "Ethel" maps to 3.538, "Lucy" maps to 2.956, etc.) 
+We'll call the <code>string</code>s the <em>keys</em> and the
+<code>double</code>s the <em>values</em>.  No two keys in the map are
+allowed to be the same (e.g., so "Fred" appears no more than once),
+although two keys might map to the same value (as in the example, where
+both of the keys "Fred" and "Lucy" map to the value 2.956).  To make
+things simpler for you, the case of letters in a string matters, so that
+the strings <code>Fred</code> and <code>fReD</code> are <em>not</em>
+considered duplicates.
+</p>
+<pre>
+class Map
+{
+  public:
+    Map();         // Create an empty map (i.e., one with no key/value pairs)
+
+    bool empty();  // Return true if the map is empty, otherwise false.
+
+    int size();    // Return the number of key/value pairs in the map.
+
+    bool insert(const std::string&amp; key, const double&amp; value);
+      // If key is not equal to any key currently in the map, and if the
+      // key/value pair can be added to the map, then do so and return true.
+      // Otherwise, make no change to the map and return false (indicating
+      // that either the key is already in the map, or the map has a fixed
+      // capacity and is full).
+
+    bool update(const std::string&amp; key, const double&amp; value);
+      // If key is equal to a key currently in the map, then make that key no
+      // longer map to the value it currently maps to, but instead map to
+      // the value of the second parameter; return true in this case.
+      // Otherwise, make no change to the map and return false.
+
+    bool insertOrUpdate(const std::string&amp; key, const double&amp; value);
+      // If key is equal to a key currently in the map, then make that key no
+      // longer map to the value it currently maps to, but instead map to
+      // the value of the second parameter; return true in this case.
+      // If key is not equal to any key currently in the map and if the
+      // key/value pair can be added to the map, then do so and return true.
+      // Otherwise, make no change to the map and return false (indicating
+      // that the key is not already in the map and the map has a fixed
+      // capacity and is full).
+
+    bool erase(const std::string&amp; key);
+      // If key is equal to a key currently in the map, remove the key/value
+      // pair with that key from the map and return true.  Otherwise, make
+      // no change to the map and return false.
+     
+    bool contains(const std::string&amp; key);
+      // Return true if key is equal to a key currently in the map, otherwise
+      // false.
+     
+    bool get(const std::string&amp; key, double&amp; value);
+      // If key is equal to a key currently in the map, set value to the
+      // value in the map that that key maps to, and return true.  Otherwise,
+      // make no change to the value parameter of this function and return
+      // false.
+     
+    bool get(int i, std::string&amp; key, double&amp; value);
+      // If 0 &lt;= i &lt; size(), copy into the key and value parameters the
+      // key and value of one of the key/value pairs in the map and return
+      // true.  Otherwise, leave the key and value parameters unchanged and
+      // return false.  (See below for details about this function.)
+
+    void swap(Map&amp; other);
+      // Exchange the contents of this map with the other one.
+};
+</pre>
+<p>
+(When we don't want a function to change a key or value parameter, we pass
+that parameter by constant reference.  Passing it by value would have been
+perfectly fine for this problem, but we chose the const reference alternative
+because that will be more suitable after we make some generalizations in a
+later problem.)
+</p><p>
+The three-argument <code>get</code> function enables a client to iterate over
+all elements of a <code>Map</code> because of this property it must have:
+If nothing is inserted into or erased from the map in the interim, then
+calling that version of <code>get</code> size() times with the first parameter
+ranging over each of the integers from 0 to size()-1 inclusive will copy
+into the other parameters every key/value pair from the map exactly once. 
+The order in which key/value pairs are copied is up to you.  In other
+words, this client code fragment
+</p>
+<pre>
+    Map m;
+    m.insert("A", 10);
+    m.insert("B", 44);
+    m.insert("C", 10);
+    string all;
+    double total = 0;
+    for (int n = 0; n &lt; m.size(); n++)
+    {
+        string k;
+        double v;
+        m.get(n, k, v);
+        all += k;
+        total += v;
+    }
+    cout << all << total;
+</pre>
+<p>
+must result in the output being exactly one of the following:
+<code>ABC64</code>, <code>ACB64</code>, <code>BAC64</code>, <code>BCA64</code>,
+<code>CAB64</code>, or <code>CBA64</code>, and the client can't depend on it
+being any particular one of those six.  If the map is modified between
+successive calls to the three-argument form of <code>get</code>, all bets are
+off as to whether a particular key/value pair is returned exactly once.
+</p><p>
+If nothing is inserted into or erased from the map in the interim, then
+calling the three-argument form of <code>get</code> repeatedly with the same
+value for the first parameter each time must copy the same key into the second
+parameter each time and the same value into the third parameter each time, so
+that this code is fine:
+</p>
+<pre>
+    Map gpas;
+    gpas.insert("Fred", 2.956);
+    gpas.insert("Ethel", 3.538);
+    double v;
+    string k1;
+    assert(gpas.get(1,k1,v)  &amp;&amp;  (k1 == "Fred"  ||  k1 == "Ethel"));
+    string k2;
+    assert(gpas.get(1,k2,v)  &amp;&amp;  k2 == k1);
+</pre>
+<p>
+Notice that the empty string is just as good a string as any other; you should
+not treat it in any special way:
+</p>
+<pre>
+    Map gpas;
+    gpas.insert("Fred", 2.956);
+    assert(!gpas.contains(""));
+    gpas.insert("Ethel", 3.538);
+    gpas.insert("", 4.000);
+    gpas.insert("Lucy", 2.956);
+    assert(gpas.contains(""));
+    gpas.erase("Fred");
+    assert(gpas.size() == 3  &amp;&amp  gpas.contains("Lucy")  &amp;&amp;  gpas.contains("Ethel")  &amp;&amp;
+                gpas.contains(""));
+</pre>
+<p>
+Here's an example of the <code>swap</code> function:
+</p>
+<pre>
+    Map m1;
+    m1.insert("Fred", 2.956);
+    Map m2;
+    m2.insert("Ethel", 3.538);
+    m2.insert("Lucy", 2.956);
+    m1.swap(m2);
+    assert(m1.size() == 2  &amp;&amp;  m1.contains("Ethel")  &amp;&amp;  m1.contains("Lucy")  &amp;&amp;
+           m2.size() == 1  &amp;&amp;  m2.contains("Fred"));
+</pre>
+<p>
+When comparing keys for <code>insert</code>, <code>update</code>,
+<code>insertOrUpdate</code>, <code>erase</code>, <code>contains</code>, and
+the two-argument form of <code>get</code>, just use the <code>==</code> or
+<code>!=</code> operators provided for the string type by the library.  These
+do case-sensitive comparisons, and that's fine.
+</p><p>
+Here is what you are to do:
+</p>
+<ol>
+<li>
+<p>
+Determine which member functions of the Map class should be const member
+functions (because they do not modify the Map), and change the class
+declaration accordingly.
+</p>
+</li>
+<li>
+<p>
+As defined above, the Map class allows the client to use a map that
+contains only <code>std::string</code>s as keys and <code>double</code>s
+as values.  Someone who wanted to modify the class to contain keys or
+values of another type, such as keys being <code>int</code>s and values
+being <code>int</code>s, would have to make changes in many places. 
+Modify the class definition you produced in the previous problem to use a
+type alias for all keys wherever the original
+definition used a <code>std::string</code> for that purpose, and a
+type alias for all values wherever the original
+definition used a <code>double</code> for that purpose.  A <em>type alias</em>
+is a name that is a synonym for some type; here is an example:
+</p>
+<pre>
+      // The following line introduces the type alias Number as a synonym
+      // for the type int; anywhere the code uses the name Number, it means
+      // the type int.
+
+    using Number = int;
+
+    int main()
+    {
+        Number total = 0;
+        Number x;
+        while (cin >> x)
+            total += x;
+        cout &lt;&lt; total &lt;&lt; endl;
+    }
+</pre>
+<p>
+The advantage of using the type alias Number is that if we later wish to
+modify this code to sum a sequence of <code>long</code>s or of
+<code>double</code>s, we need make a change in only one place:  the using
+statement introducing the type alias Number.
+</p><p>
+(Aside:  Prior to C++11 (and still usable now), the only way to introduce
+a type alias was to use a <code>typedef</code> statement, e.g.
+<code>typedef int Number;</code>.  Appendix A.1.8 of the textbook describes
+<code>typedef</code>.)
+</p><p>
+To make the grader's life easier, we'll require that everyone use the same
+synonyms for their type aliases:  You must use the name
+<code>KeyType</code> for the name of the type used for keys, and
+<code>ValueType</code> for the name of the type used for values, with
+exactly those spellings and cases.
+</p>
+</li>
+<li>
+<p>
+Now that you have defined an interface for a map class where the key and the
+value types can be easily changed, implement the class and all its member
+functions in such a way that the key/value pairs in a map are contained in a
+data member that is an array.  (Notice we said an array, not a pointer.  It's
+not until problem 5 of this homework that you'll deal with a dynamically
+allocated array.)  A map must be able to hold a maximum of
+<code>DEFAULT_MAX_ITEMS</code> distinct keys, where
+</p>
+<pre>
+    const int DEFAULT_MAX_ITEMS = 250;
+</pre>
+<p>
+(Hint:  Define a structure type containing a member of type KeyType and a
+member of type ValueType.  Have Map's array data member be an array of these
+structures.)
+</p><p>
+Test your class for a Map that maps <code>std::string</code>s to
+<code>double</code>s.  Place your class definition, non-inline function
+prototypes, and inline function implementations (if any) in a file named
+<code>Map.h</code>, and your non-inline function implementations (if any)
+in a file named <code>Map.cpp</code>.  (If we haven't yet discussed inline,
+then if you haven't encountered the topic yourself, all your functions will
+be non-inline, which is fine.)
+</p><p>
+Except to add a <code>dump</code> function (described below), you must not
+add public data or function members to, delete functions from, or change the
+public interface of the Map class.  You must not declare any additional
+struct/class outside the Map class, and you must not declare any
+<em>public</em> struct/class inside the Map class.  You may add whatever
+private data members and private member functions you like, and
+you may declare <em>private</em> structs/classes inside the Map class if you
+like.
+</p><p>
+If you wish, you may add a public member function with the signature
+<code>void dump() const</code>.  The intent of this function is that for
+your own testing purposes, you can call it to print information about the
+map; we will never call it.  You do not have to add this function if you
+don't want to, but if you do add it, it must not make any changes to the
+map; if we were to replace your implementation of this function with one
+that simply returned immediately, your code must still work correctly. 
+The <code>dump</code> function must not write to <code>cout</code>, but
+it's allowed to write to <code>cerr</code>.
+</p><p>
+Your implementation of the Map class must be such that the
+compiler-generated destructor, copy constructor, and assignment operator
+do the right things.  Write a test program named <code>testMap.cpp</code>
+to make sure your Map class implementation works properly.  Here is one
+possible (incomplete) test program:
+</p>
+<pre>
+    #include "Map.h"
+    #include &lt;iostream>
+    #include &lt;cassert>
+    using namespace std;
+
+    int main()
+    {
+        Map m;  // maps strings to doubles
+        assert(m.empty());
+        ValueType v = -1234.5;
+        assert( !m.get("abc", v)  &amp;&amp;  v == -1234.5); // v unchanged by get failure
+        m.insert("xyz", 9876.5);
+        assert(m.size() == 1);
+        KeyType k = "hello";
+        assert(m.get(0, k, v)  &amp;&amp;  k == "xyz"  &amp;&amp;  v == 9876.5);
+        cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+    }
+</pre>
+<p>
+Now change (only) the two type aliases in <code>Map.h</code> so that the
+Map type will now map <code>int</code>s to <code>std::string</code>s. 
+Make no other changes to <code>Map.h</code>, and make no changes to
+<code>Map.cpp</code>.  Verify that your implementation builds correctly
+and works properly with this alternative main routine (which again, is not
+a complete test of correctness):
+</p>
+<pre>
+    #include "Map.h"
+    #include &lt;iostream>
+    #include &lt;cassert>
+    using namespace std;
+
+    int main()
+    {
+        Map m;  // maps ints to strings
+        assert(m.empty());
+        ValueType v = "Ouch";
+        assert( !m.get(42, v)  &amp;&amp;  v == "Ouch"); // v unchanged by get failure
+        m.insert(123456789, "Wow!");
+        assert(m.size() == 1);
+        KeyType k = 9876543;
+        assert(m.get(0, k, v)  &amp;&amp;  k == 123456789  &amp;&amp;  v == "Wow!");
+        cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+    }
+</pre>
+<p>
+You may need to flip back and forth a few times to fix your <code>Map.h</code>
+and <code>Map.cpp</code> code so that the <em>only</em> change to those files
+you'd need to make to change a map's key and value types is to the two
+type aliases in <code>Map.h</code>.  (When you turn in the project, have the
+type aliases in <code>Map.h</code> specify the key type to be
+<code>std::string</code> and the value type to be <code>double</code>.)
+</p><p>
+Except in a using statement in <code>Map.h</code> introducing a type alias,
+the word <code>double</code> must not appear in <code>Map.h</code> or
+<code>Map.cpp</code>.  Except in a using statement introducing a type alias
+and in the context of <code>#include &lt;string></code> in <code>Map.h</code>,
+the word <code>string</code> must not appear in <code>Map.h</code> or
+<code>Map.cpp</code>.
+</p><p>
+(Implementation note 1:  If you declare another structure to help you
+implement a Map, put its declaration in <code>Map.h</code> (and
+<code>newMap.h</code> for Problem 5), since it is not intended to be used
+by clients for its own sake, but merely to help you implement the Map
+class.  In fact, to enforce clients' not using that structure type, don't
+declare it outside of the Map class; instead, declare that helper
+structure in the <em>private</em> section of Map.  Although it would
+probably be overkill for this structure to have anything more than two
+public data members, if for some reason you decide to declare any member
+functions for it that need to be implemented, those implementations should
+be in <code>Map.cpp</code> (and <code>newMap.cpp</code> for Problem 5).) 
+</p><p>
+(Implementation note 2:  The <code>swap</code> function is easily
+implementable without creating any additional array or additional Map.)
+</p>
+</li>
+<li>
+<p>
+Now that you've implemented the class, write some client code that uses it.  We
+might want a class that keeps track of a fleet of cars and how many gallons of
+gas are in each car's tank.  Implement the following class:
+</p>
+<pre>
+    #include "Map.h"
+
+    class CarMap
+    {
+      public:
+        CarMap();       // Create an empty car map.
+
+        bool addCar(std::string license);
+          // If a car with the given license plate is not currently in the map, 
+          // and there is room in the map, add an entry for that car recording
+          // that it has 0 gallons of gas in it, and return true.  Otherwise,
+          // make no change to the map and return false.
+
+        double gas(std::string license) const;
+          // If a car with the given license plate is in the map, return the
+          // number of gallons of gas in its tank; otherwise, return -1.
+
+        bool addGas(std::string license, double gallons);
+          // If no car with the given license plate is in the map or if
+          // gallons is negative, make no change to the map and return
+          // false.  Otherwise, increase the number of gallons of gas in the
+          // indicated car by the gallons parameter and return true.
+
+        bool useGas(std::string license, double gallons);
+          // If no car with the given license plate is in the map or if
+          // gallons is negative or if gallons > gas(), make no change to the
+          // map and return false.  Otherwise, decrease the number of gallons
+          // of gas in the indicated car by the gallons parameter and return
+          // true.
+
+        int fleetSize() const;  // Return the number of cars in the CarMap.
+
+        void print() const;
+          // Write to cout one line for every car in the map.  Each line
+          // consists of the car's license plate, followed by one space,
+          // followed by the number of gallons in that car's tank.  Write
+          // no other text.
+
+      private:
+        // Some of your code goes here.
+    };
+</pre>
+<p>
+Your CarMap implementation must employ a data member of type Map that uses
+the type aliases <code>KeyType</code> and <code>ValueType</code> as synonyms
+for <code>std::string</code> and <code>double</code>, respectively.  (Notice
+we said a member of type <em>Map</em>, not of type <em>pointer to
+Map</em>.)  Except for the using statements introducing the type aliases, you
+must not make any changes to the <code>Map.h</code> and <code>Map.cpp</code>
+files you produced for Problem 3, so you must not add any member functions
+to the Map class.  Each of the member functions <code>addCar</code>,
+<code>gas</code>, <code>addGas</code>, <code>useGas</code>,
+<code>fleetSize</code>, and <code>print</code> must delegate as much of
+the work that they need to do as they can to Map member functions.  (In
+other words, they must not do work themselves that they can ask Map member
+functions to do instead.)  If the compiler-generated destructor, copy
+constructor, and assignment operator for CarMap don't do the right thing,
+declare and implement them.  Write a program to test your CarMap class. 
+Name your files <code>CarMap.h</code>, <code>CarMap.cpp</code>, and
+<code>testCarMap.cpp</code>.
+</p><p>
+The words <code>for</code> and <code>while</code> must not appear in
+<code>CarMap.h</code> or <code>CarMap.cpp</code>, except in the
+implementation of <code>CarMap::print</code> if you wish.  The
+characters <code>[</code> (open square bracket) and <code>*</code> must
+not appear in <code>CarMap.h</code> or <code>CarMap.cpp</code>,
+except in comments if you wish.  You do not have to change
+<code>std::string</code> to <code>KeyType</code> and <code>double</code>
+to <code>ValueType</code> in <code>CarMap.h</code> and
+<code>CarMap.cpp</code> if you don't want to (since unlike Map, which is
+designed for a wide variety of key and value types, CarMap is
+specifically designed to work with strings and doubles).  In the code you
+turn in, <code>CarMap</code>'s member functions must not call
+<code>Map::dump</code>.
+</p>
+</li>
+<li>
+<p>
+Now that you've created a map type based on arrays whose size is fixed at
+compile time, let's change the implementation to use a <em>dynamically
+allocated</em> array of objects.  Copy the three files you produced for
+problem 3, naming the new files <code>newMap.h</code>,
+<code>newMap.cpp</code>, and <code>testnewMap.cpp</code>.  Update those
+files by either adding another constructor or modifying your existing
+constructor so that a client can do the following:
+</p>
+<pre>
+     Map a(1000);   // a can hold at most 1000 key/value pairs
+     Map b(5);      // b can hold at most 5 key/value pairs
+     Map c;         // c can hold at most DEFAULT_MAX_ITEMS key/value pairs
+     KeyType k[6] = { <em>a list of six distinct values of the appropriate type</em> };
+     ValueType v  = <em>a value of the appropriate type</em>;
+
+       // No failures inserting pairs with 5 distinct keys into b
+     for (int n = 0; n &lt; 5; n++)
+         assert(b.insert(k[n], v));
+
+       // Failure if we try to insert a pair with a sixth distinct key into b
+     assert(!b.insert(k[5], v));
+
+       // When two Maps' contents are swapped, their capacities are swapped
+       // as well:
+     a.swap(b);
+     assert(!a.insert(k[5], v)  &amp;&amp;  b.insert(k[5], v));
+
+</pre>
+<p>
+Since the compiler-generated destructor, copy constructor, and assignment
+operator no longer do the right thing, declare them (as public members) and
+implement them.  Make no other changes to the public interface of your class.
+(You are free to make changes to the private members and to the
+implementations of the member functions, and you may add or remove private
+members.)  Change the implementation of the <code>swap</code> function so
+that the number of statement executions when swapping two maps is the same
+no matter how many key/value pairs are in the maps.  (You would not
+satisfy this requirement if, for example, your swap function caused a loop
+to visit each pair in the map, since the number of statements executed by
+all the iterations of the loop would depend on the number of pairs in the
+map.) 
+</p><p>
+The character <code>[</code> (open square bracket) must not appear in
+<code>newMap.h</code> (but is fine in <code>newMap.cpp</code>).
+</p><p>
+Test your new implementation of the Map class.  (Notice that even
+though the file is named <code>newMap.h</code>, the name of the class
+defined therein must still be <code>Map</code>.)
+</p><p>
+Verify that your CarMap class still works properly with this new
+version of Map.  You should not need to change your CarMap class or its
+implementation in any way, other than to include <code>"newMap.h"</code>
+instead of <code>"Map.h"</code>.  (For this test, be sure to link with
+<code>newMap.cpp</code>, not <code>Map.cpp</code>.)  (Before you turn in
+<code>CarMap.h</code>, be sure to restore the include to
+<code>"Map.h"</code> instead of <code>"newMap.h"</code>.)
+</p>
+</li>
+</ol>
+<h3>Turn it in</h3>
+<p>
+By Monday, January 22, there will be a link on the class webpage that will
+enable you to turn in this homework.  Turn in one zip file that contains your
+solutions to the homework problems.  (Since problem 3 builds on problems 1 and
+2, you will not turn in separate code for problems 1 and 2.)  If you solve
+every problem, the zip file you turn in will have nine files (three for
+each of problems 3, 4, and 5). The files <em>must</em> meet these requirements,
+or your score on this homework will be severely reduced:
+</p>
+<ul>
+<li><p>
+Each of the header files <code>Map.h</code>, <code>CarMap.h</code>,
+and <code>newMap.h</code> must have an appropriate include guard.  In
+the files you turn in, the using statements in <code>Map.h</code> and
+<code>newMap.h</code> must introduce <code>KeyType</code> as a type alias
+for <code>std::string</code> and <code>ValueType</code> as a type alias for
+<code>double</code>.
+</p></li><li><p>
+If we create a project consisting of <code>Map.h</code>,
+<code>Map.cpp</code>, and <code>testMap.cpp</code>, it must build
+successfully under both g32 and either Visual C++ or clang++.  (Note:  To
+build an executable using g32 from some, but not all, of the .cpp files in
+a directory, you list the .cpp files to use in the command.  To build an
+executable named <code>req1</code> for this requirement, for example,
+you'd say <code>g32 -o req1 Map.cpp testMap.cpp</code>.)
+</p></li><li><p>
+If we create a project consisting of <code>Map.h</code>,
+<code>Map.cpp</code>, <code>CarMap.h</code>,
+<code>CarMap.cpp</code>, and <code>testCarMap.cpp</code>, it must build
+successfully under both g32 and either Visual C++ or clang++.
+</p></li><li><p>
+If we create a project consisting of <code>newMap.h</code>,
+<code>newMap.cpp</code>, and <code>testnewMap.cpp</code>, it must
+build successfully under both g32 and either Visual C++ or clang++.
+</p></li><li><p>
+If we create a project consisting of <code>newMap.h</code>,
+<code>newMap.cpp</code>, and <code>testMap.cpp</code>, where in
+<code>testMap.cpp</code> we change only the
+<code>#include "Map.h"</code> to <code>#include "newMap.h"</code>,
+the project must build successfully under both g32 and either Visual C++ or
+clang++.  (If you try this, be sure to change the <code>#include</code>
+back to <code>"Map.h"</code> before you turn in <code>testMap.cpp</code>.)
+</p></li><li><p>
+The source files you submit for this homework must not contain the word
+<code>friend</code> or <code>vector</code>, and must not contain any
+global variables whose values may be changed during execution.  (Global
+<em>constants</em> are fine.)
+</p></li><li><p>
+No files other than those whose names begin with <code>test</code> may
+contain code that reads anything from <code>cin</code> or writes anything
+to <code>cout</code>, except that for problem 4,
+<code>CarMap::print</code> must write to <code>cout</code>, and for
+problem 5, the implementation of the constructor that takes an integer
+parameter may write a message and exit the program if the integer is
+negative.  Any file may write to <code>cerr</code> (perhaps for debugging
+purposes); we will ignore any output written to <code>cerr</code>.
+</p></li><li><p>
+You must have an implementation for every member function of Map and
+CarMap.  If you can't get a function implemented correctly, its
+implementation must at least build successfully.  For example, if you
+don't have time to correctly implement <code>Map::erase</code> or
+<code>Map::swap</code>, say, here are implementations that meet this
+requirement in that they at least allow programs to build successfully
+even though they might execute incorrectly:
+</p>
+<pre>
+        bool Map::erase(const KeyType&amp; value)
+        {
+            return true;  // not correct, but at least this compiles
+        }
+
+        void Map::swap(Map&amp; other)
+        {
+            // does nothing; not correct, but at least this compiles
+        }
+</pre>
+</p></li><li><p>
+Given <code>Map.h</code> with the type alias for the Map's key type specifying
+<code>std::string</code> and the type alias for its value type specifying
+<code>double</code>, if we make no change to your <code>Map.cpp</code>,
+then if we compile your <code>Map.cpp</code> and link it to a file containing
+</p>
+<pre>
+        #include "Map.h"
+        #include &lt;string>
+        #include &lt;iostream>
+        #include &lt;cassert>
+        using namespace std;
+
+        void test()
+        {
+            Map m;
+            assert(m.insert("Fred", 2.956));
+            assert(m.insert("Ethel", 3.538));
+            assert(m.size() == 2);
+            ValueType v = 42;
+            assert(!m.get("Lucy", v)  &amp;&amp;  v == 42);
+            assert(m.get("Fred", v)  &amp;&amp;  v == 2.956);
+            v = 42;
+            KeyType x = "Lucy";
+            assert(m.get(0, x, v)  &amp;&amp;
+                   ((x == "Fred"  &amp;&amp;  v == 2.956)  ||  (x == "Ethel"  &amp;&amp;  v == 3.538)));
+            KeyType x2 = "Ricky";
+            assert(m.get(1, x2, v)  &amp;&amp;
+                   ((x2 == "Fred"  &amp;&amp;  v == 2.956)  ||  (x2 == "Ethel"  &amp;&amp;  v == 3.538))  &amp;&amp;
+                   x != x2);
+        }
+
+        int main()
+        {
+            test();
+            cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+        }
+</pre>
+<p>
+the linking must succeed.  When the resulting executable is run, it must
+write <code>Passed all tests</code> and nothing more to <code>cout</code>
+and terminate normally.
+</p></li><li><p>
+If we successfully do the above, then in <code>Map.h</code> change the Map's
+type aliases to specify <code>int</code> as the key type and
+<code>std::string</code> as the value type without making any other changes,
+recompile <code>Map.cpp</code>, and link it to a file containing
+</p>
+<pre>
+        #include "Map.h"
+        #include &lt;string>
+        #include &lt;iostream>
+        #include &lt;cassert>
+        using namespace std;
+
+        void test()
+        {
+            Map m;
+            assert(m.insert(10, "diez"));
+            assert(m.insert(20, "veinte"));
+            assert(m.size() == 2);
+            ValueType v = "cuarenta y dos";
+            assert(!m.get(30, v)  &amp;&amp;  v == "cuarenta y dos");
+            assert(m.get(10, v)  &amp;&amp;  v == "diez");
+            v = "cuarenta y dos";
+            KeyType x = 30;
+            assert(m.get(0, x, v)  &amp;&amp;
+                   ((x == 10  &amp;&amp;  v == "diez")  ||  (x == 20  &amp;&amp;  v == "veinte")));
+            KeyType x2 = 40;
+            assert(m.get(1, x2, v)  &amp;&amp;
+                   ((x2 == 10  &amp;&amp;  v == "diez")  ||  (x2 == 20  &amp;&amp;  v == "veinte"))  &amp;&amp;
+                   x != x2);
+        }
+
+        int main()
+        {
+            test();
+            cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+        }
+</pre>
+<p>
+the linking must succeed.  When the resulting executable is run, it must
+write <code>Passed all tests</code> and nothing more to <code>cout</code>
+and terminate normally.
+</p></li><li><p>
+Given <code>newMap.h</code> with the type alias for the Map's key type
+specifying <code>std::string</code> and the type alias for its value type
+specifying <code>double</code>, if we make no change to your
+<code>newMap.cpp</code>, then if we compile your <code>newMap.cpp</code>
+and link it to a file containing
+</p>
+<pre>
+        #include "newMap.h"
+        #include &lt;string>
+        #include &lt;iostream>
+        #include &lt;cassert>
+        using namespace std;
+
+        void test()
+        {
+            Map m;
+            assert(m.insert("Fred", 2.956));
+            assert(m.insert("Ethel", 3.538));
+            assert(m.size() == 2);
+            ValueType v = 42;
+            assert(!m.get("Lucy", v)  &amp;&amp;  v == 42);
+            assert(m.get("Fred", v)  &amp;&amp;  v == 2.956);
+            v = 42;
+            KeyType x = "Lucy";
+            assert(m.get(0, x, v)  &amp;&amp;
+                   ((x == "Fred"  &amp;&amp;  v == 2.956)  ||  (x == "Ethel"  &amp;&amp;  v == 3.538)));
+            KeyType x2 = "Ricky";
+            assert(m.get(1, x2, v)  &amp;&amp;
+                   ((x2 == "Fred"  &amp;&amp;  v == 2.956)  ||  (x2 == "Ethel"  &amp;&amp;  v == 3.538))  &amp;&amp;
+                   x != x2);
+        }
+
+        int main()
+        {
+            test();
+            cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+        }
+</pre>
+<p>
+the linking must succeed.  When the resulting executable is run, it must
+write <code>Passed all tests</code> and nothing more to <code>cout</code>
+and terminate normally.
+</p></li><li><p>
+If we successfully do the above, then in <code>newMap.h</code> change the Map's
+type aliases to specify <code>int</code> as the key type and
+<code>std::string</code> as the value type without making any other changes,
+recompile <code>newMap.cpp</code>, and link it to a file containing
+</p>
+<pre>
+        #include "newMap.h"
+        #include &lt;string>
+        #include &lt;iostream>
+        #include &lt;cassert>
+        using namespace std;
+
+        void test()
+        {
+            Map m;
+            assert(m.insert(10, "diez"));
+            assert(m.insert(20, "veinte"));
+            assert(m.size() == 2);
+            ValueType v = "cuarenta y dos";
+            assert(!m.get(30, v)  &amp;&amp;  v == "cuarenta y dos");
+            assert(m.get(10, v)  &amp;&amp;  v == "diez");
+            v = "cuarenta y dos";
+            KeyType x = 30;
+            assert(m.get(0, x, v)  &amp;&amp;
+                   ((x == 10  &amp;&amp;  v == "diez")  ||  (x == 20  &amp;&amp;  v == "veinte")));
+            KeyType x2 = 40;
+            assert(m.get(1, x2, v)  &amp;&amp;
+                   ((x2 == 10  &amp;&amp;  v == "diez")  ||  (x2 == 20  &amp;&amp;  v == "veinte"))  &amp;&amp;
+                   x != x2);
+        }
+
+        int main()
+        {
+            test();
+            cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+        }
+</pre>
+<p>
+the linking must succeed.  When the resulting executable is run, it must
+write <code>Passed all tests</code> and nothing more to <code>cout</code>
+and terminate normally.
+</p></li><li><p>
+During execution, your program must not perform any undefined actions, such
+as accessing an array element out of bounds, or dereferencing a null or
+uninitialized pointer.
+</p></li>
+</ul>
+<p>
+Notice that we are not requiring any particular content in
+<code>testMap.cpp</code>, <code>testCarMap.cpp</code>, and
+<code>testnewMap.cpp</code>, as long as they meet the requirements above.
+Of course, the intention is that you'd use those files for the test code that
+you'd write to convince yourself that your implementations are correct.
+Although we will throughly evaluate your implementations for correctness,
+for homeworks, unlike for projects, we will not grade the thoroughness of
+your test cases.  Incidentally, for homeworks, unlike for projects, we will
+also not grade your program commenting.
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/1/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:31 GMT -->
+</html>

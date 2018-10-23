@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/4/vcreleasemode.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:32:38 GMT -->
+<head>
+ <title>Running in Release Mode in Visual C++</title>
+</head>
+<body>
+<h2>Running in Release mode in Visual C++</h2>
+<p>
+To speed up your program, you can build your program in the Release
+configuration instead of the Debug configuration.  Programs built in the
+Release configuration run much faster than in the Debug configuration, but
+you lose the ability to get much information from the debugger if you're
+using it to track down a bug.  (You can always switch the configuration
+back from Release to Debug if you like.)  Here's what you do in Visual C++:
+</p>
+<ol>
+<li>
+<p>
+In the source file that contains the main routine, add these lines at the
+top of the file, outside of any function or class:
+</p>
+<pre>
+	#if defined(_MSC_VER)  &&  !defined(_DEBUG)
+	#include &lt;iostream>
+	#include &lt;windows.h>
+	#include &lt;conio.h>
+
+	struct KeepWindowOpenUntilDismissed
+	{
+	    ~KeepWindowOpenUntilDismissed()
+	    {
+	        DWORD pids[1];
+	        if (GetConsoleProcessList(pids, 1) == 1)
+	        {
+	            std::cout &lt;&lt; "Press any key to continue . . . ";
+	            _getch();
+	        }
+	    }
+	} keepWindowOpenUntilDismissed;
+	#endif
+</pre>
+<p>
+There is no need to remove these lines even if you go back to running in
+Debug mode or you run under g32 or clang++.  You may leave them in a program
+you turn in.
+</p>
+</li>
+<li>
+<p>
+In the <strong>Build</strong> menu, select <strong>Configuration
+Manager</strong>.
+</p>
+</li>
+<li>
+<p>
+In the drop-down list under <strong>Active Solution Configuration</strong>,
+select <strong>Release</strong> instead of <strong>Debug</strong>, and then
+close that dialog.
+</p>
+</li>
+</ol>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/4/vcreleasemode.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:32:38 GMT -->
+</html>

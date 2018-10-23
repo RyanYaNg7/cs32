@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/3/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+<head>
+ <title>CS 32 Homework 3 Solution, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Homework 3 Solution</h2>
+</div>
+<table cellpadding="3">
+<colgroup width="30%" span="2"></colgroup>
+<tr><td><a href="#P1">Problem 1</a></td>
+    <td><a href="#P3">Problem 3</a></td></tr>
+<tr><td><a href="#P2">Problem 2</a></td>
+    <td><a href="#P4">Problem 4</a></td></tr>
+</table>
+<h4><a id="P1"></a>Problem 1:</h4>
+<p>
+Since all Investments have a name and a purchase price, and since the way
+you find out the name and purchase price is going to be the same for all
+kinds of investments, they should be a data members of Investment, and the
+functions to retrieve them need not be virtual.
+</p>
+<p>
+The different kinds of investments may have different behavior for the
+description and fungible functions, so these should be virtual.  Since most
+types of investments are non-fungible it's convenient to have
+Investment::fungible have an implementation (returning false) that derived
+classes may inherit if they wish.  There is no reasonable default behavior
+for the description, so this should be pure virtual.
+</p>
+<p>
+Observe how the constructors for the derived classes pass the name and purchase
+price to the Investment constructor.  Examine Stock's constructor
+especially.  Also note that Investment, because it's designed as a base
+class, has a virtual destructor.  Observe what happens if its destructor
+were not declared virtual.
+</p>
+<pre>
+// ======================================= Investment
+class Investment
+{
+  public:
+    Investment(string nm, int pp);
+    string name() const;
+    int purchasePrice() const;
+    virtual string description() const = 0;
+    virtual bool fungible() const;
+    virtual ~Investment() {}
+  private:
+    string m_name;
+    int m_purchasePrice;
+};
+
+Investment::Investment(string nm, int pp)
+ : m_name(nm), m_purchasePrice(pp)
+{}
+
+string Investment::name() const
+{
+  return m_name;
+}
+
+int Investment::purchasePrice() const
+{
+  return m_purchasePrice;
+}
+
+bool Investment::fungible() const
+{
+  return false;
+}
+
+// ======================================= Painting
+class Painting : public Investment
+{
+  public:
+    Painting(string nm, int pp);
+    virtual string description() const;
+    virtual ~Painting();
+};
+
+Painting::Painting(string nm, int pp)
+ : Investment(nm, pp)
+{}
+
+string Painting::description() const
+{
+  return "painting";
+}
+
+Painting::~Painting()
+{
+  cout &lt;&lt; "Destroying " &lt;&lt; name() &lt;&lt; ", a painting" &lt;&lt; endl;
+}
+
+// ======================================= Stock
+class Stock : public Investment
+{
+  public:
+    Stock(string nm, int pp, string ticker);
+    virtual string description() const;
+    virtual bool fungible() const;
+    virtual ~Stock();
+  private:
+    string m_tickerSymbol;
+};
+
+Stock::Stock(string nm, int pp, string ticker)
+ : Investment(nm, pp), m_tickerSymbol(ticker)
+{}
+
+string Stock::description() const
+{
+  return "stock trading as " + m_tickerSymbol;
+}
+
+bool Stock::fungible() const
+{
+  return true;
+}
+
+Stock::~Stock()
+{
+  cout &lt;&lt; "Destroying " &lt;&lt; name() &lt;&lt; ", a stock holding" &lt;&lt; endl;
+}
+
+// ======================================= House
+class House : public Investment
+{
+  public:
+    House(string nm, int pp);
+    virtual string description() const;
+    virtual ~House();
+};
+
+House::House(string nm, int pp)
+ : Investment(nm, pp)
+{}
+
+string House::description() const
+{
+  return "house";
+}
+
+House::~House()
+{
+  cout &lt;&lt; "Destroying the house " + name() &lt;&lt; endl;
+}
+</pre>
+<h4><a id="P2"></a>Problem 2:</h4>
+<pre>
+  // Return false if the somePredicate function returns false for at
+  // least one of the array elements; return true otherwise.
+bool allTrue(const double a[], int n)
+{
+    if (n &lt;= 0)
+        return true;
+    if ( ! somePredicate(a[0]))
+        return false;
+    return allTrue(a+1, n-1);
+}
+
+  // Return the number of elements in the array for which the
+  // somePredicate function returns false.
+int countFalse(const double a[], int n)
+{
+    if (n &lt;= 0)
+        return 0;
+    int t = ! somePredicate(a[0]);  // 1 if false, 0 if true
+    return t + countFalse(a+1, n-1);
+}
+
+  // Return the subscript of the first element in the array for which
+  // the somePredicate function returns false.  If there is no such
+  // element, return -1.
+int firstFalse(const double a[], int n)
+{
+    if (n &lt;= 0)
+        return -1;
+    if ( ! somePredicate(a[0]))
+        return 0;
+    int k = firstFalse(a+1, n-1);
+    if (k == -1)
+        return -1;
+    return 1 + k;  // element k of "the rest of a" is element 1+k of a
+}
+
+  // Return the subscript of the smallest double in the array (i.e.,
+  // the one whose value is <= the value of all elements).  If more
+  // than one element has the same smallest value, return the smallest
+  // subscript of such an element.  If the array has no elements to
+  // examine, return -1.
+int indexOfMin(const double a[], int n)
+{
+    if (n &lt;= 0)
+        return -1;
+    if (n == 1)
+        return 0;
+    int k = 1 + indexOfMin(a+1, n-1);  // indexOfMin can't return -1 here
+    return a[0] <= a[k] ? 0 : k;
+
+    // Here's an alternative for the last two lines above:
+    // int k = indexOfMin(a, n-1);  // indexOfMin can't return -1 here
+    // return a[k] <= a[n-1] ? k : n-1;
+}
+
+  // If all n2 elements of a2 appear in the n1 element array a1, in
+  // the same order (though not necessarily consecutively), then
+  // return true; otherwise (i.e., if the array a1 does not include
+  // a2 as a not-necessarily-contiguous subsequence), return false.
+  // (Of course, if a2 is empty (i.e., n2 is 0), return true.)
+  // For example, if a1 is the 7 element array
+  //    10 50 40 20 50 40 30 
+  // then the function should return true if a2 is
+  //    50 20 30
+  // or
+  //    50 40 40
+  // and it should return false if a2 is
+  //    50 30 20
+  // or
+  //    10 20 20
+bool includes(const double a1[], int n1, const double a2[], int n2)
+{
+    if (n2 &lt;= 0)
+        return true;
+    if (n1 &lt; n2)
+        return false;
+
+      // If we get here, a1 and a2 are nonempty
+    if (a1[0] == a2[0])
+        return includes(a1+1, n1-1, a2+1, n2-1);  // rest of a1, rest of a2
+    else
+        return includes(a1+1, n1-1, a2, n2);  // rest of a1, all of a2
+}
+</pre>
+<h4><a id="P3"></a>Problem 3:</h4>
+<pre>
+bool pathExists(string maze[], int nRows, int nCols, int sr, int sc, int er, int ec)
+{
+    if (sr == er  &amp;&amp;  sc == ec)
+        return true;
+
+    maze[sr][sc] = '@';  // anything non-'.' will do
+
+    if (maze[sr-1][sc] == '.'  &amp;&amp;  pathExists(maze, nRows, nCols, sr-1, sc, er, ec))
+        return true;
+    if (maze[sr+1][sc] == '.'  &amp;&amp;  pathExists(maze, nRows, nCols, sr+1, sc, er, ec))
+        return true;
+    if (maze[sr][sc-1] == '.'  &amp;&amp;  pathExists(maze, nRows, nCols, sr, sc-1, er, ec))
+        return true;
+    if (maze[sr][sc+1] == '.'  &amp;&amp;  pathExists(maze, nRows, nCols, sr, sc+1, er, ec))
+        return true;
+
+    return false;
+}
+</pre>
+<p>
+or
+</p>
+<pre>
+bool pathExists(string maze[], int nRows, int nCols, int sr, int sc, int er, int ec)
+{
+    if (maze[sr][sc] != '.')
+        return false;
+
+    if (sr == er  &amp;&amp;  sc == ec)
+        return true;
+
+    maze[sr][sc] = '@';  // anything non-'.' will do
+
+    if (pathExists(maze, nRows, nCols, sr-1, sc, er, ec))
+        return true;
+    if (pathExists(maze, nRows, nCols, sr+1, sc, er, ec))
+        return true;
+    if (pathExists(maze, nRows, nCols, sr, sc-1, er, ec))
+        return true;
+    if (pathExists(maze, nRows, nCols, sr, sc+1, er, ec))
+        return true;
+
+    return false;
+}
+</pre>
+<h4><a id="P4"></a>Problem 4:</h4>
+<pre>
+  // Return the number of ways that all n2 elements of a2 appear
+  // in the n1 element array a1 in the same order (though not
+  // necessarily consecutively).  The empty sequence appears in a
+  // sequence of length n1 in 1 way, even if n1 is 0.
+  // For example, if a1 is the 7 element array
+  //    10 50 40 20 50 40 30
+  // then for this value of a2     the function must return
+  //    10 20 40                        1
+  //    10 40 30                        2
+  //    20 10 40                        0
+  //    50 40 30                        3
+int countIncludes(const double a1[], int n1, const double a2[], int n2)
+{
+    if (n2 &lt;= 0)
+        return 1;
+    if (n1 &lt; n2)
+        return 0;
+
+      // If we get here, a1 and a2 are nonempty
+    int t = countIncludes(a1+1, n1-1, a2, n2);  // rest of a1, all of a2
+    if (a1[0] == a2[0])
+        t += countIncludes(a1+1, n1-1, a2+1, n2-1);  // rest of a1, rest of a2
+    return t;
+}
+
+  // Exchange two doubles
+void exchange(double&amp; x, double&amp; y)
+{
+    double t = x;
+    x = y;
+    y = t;
+}
+
+  // Rearrange the elements of the array so that all the elements
+  // whose value is > splitter come before all the other elements,
+  // and all the elements whose value is &lt; splitter come after all
+  // the other elements.  Upon return, firstNotGreater is set to the
+  // index of the first element in the rearranged array that is
+  // &lt;= splitter, or n if there is no such element, and firstLess is
+  // set to the index of the first element that is &lt; splitter, or n
+  // if there is no such element.
+  // In other words, upon return from the function, the array is a
+  // permutation of its original value such that
+  //   * for 0 &lt;= i &lt; firstNotGreater, a[i] > splitter
+  //   * for firstNotGreater &lt;= i &lt; firstLess, a[i] == splitter
+  //   * for firstLess &lt;= i &lt; n, a[i] &lt; splitter
+  // All the elements > splitter end up in no particular order.
+  // All the elements &lt; splitter end up in no particular order.
+void split(double a[], int n, double splitter,
+                                    int&amp; firstNotGreater, int&amp; firstLess)
+{
+    if (n &lt; 0)
+        n = 0;
+
+      // It will always be the case that just before evaluating the loop
+      // condition:
+      //  firstNotGreater &lt;= firstUnknown and firstUnknown &lt;= firstLess
+      //  Every element earlier than position firstNotGreater is > splitter
+      //  Every element from position firstNotGreater to firstUnknown-1 is
+      //    == splitter
+      //  Every element from firstUnknown to firstLess-1 is not known yet
+      //  Every element at position firstLess or later is &lt; splitter
+
+    firstNotGreater = 0;
+    firstLess = n;
+    int firstUnknown = 0;
+    while (firstUnknown &lt; firstLess)
+    {
+        if (a[firstUnknown] &lt; splitter)
+        {
+            firstLess--;
+            exchange(a[firstUnknown], a[firstLess]);
+        }
+        else
+        {
+            if (a[firstUnknown] > splitter)
+            {
+                exchange(a[firstNotGreater], a[firstUnknown]);
+                firstNotGreater++;
+            }
+            firstUnknown++;
+        }
+    }
+}
+
+  // Rearrange the elements of the array so that
+  // a[0] >= a[1] >= a[2] >= ... >= a[n-2] >= a[n-1]
+  // If n &lt;= 1, do nothing.
+void order(double a[], int n)
+{
+    if (n &lt;= 1)
+        return;
+
+      // Split using a[0] as the splitter (any element would do).
+    int firstNotGreater;
+    int firstLess;
+    split(a, n, a[0], firstNotGreater, firstLess);
+
+      // sort the elements > splitter
+    order(a, firstNotGreater);
+
+      // sort the elements &lt; splitter
+    order(a+firstLess, n-firstLess);
+}
+</pre>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/3/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+</html>

@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/1/cs31p7testing.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+<head>
+ <title>Project 7 Test Data</title>
+</head>
+<body>
+<h2>Project 7 Test Data</h2>
+<p>
+There were 30 test cases; cases 1 through 20 were worth 3 points each, and
+cases 21 though 30 were worth 4 points each.  Each test case is represented
+by an assertion that must be true for you to pass that test.  To run the test
+cases:
+</p>
+<ol>
+<li>Remove the main routine from your gas.cpp file.</li>
+<li>Append the following text to the end of your gas.cpp file, and build
+the resulting program.</li>
+<li>For any test case you wish to try, run the program, providing as input
+the test number.</li>
+</ol>
+<pre>
+#include &lt;iostream>
+#include &lt;sstream>
+#include &lt;streambuf>
+#include &lt;string>
+#include &lt;map>
+#include &lt;cstdlib>
+#include &lt;cassert>
+using namespace std;
+
+class streambuf_switcher
+{
+  public:
+    streambuf_switcher(ios&amp; dest, ios&amp; src)
+     : dest_stream(dest), saved_streambuf(dest.rdbuf(src.rdbuf()))
+    {}
+    ~streambuf_switcher()
+    {
+	dest_stream.rdbuf(saved_streambuf);
+    }
+  private:
+    ios&amp; dest_stream;
+    streambuf* saved_streambuf;
+};
+
+map&lt;void*, size_t> allocMap;
+bool recordaddrs = false;
+
+inline bool isRecordedSize(size_t n)
+{
+        return n == sizeof(Flatulan)  ||  n == sizeof(Player);
+}
+
+void* operator new(size_t n)
+{
+	void* p = malloc(n);
+	fill_n(static_cast&lt;char*>(p), n, 0xca);
+	if (recordaddrs  &amp;&amp;  isRecordedSize(n))
+	{
+		recordaddrs = false;
+		allocMap.insert(make_pair(p, n));
+		recordaddrs = true;
+	}
+	return p;
+}
+
+void unrecordaddr(void* p)
+{
+	recordaddrs = false;
+	auto it = allocMap.find(p);
+	if (it != allocMap.end())
+	{
+		fill_n(static_cast&lt;char*>(p), it->second, 0xcb);
+		allocMap.erase(it);
+	}
+	recordaddrs = true;
+}
+
+#if __cplusplus >= 201402L  &amp;&amp;  ! defined(__clang__)
+// Unless clang is supplied the -fsized-deallocation flag, it will
+// not call the C++14 sized operator delete.
+
+void operator delete(void* p) noexcept
+{
+	free(p);
+}
+
+void operator delete(void* p, size_t n) noexcept
+{
+	if (recordaddrs  &amp;&amp;  isRecordedSize(n))
+		unrecordaddr(p);
+	operator delete(p);
+}
+#else
+void operator delete(void* p) noexcept
+{
+	if (recordaddrs)
+		unrecordaddr(p);
+	free(p);
+}
+#endif
+
+void testone(int n)
+{
+	streambuf_switcher sso(cout, cerr);
+
+	switch (n)
+	{
+			         default: {
+		cout &lt;&lt; "Bad argument" &lt;&lt; endl;
+			} break; case  1: {
+		City c(10, 18);
+		c.addPlayer(2, 2);
+		Flatulan f(&amp;c, 5, 17);
+		assert(f.row() == 5  &amp;&amp;  f.col() == 17);
+			} break; case  2: {
+		bool movedr = false;
+		bool movedl = false;
+		bool stayed = false;
+		for (int k = 0; k &lt; 150; k++)
+		{
+			City c(1, 30);
+			c.addPlayer(1, 1);
+			Flatulan f(&amp;c, 1, 29);
+			assert(f.row() == 1  &amp;&amp;  f.col() == 29);
+			for (int n = 0; n &lt; 2; n++)
+			{
+				int oldc = f.col();
+				f.move();
+				assert(f.row() == 1  &amp;&amp;  f.col() &lt;= 30);
+				int d = f.col() - oldc;
+				switch (d)
+				{
+				  case  0:  stayed = true; break;
+				  case  1:  movedr = true; break;
+				  case -1:  movedl = true; break;
+				  default:  assert(false);
+				}
+			}
+		}
+		assert(movedr  &amp;&amp;  movedl  &amp;&amp;  stayed);
+			} break; case  3: {
+		bool movedd = false;
+		bool movedu = false;
+		bool stayed = false;
+		for (int k = 0; k &lt; 150; k++)
+		{
+			City c(20, 1);
+			c.addPlayer(1, 1);
+			Flatulan f(&amp;c, 19, 1);
+			assert(f.row() == 19  &amp;&amp;  f.col() == 1);
+			for (int n = 0; n &lt; 2; n++)
+			{
+				int oldr = f.row();
+				f.move();
+				assert(f.col() == 1  &amp;&amp;  f.row() &lt;= 20);
+				int d = f.row() - oldr;
+				switch (d)
+				{
+				  case  0:  stayed = true; break;
+				  case  1:  movedd = true; break;
+				  case -1:  movedu = true; break;
+				  default:  assert(false);
+				}
+			}
+		}
+		assert(movedd  &amp;&amp;  movedu  &amp;&amp;  stayed);
+			} break; case  4: {
+		City c(20, 20);
+		c.addPlayer(1, 1);
+		Flatulan f(&amp;c, 12, 12);
+		for (int k = 0; k &lt; 8; k++)
+		{
+			int oldr = f.row();
+			int oldc = f.col();
+			f.move();
+			assert((f.row() == oldr  &amp;&amp;  abs(f.col() - oldc) == 1)  ||
+			       (f.col() == oldc  &amp;&amp;  abs(f.row() - oldr) == 1));
+		}
+			} break; case  5: {
+		const int dr[NUMDIRS+1] = { -1,  0,  1,  0,  0 };
+		const int dc[NUMDIRS+1] = {  0,  1,  0, -1,  0 };
+		for (int k = 0; k &lt; NUMDIRS; k++)
+		{
+			int nvisits[NUMDIRS+1] = { 0 };
+			for (int n = 0; n &lt; 100; n++)
+			{
+				City c(20, 20);
+				c.addPlayer(10, 10);
+				int oldr = 10 - dr[k];
+				int oldc = 10 - dc[k];
+				Flatulan f(&amp;c, oldr, oldc);
+				f.move();
+				int rdiff = f.row() - oldr;
+				int cdiff = f.col() - oldc;
+				int i;
+				for (i = 0; i &lt; NUMDIRS+1; i++)
+				{
+					if (rdiff == dr[i]  &amp;&amp;  cdiff == dc[i])
+					{
+						nvisits[i]++;
+						break;
+					}
+				}
+				assert(i &lt; NUMDIRS+1);
+			}
+			for (int i = 0; i &lt; NUMDIRS+1; i++)
+				assert(k == i ? nvisits[i] == 0 : nvisits[i] > 1);
+		}
+			} break; case  6: {
+		int n = 0;
+		for (int k = 0; k &lt; 600; k++)
+		{
+			City c(10, 20);
+			c.addPlayer(1, 1);
+			Flatulan f(&amp;c, 1, 2);
+			if (f.possiblyGetConverted())
+				n++;
+		}
+		assert(n >= 360  &amp;&amp;  n &lt;= 440);
+			} break; case  7: {
+		City c(10, 20);
+		Player p(&amp;c, 2, 3);
+		assert(p.row() == 2  &amp;&amp;  p.col() == 3  &amp;&amp;  !p.isPassedOut());
+			} break; case  8: {
+		City c(10, 20);
+		Player p(&amp;c, 2, 3);
+		for (int k = 0; k &lt; 10; k++)
+		{
+			assert(!p.isPassedOut());
+			p.getGassed();
+		}
+		assert(p.isPassedOut());
+			} break; case  9: {
+		City c(10, 20);
+		Player p(&amp;c, 2, 3);
+		for (int k = 0; k &lt; 10; k++)
+		{
+			assert(p.health() == 10 - k);
+			p.getGassed();
+		}
+		assert(p.isPassedOut());
+			} break; case 10: {
+		City c(10, 18);
+		c.addPlayer(10, 17);
+		Player* pp = c.player();
+		pp->move(RIGHT);
+		assert(pp->row() == 10  &amp;&amp;  pp->col() == 18  &amp;&amp;  !pp->isPassedOut());
+		pp->move(DOWN);
+		assert(pp->row() == 10  &amp;&amp;  pp->col() == 18  &amp;&amp;  !pp->isPassedOut());
+		pp->move(RIGHT);
+		assert(pp->row() == 10  &amp;&amp;  pp->col() == 18  &amp;&amp;  !pp->isPassedOut());
+			} break; case 11: {
+		City c(10, 18);
+		c.addPlayer(2, 1);
+		Player* pp = c.player();
+		pp->move(UP);
+		assert(pp->row() == 1  &amp;&amp;  pp->col() == 1  &amp;&amp;  !pp->isPassedOut());
+		pp->move(LEFT);
+		assert(pp->row() == 1  &amp;&amp;  pp->col() == 1  &amp;&amp;  !pp->isPassedOut());
+		pp->move(UP);
+		assert(pp->row() == 1  &amp;&amp;  pp->col() == 1  &amp;&amp;  !pp->isPassedOut());
+			} break; case 12: {
+		City c(10, 20);
+		c.addPlayer(8, 12);
+		Player* pp = c.player();
+		pp->move(UP);
+		assert(pp->row() == 7  &amp;&amp;  pp->col() == 12);
+		pp->move(DOWN);
+		assert(pp->row() == 8  &amp;&amp;  pp->col() == 12);
+		pp->move(LEFT);
+		assert(pp->row() == 8  &amp;&amp;  pp->col() == 11);
+		pp->move(RIGHT);
+		assert(pp->row() == 8  &amp;&amp;  pp->col() == 12);
+			} break; case 13: {
+		City c(10, 18);
+		c.addPlayer(5, 7);
+		c.addFlatulan(3, 7);
+		c.addFlatulan(4, 9);
+		c.addFlatulan(6, 8);
+		c.addFlatulan(5, 6);
+		Player* pp = c.player();
+		pp->move(UP);
+		assert(pp->row() == 4  &amp;&amp;  pp->col() == 7  &amp;&amp;  !pp->isPassedOut());
+		pp->move(UP);
+		assert(pp->row() == 4  &amp;&amp;  pp->col() == 7  &amp;&amp;  !pp->isPassedOut());
+		pp->move(RIGHT);
+		assert(pp->row() == 4  &amp;&amp;  pp->col() == 8  &amp;&amp;  !pp->isPassedOut());
+		pp->move(RIGHT);
+		assert(pp->row() == 4  &amp;&amp;  pp->col() == 8  &amp;&amp;  !pp->isPassedOut());
+		pp->move(DOWN);
+		assert(pp->row() == 5  &amp;&amp;  pp->col() == 8  &amp;&amp;  !pp->isPassedOut());
+		pp->move(DOWN);
+		assert(pp->row() == 5  &amp;&amp;  pp->col() == 8  &amp;&amp;  !pp->isPassedOut());
+		pp->move(LEFT);
+		assert(pp->row() == 5  &amp;&amp;  pp->col() == 7  &amp;&amp;  !pp->isPassedOut());
+		pp->move(LEFT);
+		assert(pp->row() == 5  &amp;&amp;  pp->col() == 7  &amp;&amp;  !pp->isPassedOut());
+			} break; case 14: {
+		City c(10, 18);
+		c.addPlayer(3, 9);
+		assert(c.flatulanCount() == 0);
+		c.addFlatulan(4, 9);
+		for (int k = 0; k &lt; 100  &amp;&amp;  c.flatulanCount() == 1; k++)
+			c.player()->preach();
+		assert(c.flatulanCount() == 0);
+			} break; case 15: {
+		City c(10, 18);
+		c.addPlayer(3, 9);
+		assert(c.flatulanCount() == 0);
+		for (int k = 1; k &lt;= 20; k++)
+		{
+			c.addFlatulan(3, 8);
+			c.addFlatulan(3, 10);
+			assert(c.flatulanCount() == 2 * k);
+		}
+		int prevct = c.flatulanCount();
+		for (int k = 0; k &lt; 100  &amp;&amp;  prevct > 0; k++)
+		{
+			c.player()->preach();
+			int ct = c.flatulanCount();
+			assert(ct &lt;= prevct);
+			prevct = ct;
+		}
+		assert(prevct == 0);
+			} break; case 16: {
+		City c(10, 18);
+		c.addPlayer(3, 9);
+		assert(c.nFlatulansAt(2, 9) == 0);
+		c.addFlatulan(2, 9);
+		for (int k = 0; k &lt; 100  &amp;&amp;  c.nFlatulansAt(2, 9) == 1; k++)
+			c.player()->preach();
+		assert(c.nFlatulansAt(2, 9) == 0);
+			} break; case 17: {
+		City c(2, 3);
+		c.addPlayer(1, 2);
+		c.addFlatulan(1, 3);
+		c.addFlatulan(2, 2);
+		ostringstream oss;
+		streambuf *sb = cout.rdbuf(oss.rdbuf());
+		c.display();
+		cout.rdbuf(sb);
+		string s = oss.str();
+		assert(s.find(".@F") != string::npos  &amp;&amp;  s.find(".F.") != string::npos);
+			} break; case 18: {
+		City c(2, 3);
+		c.addPlayer(1, 2);
+		for (int k = 1; k &lt;= 8; k++)
+			c.addFlatulan(1, 3);
+		c.addFlatulan(2, 2);
+		ostringstream oss;
+		streambuf *sb = cout.rdbuf(oss.rdbuf());
+		c.display();
+		cout.rdbuf(sb);
+		string s = oss.str();
+		assert(s.find(".@8") != string::npos);
+			} break; case 19: {
+		City c(2, 3);
+		c.addPlayer(1, 2);
+		for (int k = 1; k &lt;= 10; k++)
+			c.addFlatulan(1, 3);
+		c.addFlatulan(2, 2);
+		ostringstream oss;
+		streambuf *sb = cout.rdbuf(oss.rdbuf());
+		c.display();
+		cout.rdbuf(sb);
+		string s = oss.str();
+		assert(s.find(".@9") != string::npos);
+			} break; case 20: {
+		City c(10, 18);
+		c.addPlayer(3, 9);
+		int prevct[3];
+		for (int dr = -1; dr &lt;= 1; dr++)
+		{
+			if (dr == 0)
+				continue;
+			for (int k = 0; k &lt; MAXFLATULANS/2; k++)
+				assert(c.addFlatulan(3+dr, 9));
+			prevct[1+dr] = c.nFlatulansAt(3+dr, 9);
+			assert(prevct[1+dr] == MAXFLATULANS/2);
+		}
+		bool anyleft = true;
+		for (int k = 0; k &lt; 100  &amp;&amp;  anyleft; k++)
+		{
+			anyleft = false;
+			c.player()->preach();
+			for (int dr = -1; dr &lt;= 1; dr++)
+			{
+				if (dr == 0)
+					continue;
+				int ct = c.nFlatulansAt(3+dr, 9);
+				assert(ct &lt;= prevct[1+dr]);
+				prevct[1+dr] = ct;
+				if (ct > 0)
+					anyleft = true;
+			}
+		}
+		assert(!anyleft);
+			} break; case 21: {
+		City c(10, 18);
+		c.addPlayer(3, 9);
+		int prevct[3][3];
+		for (int dr = -1; dr &lt;= 1; dr++)
+		  for (int dc = -1; dc &lt;= 1; dc++)
+		  {
+			if (dr == 0  &amp;&amp;  dc == 0)
+				continue;
+			for (int k = 0; k &lt; MAXFLATULANS/8; k++)
+				assert(c.addFlatulan(3+dr, 9+dc));
+			prevct[1+dr][1+dc] = c.nFlatulansAt(3+dr, 9+dc);
+			assert(prevct[1+dr][1+dc] == MAXFLATULANS/8);
+		  }
+		bool allgone = true;
+		for (int k = 0; k &lt; 100  &amp;&amp;  !allgone; k++)
+		{
+			allgone = true;
+			c.player()->preach();
+			for (int dr = -1; dr &lt;= 1; dr++)
+			  for (int dc = -1; dc &lt;= 1; dc++)
+			  {
+				if (dr == 0  &amp;&amp;  dc == 0)
+					continue;
+				int ct = c.nFlatulansAt(3+dr, 9+dc);
+				assert(ct &lt;= prevct[1+dr][1+dc]);
+				prevct[1+dr][1+dc] = ct;
+				if (ct != 0)
+					allgone = false;
+			  }
+		}
+		assert(allgone);
+			} break; case 22: {
+		int n = 0;
+		for (int k = 0; k &lt; 600; k++)
+		{
+			City c(10, 18);
+			c.addPlayer(3, 9);
+			assert(c.flatulanCount() == 0);
+			c.addFlatulan(3, 10);
+			assert(c.flatulanCount() == 1);
+			c.player()->preach();
+			if (c.flatulanCount() == 0)
+				n++;
+		}
+		assert(n >= 360  &amp;&amp;  n &lt;= 440);
+			} break; case 23: {
+		City c(10, 18);
+		c.addPlayer(3, 9);
+		for (int k = 0; k &lt; MAXFLATULANS; k++)
+			assert(c.addFlatulan(2, 9));
+		assert(!c.addFlatulan(2, 9));
+		assert(c.flatulanCount() == MAXFLATULANS);
+		for (int n = 64; n > 0; n /= 2)
+		{
+			for (int k = 0; k &lt; 100  &amp;&amp;  c.flatulanCount() >= n; k++)
+				c.preachToFlatulansAroundPlayer();
+			assert(c.flatulanCount() &lt; n);
+			for (int k = 0; k &lt; MAXFLATULANS  &amp;&amp;  c.flatulanCount() &lt; MAXFLATULANS; k++)
+				assert(c.addFlatulan(2, 9));
+			assert(c.flatulanCount() == MAXFLATULANS);
+		}
+			} break; case 24: {
+		const int dr[NUMDIRS] = { -1,  0,  1,  0 };
+		const int dc[NUMDIRS] = {  0,  1,  0, -1 };
+		City c(12, 18);
+		c.addPlayer(1, 1);
+		const int r[3] = { 3, 6, 9 };
+		const int v[3] = { 4, 7, 10 };
+		for (int k = 0; k &lt; 3; k++)
+			c.addFlatulan(r[k], v[k]);
+		c.moveFlatulans();
+		for (int k = 0; k &lt; 3; k++)
+		{
+			int ct[2] = { 0 };
+			for (int n = 0; n &lt; NUMDIRS; n++)
+			{
+				int m = c.nFlatulansAt(r[k]+dr[n], v[k]+dc[n]);
+				assert(m == 0  ||  m == 1);
+				ct[m]++;
+			}
+			assert(ct[0] == 3  &amp;&amp;  ct[1] == 1);
+		}
+			} break; case 25: {
+		bool gassed = false;
+		for (int n = 0; n &lt; 20; n++)
+		{
+			City c(10, 20);
+			c.addPlayer(5, 9);
+			for (int k = 0; k &lt; 9; k++)
+				c.addFlatulan(5, 11);
+			assert(c.player()->health() == 10);
+			c.moveFlatulans();
+			int h = c.player()->health();
+			if (h &lt; 10)
+				gassed = true;
+			assert(c.nFlatulansAt(5, 10) == 10 - h);
+		}
+		assert(gassed);
+			} break; case 26: {
+		bool gassed = false;
+		for (int n = 0; n &lt; 20; n++)
+		{
+			City c(10, 20);
+			c.addPlayer(5, 9);
+			for (int k = 0; k &lt; 9; k++)
+				c.addFlatulan(5, 10);
+			assert(c.player()->health() == 10);
+			c.moveFlatulans();
+			int h = c.player()->health();
+			if (h &lt; 10)
+				gassed = true;
+			assert(c.nFlatulansAt(5, 10) == 10 - h);
+		}
+		assert(gassed);
+			} break; case 27: {
+		for (int n = 0; n &lt; 20; n++)
+		{
+			City c(1, 20);
+			c.addPlayer(1, 2);
+			for (int k = 0; k &lt; 9; k++)
+				c.addFlatulan(1, 1);
+			assert(c.player()->health() == 10);
+			c.moveFlatulans();
+			assert(c.player()->health() == 10-9);
+			assert(c.nFlatulansAt(1, 1) == 9);
+		}
+			} break; case 28: {
+		int n;
+		for (n = 0; n &lt; 2; n++)
+		{
+			City c(10, 20);
+			c.addPlayer(5, 9);
+			for (int k = 0; k &lt; MAXFLATULANS; k++)
+				c.addFlatulan(5, 11);
+			assert(c.player()->health() == 10  &amp;&amp;  ! c.player()->isPassedOut());
+			c.moveFlatulans();
+			if (c.player()->health() &lt;= 0  &amp;&amp;  c.player()->isPassedOut())
+				break;
+		}
+		assert(n != 2);
+			} break; case 29: {
+		recordaddrs = true;
+		int oldn = allocMap.size();
+		{
+			City c(10, 20);
+			int oldn2 = allocMap.size();
+			assert(oldn2 >= oldn);
+			c.addPlayer(4, 3);
+			c.addFlatulan(5, 6);
+			c.addFlatulan(5, 7);
+			c.addFlatulan(5, 8);
+			assert(allocMap.size() == oldn2 + 4);
+		}
+		assert(allocMap.size() == oldn);
+		recordaddrs = false;
+			} break; case 30: {
+		recordaddrs = true;
+		int oldn = allocMap.size();
+		{
+			City c(10, 20);
+			int oldn2 = allocMap.size();
+			assert(oldn2 >= oldn);
+			c.addPlayer(4, 3);
+			assert(allocMap.size() == oldn2 + 1);
+			for (int k = 0; k &lt; MAXFLATULANS; k++)
+				c.addFlatulan(4, 4);
+			assert(allocMap.size() == oldn2 + 1 + MAXFLATULANS);
+			for (int k = 0; k &lt; 100  &amp;&amp;  c.nFlatulansAt(4, 4) > 0; k++)
+			{
+				c.preachToFlatulansAroundPlayer();
+				assert(allocMap.size() == oldn2 + 1 + c.nFlatulansAt(4, 4));
+			}
+			assert(c.nFlatulansAt(4, 4) == 0);
+		}
+		assert(allocMap.size() == oldn);
+		recordaddrs = false;
+			} break;
+	}
+}
+
+int main()
+{
+	cout &lt;&lt; "Enter test number (1-30): ";
+	int n;
+	cin >> n;
+	testone(n);
+	cout &lt;&lt; "Passed!" &lt;&lt; endl;
+}
+</pre>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/1/cs31p7testing.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+</html>

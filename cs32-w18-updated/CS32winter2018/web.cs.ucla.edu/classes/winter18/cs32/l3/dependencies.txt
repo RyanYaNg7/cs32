@@ -1,0 +1,33 @@
+If the file Foo.h defines the class Foo, when does another file require
+you to say
+  #include "Foo.h"
+and when can you instead simply provide the incomplete type declaration
+  class Foo;
+
+You have to #include the header file defining a class when
+ * you declare a data member of that class type
+ * you declare a container (e.g. a vector) of objects of that class type
+ * you create an object of that class type
+ * you use a member of that class type
+
+class Blah
+{
+    ...
+    void g(Foo f, Foo& fr, Foo* fp);  // just need to say   class Foo;
+    ...
+    Foo* m_fp;           // just need to say   class Foo;
+    Foo* m_fpa[10];      // just need to say   class Foo;
+    vector<Foo*> m_fpv;  // just need to say   class Foo;
+
+    Foo m_f;             // must #include Foo.h
+    Foo m_fa[10];        // must #include Foo.h
+    vector<Foo> m_fv;    // must #include Foo.h
+};
+
+void Blah::g(Foo f, Foo& fr, Foo* fp)
+{
+    Foo f2(10, 20);      // must #include Foo.h
+    f.gleep();           // must #include Foo.h
+    fr.gleep();          // must #include Foo.h
+    fp->gleep();         // must #include Foo.h
+}

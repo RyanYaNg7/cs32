@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/4/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:02:53 GMT -->
+<head>
+ <title>CS 32 Project 4, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Programming Assignment 4<br />
+Cracked</h2>
+<p>
+<strong>Due 11:00 PM Thursday, March 15</strong><br/>
+</p>
+</div>
+<p>
+The <a href="spec.pdf">Project 4 specification document</a> is complete. 
+</p><p>
+3/13 8:20 pm:  [Most relevant to Visual C++ users]  If decrypting a message
+is correct but inordinately slow, try building your program in
+<a href="../../Homeworks/4/vcreleasemode.html">Release mode</a>.  Problem 6
+of <a href="../../Homeworks/4/spec.html#P6">Homework 4</a> says how to do the
+same in Xcode and mentions g32fast, although the speedup may not be as
+great for those compilers.
+</p><p>
+3/12 2:00 am:  Here is our <a href="p4sanity.zip">sanity checker for
+Project 4</a> that <strong>must build without errors</strong> under g32. 
+If it does not also run without errors, then you did not properly
+implement something.  Download the zip file (p4sanity.zip), add your five
+files to it, then transfer it to cs32.seas.ucla.edu as the
+<a href="../../linux.html">g++ with Linux</a> writeup tells you.  Log into
+the Linux server, and unzip that zip file, which will create a directory
+named p4sanity.  Change directories into that directory and type the
+commands
+</p>
+<pre>
+	make
+	./p4sanity
+</pre>
+<p>
+You can read the code in p4sanity.cpp to see what it does.  To turn off
+testing for one or more classes that build but that you know don't work
+well enough to be tested, set the appropriate boolean near the top of the
+p4sanity.cpp file to false.
+</p><p>
+3/12 1:30 am:  Step 7 was added to the algorithm on p. 7 of the spec.  If
+you understood how the algorithm worked, you'd have discovered it needed
+to be there.
+</p><p>
+3/11 11:30 pm:  If you want to copy and paste the sample encrypted messages
+on p.33 of the spec, copying them from the spec PDF might pick up tab
+characters instead of space characters.  Either type the messages
+yourself, or copy and paste them from <a href="testmessages.txt">this text
+page</a>.
+</p><p>
+3/11 10:30 am:  [Relevant to Visual C++ users only]  If the workaround
+mentioned in the update dated 3/10 2:15 pm doesn't work for you, rename
+the function <em>hash</em> to a name like <em>hasher</em> that is not in
+the namespace std.  (Retain the name <em>hash</em> in the return statements
+in the bodies of the three little hash functions we gave you.)
+</p><p>
+3/10 4:45 pm:  Sean Yin gets a free meal.  If you don't understand why,
+you will eventually.
+</p>
+<p style="margin-bottom:0">
+3/10 2:15 pm:  [Relevant to Visual C++ users only]  Visual C++ does not
+correctly implement the C++ two-phase-lookup rules, so for Visual C++,
+the code in a MyHash member function implementation that spec p. 19 says
+would in Standard C++ be
+</p>
+<pre style="margin-top:0; margin-bottom:0">
+	unsigned int hash(const KeyType&amp; k);  // prototype
+	unsigned int h = hash(key);
+</pre>
+<p style="margin-top:0; margin-bottom:0">
+would, for Visual C++ only, be
+</p>
+<pre style="margin-top:0; margin-bottom:0">
+	unsigned int ::hash(const KeyType&amp; k);  // prototype
+	unsigned int h = ::hash(key);
+</pre>
+<p style="margin-top:0">
+When you build your program under g32, remove those two <code>::</code>,
+and leave them out in the version of MyHash.h you turn in.
+</p><p>
+3/10 1:00 pm:  The description of how to use the Translator class on pp.
+25-27 was edited to clarify how the initial state of the Translator and the
+pushMapping and popMapping operations affect the current mapping table.
+</p><p>
+3/9 8:30 pm:  The spec had put a restriction on how you implement WordList
+that was stricter than we intended, so it's been loosened to capture our
+intent:  You can't use a vector, say, as a data member of WordList, but you
+can use vector in a template argument to your MyHash class template (perhaps
+you have an instantiation of MyHash as a data member).
+</p><p>
+3/9 3:30 pm:  There was a change to MyHash::find.  If you have already
+written that function, you presumably can just make your code the
+implementation of <code>const ValueType* find(const KeyType&amp; key)
+const</code>; we implemented the non-const version <code>ValueType*
+find(const KeyType&amp; key)</code> in the skeleton MyHash.h.
+</p><p>
+The posted <a href="skeleton.zip">skeleton code</a> includes a main
+routine you can use to test the whole system, as well as skeletons for the
+MyHash class template and the Tokenizer, WordList, Translator, and
+Decrypter classes.
+</p><p>
+If you are having trouble implementing MyHash, then rather than being blocked
+from proceeding with the other classes, you may temporarily use this
+<a href="substituteMyHash.h">substitute MyHash.h</a>, which is a correct
+implementation of MyHash, but one you cannot turn in since it uses the STL
+unordered_map type, which the spec forbids.  After working on the other
+classes, you can come back to finish fixing your own MyHash.
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/4/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:03:06 GMT -->
+</html>

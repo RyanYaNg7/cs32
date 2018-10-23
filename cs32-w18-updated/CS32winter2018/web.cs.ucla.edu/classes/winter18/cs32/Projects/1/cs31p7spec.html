@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/1/cs31p7spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:11 GMT -->
+<head>
+ <title>CS 31 Project 7</title>
+</head>
+<body>
+<div align="center">
+<h2>CS 31 Programming Assignment 7<br />
+It's a Gas!</h2>
+</div>
+<p>
+You have arrived in the walled city of Flatula, whose residents eat beans,
+cabbage, and hard-boiled eggs with every meal.  Although they are used to
+the resulting effects, the odor that emanates from the Flatulans you encounter
+makes you woozy.  Your only hope to keep from passing out is to successfully
+preach to the Flatulans about converting to a diet of lean meat, lettuce,
+and rice.
+</p>
+<p>
+That's the scenario for a new video game under development.  Your
+assignment is to complete the prototype that uses character-based graphics.
+</p>
+<p>
+If you execute <a href="gas.exe">this Windows program</a> or
+<a href="gasmac.zip">this Mac program</a> or <a href="gas.html">this
+Linux program</a>, you will see the player (indicated by <code>@</code>)
+in a rectangular city filled with Flatulans (usually indicated by
+<code>F</code>).  At each turn, the user will select an action for the
+player to take.  The player will take the action, and then each Flatulan will
+move one step in a random direction.  The attempt to move will make each
+Flatulan break wind.  If the Flatulan is orthogonally adjacent to the player,
+the player is affected by the blast of gas.  If the player suffers ten such
+blasts during the game, the player passes out and the game is over.
+</p>
+<p>
+This smaller <a href="minigas.exe">Windows version</a> or
+<a href="minigasmac.zip">Mac version</a> or
+<a href="minigas.html">Linux version</a> of the game may help you see
+the operation of the game more clearly.
+</p>
+<p>
+At each turn the player may take one of these actions:
+</p>
+<ol>
+<li>
+Move one step up, down, left, or right to an empty position (i.e., one not
+occupied by a Flatulan).  If the player attempts to move into the wall of
+the city (e.g., down, when on the bottom row) or to a position occupied by a
+Flatulan, the player does not move.
+</li>
+<li>
+Preach to the Flatulans adjacent to the player orthogonally or diagonally
+(i.e., to any Flatulans next to the player in the eight directions).  For
+each of those Flatulans, there is a 2/3 probability that the player will
+convert that Flatulan to no longer pollute the air.  A Flatulan who has been
+converted should be removed from the game, since they pose no further threat
+to the player and are thus irrelevant.
+</li>
+</ol>
+<p>
+The game allows the user to select the player's action by typing u/d/l/r for
+moving or just hitting enter for preaching.  The user may also type q to
+prematurely quit the game.
+</p>
+<p>
+When it's the Flatulans' turn, each Flatulan picks a random direction (up,
+down, left, or right) with equal probability.  The Flatulan moves one step
+in that direction if it can; however, if doing so would cause the Flatulan
+to move into a wall of the city (e.g., down, when on the bottom row) or to the
+position occupied by the player, it does not move.  More than one Flatulan
+may occupy the same position; in that case, instead of <code>F</code>, the
+display will show a digit character indicating the number of Flatulans at
+that position (where <code>9</code> indicates 9 or more).  After each
+Flatulan attempts to move (even if it doesn't actually move), if it is now
+orthogonally adjacent to the player (i.e., next to the player directly above,
+below, to the left, or to the right), the player suffers one blast of gas
+from that Flatulan.  If this is the tenth gas blast the player has suffered
+during the game, the player passes out and the game is over.
+</p>
+<p>
+The CS 31 assignment was to complete a C++ program skeleton to produce a
+program that implements the described behavior.  For CS 32 Project 1, we
+will give you a correct solution the the CS 31 assignment.  The program
+defines four classes that represent the four kinds of objects this program
+works with: Game, City, Flatulan, and Player.  Details of the interface to
+these classes are in the program code, but here are the essential
+responsibilities of each class:
+</p>
+<dl>
+<dt><p>Game</p></dt>
+<dd>
+<ul>
+<li>
+To create a Game, you specify a number of rows and columns and the number
+of Flatulans to start with.  The Game object creates an appropriately sized
+City and populates it with the Player and the Flatulans.
+</li>
+<li>
+A game may be played.  (Notice that the city is displayed after the Flatulans
+have had their turn to move, but not after the player has had its turn.)
+</li>
+</ul>
+</dd>
+<dt><p>City</p></dt>
+<dd>
+<ul>
+<li>
+When an City object of a particular size is created, it has no Flatulans or
+player.  In the City coordinate system, row 1, column 1 is the
+upper-left-most position that can be occupied by a Flatulan or Player.  (If
+an City were created with 7 rows and 8 columns, then the lower-right-most
+position that could be occupied would be row 7, column 8.)
+</li>
+<li>
+You may tell the City object to create or a Flatulan at a particular
+position.
+</li>
+<li>
+You may tell the City object to create a Player at a particular position.
+</li>
+<li>
+You may tell the City object to have all the Flatulans in it make their move.
+</li>
+<li>
+You may tell the City object that the Flatulans around the player are
+being preached to.  Flatulans that are converted must be removed from the
+City, since they serve no further purpose in the game.
+</li>
+<li>
+You may ask the City object its size, how many Flatulans are at a particular
+position, and how many Flatulans altogether are in the City.
+</li>
+<li>
+You may ask the City object whether moving from a particular position in a
+particular direction is possible (i.e., would not go off the edge of the
+city), and if so, what the resulting position would be.
+</li>
+<li>
+You may ask the City object for access to its player.
+</li>
+<li>
+An City object may be displayed on the screen, showing the locations of the
+Flatulans and player, along with other status information.
+</li>
+</ul>
+</dd>
+<dt><p>Player</p></dt>
+<dd>
+<ul>
+<li>
+A Player is created at some position (using the City coordinate system, where
+row 1, column 1 is the upper-left-most position, etc.).
+</li>
+<li>
+You may tell a Player to preach or to move in a particular direction.
+</li>
+<li>
+You may tell a Player it has suffered a gas blast.
+</li>
+<li>
+You may ask a Player for its position, age (i.e., how many turns the player has
+survived without passing out), and health status (i.e., how many more gas
+blasts the player will cause the player to pass out).
+</li>
+</ul>
+</dd>
+<dt><p>Flatulan</p></dt>
+<dd>
+<ul>
+<li>
+A Flatulan is created at some position (using the City coordinate system, where
+row 1, column 1 is the upper-left-most position, etc.).
+</li>
+<li>
+You may tell a Flatulan to move.
+</li>
+<li>
+You may ask a Flatulan object for its position.
+</li>
+<li>
+You may tell a Flatulan object that it is being preached to, and find out
+whether the Flatulan has been converted.
+</li>
+</ul>
+</dd>
+</dl>
+<p>
+CS 31 students were told:
+</p>
+<p>
+Complete the implementation in accordance with the description of the game.
+You are allowed to make whatever changes you want to the <em>private</em>
+parts of the classes:  You may add or remove private data members or private
+member functions, or change their types.  You must <em>not</em> make any
+deletions, additions, or changes to the <em>public</em> interface of any
+of these classes &mdash; we're depending on them staying the same so that
+we can test your programs.  You can and will, of course, make changes to the
+<em>implementations</em> of public member functions, since the callers of
+the function wouldn't have to change any of the code they write to call
+the function.  You must <strong>not</strong> declare any public data
+members, nor use any global variables whose values may change during
+execution (so global constants are OK).  You may add additional functions
+that are not members of any class.  The word <code>friend</code> must not
+appear in your program.
+</p>
+<p>
+Any member functions you implement must never put an object into an
+invalid state, one that will cause a problem later on.  (For example, bad
+things could come from placing a Flatulan outside the city.)  Any function
+that has a reasonable way of indicating failure through its return value
+should do so.  Constructors pose a special difficulty because they can't
+return a value.  If a constructor can't do its job, we have it write an error
+message and exit the program with failure by calling <code>exit(1);</code>.
+(We haven't learned about throwing an exception to signal constructor failure.)
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/1/cs31p7spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:21 GMT -->
+</html>

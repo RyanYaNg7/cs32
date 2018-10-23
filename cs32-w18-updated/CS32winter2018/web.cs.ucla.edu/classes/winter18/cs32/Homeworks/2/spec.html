@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/2/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:29 GMT -->
+<head>
+ <title>CS32 Homework 2, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Homework 2</h2>
+<p>
+<strong>Time due: 11:00 PM Tuesday, February 6</strong>
+</p>
+</div>
+<ol>
+<li>
+<p>
+Write a C++ function named <code>pathExists</code> that determines whether
+or not a there's a path from start to finish in a rectangular maze.  Here
+is the prototype:
+</p>
+<pre>
+        bool pathExists(string maze[], int nRows, int nCols, int sr, int sc, int er, int ec);
+          // Return true if there is a path from (sr,sc) to (er,ec)
+          // through the maze; return false otherwise
+</pre>
+<p>
+The parameters are
+</p>
+<ul>
+<li>A rectangular maze of Xs and dots that represents the maze.  Each
+string of the array is a row of the maze.  Each <code>'X'</code>
+represents a wall, and each <code>'.'</code> represents a walkway.</li>
+<li>The number of rows in the maze.</li>
+<li>The number of columns in the maze.  Each string in the maze parameter must
+be this length.</li>
+<li>The starting coordinates in the maze: <code>sr</code>,
+<code>sc</code>; the row number is in the range 0 through nRows&minus;1, and
+the column number is in the range 0 through nCols&minus;1.</li>
+<li>The ending coordinates in the maze: <code>er</code>, <code>ec</code>;
+the row number is in the range 0 through nRows&minus;1, and the column
+number is in the range 0 through nCols&minus;1.</li>
+</ul>
+<p>
+Here is an example of a simple maze with 5 rows and 7 columns:
+</p>
+<pre>
+        "XXXXXXX"
+        "X...X.X"
+        "XXX.X.X"
+        "X.....X"
+        "XXXXXXX"
+</pre>
+<p>
+The function must return true if in the maze as it was when the function was
+called, there is a path from <code>maze[sr][sc]</code> to
+<code>maze[er][ec]</code> that includes only walkways, no walls; otherwise
+it must return false.  The path may turn north, east, south, and west, but
+not diagonally.  When the function returns, it is allowable for the maze
+to have been modified by the function.
+</p>
+<p>
+Your solution must use the following simple class (without any changes),
+which represents an (r,c) coordinate pair:
+</p>
+<pre>
+        class Coord
+        {
+          public:
+            Coord(int rr, int cc) : m_r(rr), m_c(cc) {}
+            int r() const { return m_r; }
+            int c() const { return m_c; }
+          private:
+            int m_r;
+            int m_c;
+        };
+
+</pre>
+<p>
+(Our convention is that (0,0) is the northwest (upper left) corner, with
+south (down) being the increasing r direction and east (right) being the
+increasing c direction.)
+</p>
+<p>
+Your implementation must use a stack data structure, specifically, a
+<em>stack of Coord</em>s.  You may either write your own stack class, or
+use the stack type from the C++ Standard Library.  Here's an example of
+the relevant functions in the library's stack type:
+</p>
+<pre>
+        #include &lt;stack>
+        using namespace std;
+
+        int main()
+        {
+            stack&lt;Coord> coordStack;     // declare a stack of Coords
+        
+            Coord a(5,6);
+            coordStack.push(a);             // push the coordinate (5,6)
+            coordStack.push(Coord(3,4));    // push the coordinate (3,4)
+            ...
+            Coord b = coordStack.top();     // look at top item in the stack
+            coordStack.pop();               // remove the top item from stack
+            if (coordStack.empty())         // Is the stack empty?
+                cout &lt;&lt; "empty!" &lt;&lt; endl;
+            cout &lt;&lt; coordStack.size() &lt;&lt; endl;  // num of elements
+        }
+</pre>
+<p>
+Here is pseudocode for your function:
+</p>
+<pre>
+        <em>Push the starting coordinate (sr,sc) onto the coordinate stack and
+            update maze[sr][sc] to indicate that the algorithm has encountered
+            it (i.e., set maze[sr][sc] to have a value other than '.').
+        While the stack is not empty,
+        {   Pop the top coordinate off the stack. This gives you the current
+                (r,c) location that your algorithm is exploring.
+            If the current (r,c) coordinate is equal to the ending coordinate,
+                then we've solved the maze so return true! 
+            Check each place you can move from the current cell as follows:
+                If you can move EAST and haven't encountered that cell yet,
+                    then push the coordinate (r,c+1) onto the stack and update
+                    maze[r][c+1] to indicate the algorithm has encountered it.
+                If you can move SOUTH and haven't encountered that cell yet,
+                    then push the coordinate (r+1,c) onto the stack and update
+                    maze[r+1][c] to indicate the algorithm has encountered it.
+                If you can move WEST and haven't encountered that cell yet,
+                    then push the coordinate (r,c-1) onto the stack and update
+                    maze[r][c-1] to indicate the algorithm has encountered it.
+                If you can move NORTH and haven't encountered that cell yet,
+                    then push the coordinate (r-1,c) onto the stack and update
+                    maze[r-1][c] to indicate the algorithm has encountered it.
+        }
+        There was no solution, so return false</em>
+</pre>
+<p>
+Here is how a client might use your function:
+</p>
+<pre>
+        int main()
+        {
+            string maze[10] = {
+                "XXXXXXXXXX",
+                "X...X..X.X",
+                "X..XX....X",
+                "X.X.XXXX.X",
+                "XXX......X",
+                "X...X.XX.X",
+                "X.X.X..X.X",
+                "X.XXXX.X.X",
+                "X..X...X.X",
+                "XXXXXXXXXX"
+            };
+        
+            if (pathExists(maze, 10,10, 4,3, 1,8))
+                cout &lt;&lt; "Solvable!" &lt;&lt; endl;
+            else
+                cout &lt;&lt; "Out of luck!" &lt;&lt; endl;
+        }
+</pre>
+<p>
+Because the focus of this homework is on practice with the data
+structures, we won't demand that your function be as robust as we normally
+would.  In particular, your function may make the following simplifying
+assumptions (i.e., you do not have to check for violations):
+</p>
+<ul>
+<li>the maze array contains nRows rows (you couldn't check for this
+anyway);</li>
+<li>each string in the maze is of length nCols;</li>
+<li>the maze contains only Xs and dots when passed in to the function;</li>
+<li>the top and bottom rows of the maze contain only Xs, as do the left and
+right columns;</li>
+<li><code>sr</code> and <code>er</code> are between 0 and nRows-1, and
+<code>sc</code> and <code>ec</code> are between 0 and nCols-1;</li>
+<li><code>maze[sr][sc]</code> and <code>maze[er][ec]</code> are
+<code>'.'</code> (i.e., not walls)</li>
+</ul>
+<p>
+(Of course, since your function is not checking for violations of these
+conditions, make sure you don't pass bad values to the function when you
+test it.)
+</p>
+<p>
+For this part of the homework, you will turn in one file named
+<code>mazestack.cpp</code> that contains the Coord class and your
+stack-based <code>pathExists</code> function.  (Do not leave out the
+Coord class and do not put it in a separate file.)  If you use the library's
+stack type, your file should include the appropriate header.
+</p>
+</li>
+<li>
+<p>
+Given the algorithm, main function, and maze shown at the end of problem 1,
+what are the first 12 (r,c) coordinates popped off the stack by the algorithm?
+</p><p>
+For this problem, you'll turn in either a Word document named
+<code>hw.doc</code> or <code>hw.docx</code>, or a text file named
+<code>hw.txt</code>, that has your answer to this problem (and problem 4).
+</p>
+</li>
+<li>
+<p>
+Now convert your <code>pathExists</code> function to use a queue instead
+of a stack, making the fewest changes to achieve this.  You may either
+write your own queue class, or use the queue type from the C++ Standard
+Library:
+</p>
+<pre>
+        #include &lt;queue>
+        using namespace std;
+        
+        int main()
+        {
+            queue&lt;Coord> coordQueue;    // declare a queue of Coords
+        
+            Coord a(5,6);
+            coordQueue.push(a);            // enqueue item at back of queue
+            coordQueue.push(Coord(3,4));   // enqueue item at back of queue
+            ...
+            Coord b = coordQueue.front();  // look at front item
+            coordQueue.pop();              // remove the front item from queue
+            if (coordQueue.empty())        // Is the queue empty?
+                cout &lt;&lt; "empty!" &lt;&lt; endl;
+            cout &lt;&lt; coordQueue.size() &lt;&lt endl;  // num of elements
+        }
+</pre>
+<p>
+For this part of the homework, you will turn in one file named
+<code>mazequeue.cpp</code> that contains the Coord class and your
+queue-based <code>pathExists</code> function.  (Do not leave out the
+Coord class and do not put it in a separate file.)  If you use the library's
+queue type, your file should include the appropriate header.
+</p>
+</li>
+<li>
+<p>
+Given the same main function and maze as are shown at the end of problem 1,
+what are the first 12 (r,c) coordinates popped from the queue in your
+queue-based algorithm?
+</p><p>
+How do the two algorithms differ from each other?  (Hint: how and why do
+they visit cells in the maze in a different order?)
+</p><p>
+For this problem, you'll turn in either a Word document named
+<code>hw.doc</code> or <code>hw.docx</code>, or a text file named
+<code>hw.txt</code>, that has your answer to this problem (and problem 2).
+</p>
+</li>
+<li>
+<p>
+Implement this function that evaluates an infix integer arithmetic expression
+that consists of the binary operators <code>+</code>, <code>-</code>,
+<code>*</code>, and <code>/</code>, parentheses, and operands (with blanks
+allowed for readability).  The <code>/</code> operator denotes
+integer division (with truncation), so that the value of eight divided by five
+is 1, not 1.6.  Operators have their conventional precedence and
+associativity.  Multiplication must be explicitly indicated with the
+<code>*</code> operator.
+</p><p>
+The operands in the expression are single lower case letters.  Along with the
+expression string, you will pass the function a Map with key type
+<code>char</code> and value type <code>int</code>.  Each letter character in
+the expression represents the integer value in the map that is paired with
+that letter key.  For example, if the map maps <code>a</code> to 3,
+<code>c</code> to 5, <code>l</code> to 2, and <code>u</code> to 11, then
+the expression <code>u-c+l*a</code> would evaluate to 12.
+</p><p>
+Here is the function:
+</p>
+<pre>
+        int evaluate(string infix, const Map&amp; values, string&amp; postfix, int&amp; result);
+          // Evaluates an integer arithmetic expression
+          //   If infix is a syntactically valid infix integer expression whose
+          //   only operands are single lower case letters (whether or not they
+          //   appear in the values map), then postfix is set to the postfix
+          //   form of the expression; otherwise postfix may or may not be
+          //   changed, result is unchanged, and the function returns 1.  If
+          //   infix is syntactically valid but contains at least one lower
+          //   case letter operand that does not appear in the values map, then
+          //   result is unchanged and the function returns 2.  If infix is
+          //   syntactically valid and all its lower case operand letters
+          //   appear in the values map, then if evaluating the expression
+          //   (using for each letter in the expression the value in the map
+          //   that corresponds to it) attempts to divide by zero, then result
+          //   is unchanged and the function returns 3; otherwise, result is
+          //   set to the value of the expression and the function returns 0.
+</pre>
+<p>
+Adapt the algorithms presented on <a href="bookcode.html">pp. 203-207 of the
+textbook</a> to convert the infix expression to postfix, then evaluate the
+postfix form of the expression.  The algorithms use stacks.  Rather than
+implementing the stack types yourself, you must use the <code>stack</code>
+class template from the Standard C++ library.  You may <em>not</em> assume
+that the infix string passed to the function is syntactically valid;
+you'll have to detect whether it is or not.
+</p>
+<p>
+For this problem, you will turn in a file named <code>eval.cpp</code> whose
+structure is probably of the form
+</p>
+<pre>
+        #include lines you need, including "Map.h"
+
+        declarations of any additional functions you might have written
+                to help you evaluate an expression
+
+        int evaluate(string infix, const Map&amp; values, string&amp; postfix, int&amp; result)
+        {
+            your expression evaluation code
+        }
+
+        implementations of any additional functions you might have written
+                to help you evaluate an expression
+
+        a main routine to test your function
+</pre>
+<p>
+Use a correct implementation of Map (perhaps from the Homework 1 or Project 2
+solution).  You will not turn in <code>Map.h</code> or <code>Map.cpp</code>.
+(We will use correct versions when we test your code.)
+</p><p>
+If we take your <code>eval.cpp</code> file, rename your main routine (which we
+will never call) to something harmless, prepend the lines
+</p>
+<pre>
+        #include "Map.h"
+        #include &lt;iostream>
+        #include &lt;string>
+        #include &lt;stack>
+        #include &lt;cctype>
+        #include &lt;cassert>
+        using namespace std;
+</pre>
+<p>
+if necessary, and append the lines
+</p>
+<pre>
+        int main()
+        {
+            char vars[] = { 'a', 'e', 'i', 'o', 'u', 'y', '#' };
+            int  vals[] = {  3,  -9,   6,   2,   4,   1  };
+            Map m;
+            for (int k = 0; vars[k] != '#'; k++)
+                m.insert(vars[k], vals[k]);
+            string pf;
+            int answer;
+            assert(evaluate("a+ e", m, pf, answer) == 0  &amp;&amp;
+                                    pf == "ae+"  &amp;&amp;  answer == -6);
+            answer = 999;
+            assert(evaluate("", m, pf, answer) == 1  &amp;&amp;  answer == 999);
+            assert(evaluate("a+", m, pf, answer) == 1  &amp;&amp;  answer == 999);
+            assert(evaluate("a i", m, pf, answer) == 1  &amp;&amp;  answer == 999);
+            assert(evaluate("ai", m, pf, answer) == 1  &amp;&amp;  answer == 999);
+            assert(evaluate("()", m, pf, answer) == 1  &amp;&amp;  answer == 999);
+            assert(evaluate("y(o+u)", m, pf, answer) == 1  &amp;&amp;  answer == 999);
+            assert(evaluate("a+E", m, pf, answer) == 1  &amp;&amp;  answer == 999);
+            assert(evaluate("(a+(i-o)", m, pf, answer) == 1  &amp;&amp;  answer == 999);
+              // unary operators not allowed:
+            assert(evaluate("-a", m, pf, answer) == 1  &amp;&amp;  answer == 999);
+            assert(evaluate("a*b", m, pf, answer) == 2  &amp;&amp;
+                                    pf == "ab*"  &amp;&amp;  answer == 999);
+            assert(evaluate("y +o *(   a-u)  ", m, pf, answer) == 0  &amp;&amp;
+                                    pf == "yoau-*+"  &amp;&amp;  answer == -1);
+            answer = 999;
+            assert(evaluate("o/(y-y)", m, pf, answer) == 3  &amp;&amp;
+                                    pf == "oyy-/"  &amp;&amp;  answer == 999);
+            assert(evaluate(" a  ", m, pf, answer) == 0  &amp;&amp;
+                                    pf == "a"  &amp;&amp;  answer == 3);
+            assert(evaluate("((a))", m, pf, answer) == 0  &amp;&amp;
+                                    pf == "a"  &amp;&amp;  answer == 3);
+            cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+        }
+</pre>
+<p>
+then the resulting file must compile and build successfully when
+<code>Map.h</code> and <code>Map.cpp</code> are present, and when executed,
+produce no output other than <code>Passed all tests</code>.
+</p><p>
+(Tips:  In case you didn't already know it, you can append a character
+<code>c</code> to a string <code>s</code> by saying <code>s += c</code>.
+You'll have to adapt the code from the book, since it doesn't do any error
+checking.  It's possible to do the error checking as you do the
+infix-to-postfix conversion instead of in a separate step before that; as
+you go through the infix string, almost all syntax errors can be detected
+by noting whether it is legal for the current nonblank character to follow
+the nearest nonblank character before it.)
+</p>
+</li>
+</ol>
+<p>
+By Monday, February 5, there will be a link on the class webpage that will
+enable you to turn in this homework. Turn in one zip file that contains your
+solutions to the homework problems.  The zip file should contain
+</p>
+<ul>
+<li><code>mazestack.cpp</code>, if you solved problem 1</li>
+<li><code>mazequeue.cpp</code>, if you solved problem 3</li>
+<li><code>eval.cpp</code>, if you solved problem 5</li>
+<li><code>hw.doc</code>, <code>hw.docx</code>, or <code>hw.txt</code>, if you
+solved problems 2 and/or 4</li>
+</ul>
+<p>
+Each source file you turn in may or may not contain a main routine; we'd
+prefer that it doesn't.  If it does, our testing scripts will rename your
+main routine to something harmless.  Our scripts will append our own main
+routine, then compile and run the resulting source file.  Therefore, to
+get any credit, each source file you turn in must at least compile
+successfully (even though it's allowed to not link because of a missing
+main routine).
+</p>
+<p>
+In each source file you turn in, do not comment out your implementation; you
+want our test scripts to see it!  (Some people do this when testing other
+files' code because they put all their code in one project instead of
+having a separate project for each of problems 1, 3, and 5.)
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/2/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:30:31 GMT -->
+</html>

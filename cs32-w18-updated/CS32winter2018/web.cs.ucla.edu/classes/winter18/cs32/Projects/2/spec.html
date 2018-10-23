@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/2/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:47 GMT -->
+<head>
+ <title>CS 32 Project 2, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Programming Assignment 2<br />
+Double Trouble</h2>
+<p>
+<strong>Time due: 11:00 PM Tuesday, January 30</strong>
+</p>
+</div>
+<p>
+Homework 1 gave you extensive experience with the Map type using both
+arrays and dynamically-allocated arrays.  In this project, you will
+re-write the implementation of the Map type to employ a doubly-linked list
+rather than an array.  You must <em>not</em> use arrays.  You will also
+implement a couple of algorithms that operate on maps.
+</p>
+<h4>Implement Map yet again</h4>
+<p>
+Consider the Map interface from problem 2 of Homework 1:
+</p>
+<pre>
+using KeyType = <em>TheTypeOfTheKeysGoesHere</em>;
+using ValueType = <em>TheTypeOfTheValuesGoesHere</em>;
+
+class Map
+{
+  public:
+    Map();
+    bool empty() const;
+    int size() const;
+    bool insert(const KeyType&amp; key, const ValueType&amp; value);
+    bool update(const KeyType&amp; key, const ValueType&amp; value);
+    bool insertOrUpdate(const KeyType&amp; key, const ValueType&amp; value);
+    bool erase(const KeyType&amp; key);
+    bool contains(const KeyType&amp; key) const;
+    bool get(const KeyType&amp; key, ValueType&amp; value) const;
+    bool get(int i, KeyType&amp; key, ValueType&amp; value) const;
+    void swap(Map&amp; other);
+};
+</pre>
+<p>
+In problem 3 of Homework 1, you implemented this interface using an array.
+For this project, implement this Map interface using a doubly-linked
+list.  (You must not use the <code>list</code> class template from the
+C++ library.)
+</p>
+<p>
+For the array implementation of problem 3 of Homework 1, since you declared no
+destructor, copy constructor, or assignment operator, the compiler wrote them
+for you, and they did the right thing.  For this linked list implementation,
+if you let the compiler write the destructor, copy constructor, and
+assignment operator, they will do the wrong thing, so you will have to
+declare and implement these public member functions as well:
+</p>
+<dl>
+<dt>Destructor</dt>
+<dd>When a Map is destroyed, the nodes in the linked list must be
+deallocated.</dd>
+<dt>Copy constructor</dt>
+<dd>When a brand new Map is created as a copy of an existing Map,
+enough new nodes must be allocated to hold a duplicate of the original
+list.</dd>
+<dt>Assignment operator</dt>
+<dd>When an existing Map (the left-hand side) is assigned the value of
+another Map (the right-hand side), the result must be that the left-hand
+side object is a duplicate of the right-hand side object, with no
+memory leak of list nodes (i.e. no list node from the old value of the
+left-hand side should be still allocated yet inaccessible).</dd>
+</dl>
+<p>
+Notice that there is now no <em>a priori</em> limit on the maximum number
+of key/value pairs in the Map (so <code>insertOrUpdate</code> should
+always return true).  Notice also that, as in Homework 1, if a Map has a
+size of <em>n</em>, then the values of the first parameter to the
+three-parameter form of <code>get</code> for which that function retrieves
+a key and a value and returns true are <em>0</em>, <em>1</em>, <em>2</em>,
+..., <em>n-1</em>; for other values, it returns false without setting its
+second and third parameters.  This is the same visible behavior as in
+Homework 1.
+</p>
+<p>
+Another requirement is that as in Problem 5 of Homework 1, the number of
+statement executions when swapping two maps must be the same no matter how
+many key/value pairs are in the maps.
+</p>
+<h4>Implement some map algorithms</h4>
+<p>
+Implement the following two functions.  Notice that they are
+<em>non-member</em> functions:  They are <em>not</em> members of Map or
+any other class, so they must <em>not</em> access <em>private</em> members
+of Map.
+</p>
+<dl>
+<dt><code>bool combine(const Map&amp; m1, const Map&amp; m2, Map&amp; result);</code></dt>
+<dd>
+<p>
+When this function returns, <code>result</code> must consist of pairs
+determined by these rules:
+</p>
+<ul>
+<li>
+If a key appears in exactly one of <code>m1</code> and <code>m2</code>, then
+<code>result</code> must contain a pair consisting of that key and its
+corresponding value.
+</li><li>
+If a key appears in both <code>m1</code> and <code>m2</code>, with the
+same corresponding value in both, then <code>result</code> must contain
+exactly one pair with that key and value.
+</li>
+</ul>
+<p>
+When this function returns, <code>result</code> must contain no pairs
+other than those required by these rules.  (You must <em>not</em> assume
+<code>result</code> is empty when it is passed in to this function; it
+might not be.)
+</p>
+<p>
+If there exists a key that appears in both <code>m1</code> and <code>m2</code>,
+but with different corresponding values, then this function returns false;
+if there is no key like this, the function returns true.  Even if the
+function returns false, <code>result</code> must be constituted as defined
+by the above rules.
+</p>
+<p>
+For example, suppose a Map maps strings to doubles.  If <code>m1</code>
+consists of the three pairs (in any order)
+</p>
+<pre>
+     "Fred"  123      "Ethel"  456      "Lucy"  789
+</pre>
+<p>
+and <code>m2</code> consists of (in any order)
+</p>
+<pre>
+     "Lucy"  789      "Ricky"  321
+</pre>
+<p>
+then no matter what value it had before, <code>result</code> must end up as a
+map consisting of (in any order)
+</p>
+<pre>
+     "Fred"  123      "Ricky"  321      "Lucy"  789     "Ethel"  456
+</pre>
+<p>
+and <code>combine</code> must return true.  If instead, <code>m1</code> were
+as before, and <code>m2</code> consisted of
+</p>
+<pre>
+     "Lucy"  654      "Ricky"  321
+</pre>
+<p>
+then no matter what value it had before, <code>result</code> must end up as a
+map consisting of (in any order)
+</p>
+<pre>
+     "Fred"  123      "Ricky"  321      "Ethel"  456
+</pre>
+<p>
+and <code>combine</code> must return false.
+</dd>
+<dt><code>void subtract(const Map&amp; m1, const Map&amp; m2, Map&amp; result);</code></dt>
+<dd>
+<p>
+When this function returns, <code>result</code> must contain one copy of all
+the pairs in <code>m1</code> whose keys don't appear in <code>m2</code>; it
+must not contain any other pairs.  (You must <em>not</em> assume
+<code>result</code> is empty when it is passed in to this function; it may
+not be.)
+</p>
+<p>
+For example, if <code>m1</code> consists of the three pairs (in any order)
+</p>
+<pre>
+     "Fred"  123      "Ethel"  456      "Lucy"  789
+</pre>
+<p>
+and <code>m2</code> consists of (in any order)
+</p>
+<pre>
+     "Lucy"  789      "Ricky"  321      "Ethel"  654
+</pre>
+<p>
+then no matter what value it had before, <code>result</code> must end up as a
+map consisting of
+</p>
+<pre>
+     "Fred"  123
+</pre>
+<p>
+If English is not your native language, make extra sure you spell the name
+of this function correctly:  it's <code>subtract</code>, not
+<code>substract</code>.
+</p>
+</dd>
+</dl>
+<p>
+Be sure these functions behave correctly in the face of <em>aliasing</em>:
+What if <code>m1</code> and <code>result</code> refer to the same Map,
+for example?
+</p>
+<h4>Other Requirements</h4>
+<p>
+Regardless of how much work you put into the assignment, your program will
+receive a zero for correctness if you violate these requirements:
+</p>
+<ul>
+<li>
+<p>
+Your class definition, declarations for the two required non-member
+functions, and the implementations of any functions you choose to inline
+must be in a file named <code>Map.h</code>, which must have
+appropriate include guards.  The implementations of the functions you
+declared in <code>Map.h</code> that you did not inline must be in a file
+named <code>Map.cpp</code>.  Neither of those files may have a main
+routine (unless it's commented out).  You may use a separate file for the
+main routine to test your Map class; you won't turn in that separate file.
+</p>
+</li>
+<li>
+<p>
+Except to add a destructor, copy constructor, assignment operator, and
+<code>dump</code> function (described below), you must not add functions
+to, delete functions from, or change the public interface of the Map
+class.  You must not declare any additional struct/class outside the Map
+class, and you must not declare any <em>public</em> struct/class inside
+the Map class.  You may add whatever private data members and private
+member functions you like, and you may declare <em>private</em>
+structs/classes inside the Map class if you like.  The source files you
+submit for this project must not contain the word <code>friend</code> or
+the character <code>[</code> (open square bracket).  You must not use any
+global variables whose values may be changed during execution.  (Global
+<em>constants</em> are fine.)
+</p><p>
+If you wish, you may add a public member function with the signature
+<code>void dump() const</code>.  The intent of this function is that for
+your own testing purposes, you can call it to print information about the
+map; we will never call it.  You do not have to add this function if
+you don't want to, but if you do add it, it must not make any changes to
+the map; if we were to replace your implementation of this function
+with one that simply returned immediately, your code must still work
+correctly.  The <code>dump</code> function must not write to <code>cout</code>,
+but it's allowed to write to <code>cerr</code>.
+</p>
+</li>
+<li>
+<p>
+<code>Map.cpp</code> must not contain the word <code>string</code> or
+<code>double</code>.  (<code>Map.h</code> may contain them only in using
+statements introducing type aliases, and must contain
+<code>#include &lt;string></code> if a using statement introducing a type
+alias contains the word <code>string</code>.)
+</p>
+</li>
+<li>
+<p>
+Your code must build successfully (under both g32 and either Visual C++ or
+clang++) if linked with a file that contains a main routine.
+</p>
+</li>
+<li>
+<p>
+You must have an implementation for every member function of Map, as well
+as the non-member functions <code>combine</code> and <code>subtract</code>.
+Even if you can't get a function implemented correctly, it must have an
+implementation that at least builds successfully.  For example, if you
+don't have time to correctly implement <code>Map::erase</code> or
+<code>subtract</code>, say, here are implementations that meet this
+requirement in that they at least build successfully:
+</p>
+<pre>
+        bool Map::erase(const KeyType&amp; value)
+        {
+            return false;  // not correct, but at least this compiles
+        }
+
+        void subtract(const Map&amp; m1, const Map&amp; m2, Map&amp; result)
+        {
+            // does nothing; not correct, but at least this compiles
+        }
+</pre>
+<p>
+You've probably met this requirement if the following file compiles and links
+with your code.  (This uses magic beyond the scope of CS 32.)
+</p>
+<pre>
+        #include "Map.h"
+        #include &lt;type_traits>
+        
+        #define CHECKTYPE(f, t) { auto p = static_cast&lt;t>(f); (void)p; }
+        
+        static_assert(std::is_default_constructible&lt;Map>::value,
+                "Map must be default-constructible.");
+        static_assert(std::is_copy_constructible&lt;Map>::value,
+                "Map must be copy-constructible.");
+
+        void ThisFunctionWillNeverBeCalled()
+        {
+            CHECKTYPE(&amp;Map::operator=,      Map&amp; (Map::*)(const Map&amp;));
+            CHECKTYPE(&amp;Map::empty,          bool (Map::*)() const);
+            CHECKTYPE(&amp;Map::size,           int  (Map::*)() const);
+            CHECKTYPE(&amp;Map::insert,         bool (Map::*)(const KeyType&amp;, const ValueType&amp;));
+            CHECKTYPE(&amp;Map::update,         bool (Map::*)(const KeyType&amp;, const ValueType&amp;));
+            CHECKTYPE(&amp;Map::insertOrUpdate, bool (Map::*)(const KeyType&amp;, const ValueType&amp;));
+            CHECKTYPE(&amp;Map::erase,          bool (Map::*)(const KeyType&amp;));
+            CHECKTYPE(&amp;Map::contains,       bool (Map::*)(const KeyType&amp;) const);
+            CHECKTYPE(&amp;Map::get,            bool (Map::*)(const KeyType&amp;, ValueType&amp;) const);
+            CHECKTYPE(&amp;Map::get,            bool (Map::*)(int, KeyType&amp;, ValueType&amp;) const);
+            CHECKTYPE(&amp;Map::swap,           void (Map::*)(Map&amp;));
+            
+            CHECKTYPE(combine,  bool (*)(const Map&amp;, const Map&amp;, Map&amp;));
+            CHECKTYPE(subtract, void (*)(const Map&amp;, const Map&amp;, Map&amp;));
+        }
+        
+        int main()
+        {}
+</pre>
+</li>
+<li>
+<p>
+If you add <code>#include &lt;string></code> to <code>Map.h</code>, have
+the type alias for Map's key type specify <code>std::string</code>, and have
+the type alias for its value type specify <code>double</code>, then if we make
+no change to your <code>Map.cpp</code>, compile it, and link it to a file
+containing
+</p>
+<pre>
+        #include "Map.h"
+        #include &lt;iostream>
+        #include &lt;cassert>
+        using namespace std;
+
+        void test()
+        {
+            Map m;
+            assert(m.insert("Fred", 123));
+            assert(m.insert("Ethel", 456));
+            assert(m.size() == 2);
+            ValueType v = 42;
+            assert(!m.get("Lucy", v)  &amp;&amp;  v == 42);
+            assert(m.get("Fred", v)  &amp;&amp;  v == 123);
+            v = 42;
+            KeyType x = "Lucy";
+            assert(m.get(0, x, v)  &amp;&amp;
+                   ((x == "Fred"  &amp;&amp;  v == 123)  ||  (x == "Ethel"  &amp;&amp;  v == 456)));
+            KeyType x2 = "Ricky";
+            assert(m.get(1, x2, v)  &amp;&amp;
+                   ((x2 == "Fred"  &amp;&amp;  v == 123)  ||  (x2 == "Ethel"  &amp;&amp;  v == 456))  &amp;&amp;
+                   x != x2);
+        }
+
+        int main()
+        {
+            test();
+            cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+        }
+</pre>
+<p>
+the linking must succeed.  When the resulting executable is run, it must
+write <code>Passed all tests</code> and nothing more to <code>cout</code>,
+and terminate normally.
+</p>
+</li>
+<li>
+<p>
+If we successfully do the above, then make no changes to <code>Map.h</code>
+other than to change the type aliases for Map so that <code>KeyType</code>
+specifies <code>int</code> and <code>ValueType</code> specifies
+<code>std::string</code>, make no changes to <code>Map.cpp</code>, recompile
+<code>Map.cpp</code>, and link it to a file containing
+</p>
+<pre>
+        #include "Map.h"
+        #include &lt;iostream>
+        #include &lt;cassert>
+        using namespace std;
+
+        void test()
+        {
+            Map m;
+            assert(m.insert(10, "diez"));
+            assert(m.insert(20, "veinte"));
+            assert(m.size() == 2);
+            ValueType v = "cuarenta y dos";
+            assert(!m.get(30, v)  &amp;&amp;  v == "cuarenta y dos");
+            assert(m.get(10, v)  &amp;&amp;  v == "diez");
+            v = "cuarenta y dos";
+            KeyType x = 30;
+            assert(m.get(0, x, v)  &amp;&amp;
+                   ((x == 10  &amp;&amp;  v == "diez")  ||  (x == 20  &amp;&amp;  v == "veinte")));
+            KeyType x2 = 40;
+            assert(m.get(1, x2, v)  &amp;&amp;
+                   ((x2 == 10  &amp;&amp;  v == "diez")  ||  (x2 == 20  &amp;&amp;  v == "veinte"))  &amp;&amp;
+                   x != x2);
+        }
+
+        int main()
+        {
+            test();
+            cout &lt;&lt; "Passed all tests" &lt;&lt; endl;
+        }
+</pre>
+<p>
+the linking must succeed.  When the resulting executable is run, it must
+write <code>Passed all tests</code> and nothing more to <code>cout</code>,
+and terminate normally.
+</p>
+</li>
+<li>
+<p>
+During execution, if a client performs actions whose behavior is defined
+by this spec, your program must not perform any undefined actions, such as
+dereferencing a null or uninitialized pointer.
+</p>
+</li>
+<li>
+<p>
+Your code in <code>Map.h</code> and <code>Map.cpp</code> must not read
+anything from <code>cin</code> and must not write anything whatsoever to
+<code>cout</code>.  If you want to print things out for debugging
+purposes, write to <code>cerr</code> instead of <code>cout</code>.
+<code>cerr</code> is the standard error destination; items written to it
+by default go to the screen.  When we test your program, we will cause
+everything written to <code>cerr</code> to be discarded instead &mdash; we
+will never see that output, so you may leave those debugging output
+statements in your program if you wish. 
+</p>
+</li>
+</ul>
+<h4>Turn it in</h4>
+<p>
+By Monday, January 29, there will be a link on the class webpage that will
+enable you to turn in your source files and report.  You will turn in a zip
+file containing these three files:
+</p>
+<ul>
+<li>
+<p>
+<code>Map.h</code>.  When you turn in this file, the using statements must
+specify <code>std::string</code> as the <code>KeyType</code> and
+<code>double</code> as the <code>ValueType</code>.
+</p>
+</li>
+<li>
+<p>
+<code>Map.cpp</code>.  Function implementations should be appropriately
+commented to guide a reader of the code.
+</p>
+</li>
+<li>
+<p>
+<code>report.docx</code> or
+<code>report.doc</code> (in Microsoft Word format) or
+<code>report.txt</code> (an ordinary text file) that contains:
+</p>
+<ul>
+<li>
+<p>
+a description of the design of your doubly-linked list implementation. (A
+couple of sentences will probably suffice, perhaps with a picture of a
+typical Map and an empty Map.  Is the list circular?  Does it have a dummy
+node?  What's in your list nodes?  Are they in any particular order?)
+</p>
+</li>
+<li>
+<p>
+<a href="../../pseudocode.html">pseudocode</a> for non-trivial algorithms
+(e.g., <code>Map::erase</code> and <code>subtract</code>).
+</p>
+</li>
+<li>
+<p>
+a list of test cases that would thoroughly test the functions.  Be sure
+to indicate the purpose of the tests.  For example, here's the beginning of a
+presentation in the form of code:
+</p>
+<blockquote>
+<p>
+The tests were performed on a map from strings to doubles
+</p>
+<pre>
+  // default constructor
+Map m;
+  // For an empty map:
+assert(m.size() == 0);      // test size
+assert(m.empty());          // test empty
+assert(!m.erase("Ricky"));  // nothing to erase 
+</pre>
+</blockquote>
+<p>
+Even if you do not correctly implement all the functions, you must still list
+test cases that would test them.  Don't lose points by thinking "Well, I didn't
+implement this function, so I won't bother saying how I would have tested it
+if I <em>had</em> implemented it."
+</p>
+</li>
+</ul>
+</li>
+</ul>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/2/spec.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:29:47 GMT -->
+</html>

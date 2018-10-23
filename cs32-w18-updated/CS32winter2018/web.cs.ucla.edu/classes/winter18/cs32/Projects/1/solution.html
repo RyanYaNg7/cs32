@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/1/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:21 GMT -->
+<head>
+ <title>CS 32 Project 1 Solution, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Project 1 Solution</h2>
+</div>
+<p>
+In <a href="solution.zip">this Project 1 solution zip file</a>, here is
+what was affected by the addition of the history feature:
+</p>
+<ul>
+<li>
+The files <code>History.h</code> and <code>History.cpp</code>, containing the
+declaration and the implementation of the History class.
+</li>
+<li>
+The declarations of <code>City::history</code> and
+<code>City::m_history</code> in <code>City.h</code>.
+</li>
+<li>
+The implementations of <code>City::City</code> and
+<code>City::history</code> in <code>City.cpp</code>.
+</li>
+<li>
+The implementation of <code>City::preachToFlatulansAroundPlayer</code> in <code>City.cpp</code>.
+</li>
+<li>
+The implementation of the <code>h</code> command in
+<code>Game::play</code> in <code>Game.cpp</code>.
+</li>
+</ul>
+To help you understand why each header was included, and why some were not
+(e.g., why <code>City.h</code> does not include <code>Flatulan.h</code>), here's
+a synopsis of each file:
+<pre>
+<strong>// globals.h</strong>
+
+#ifndef GLOBALS_INCLUDED
+#define GLOBALS_INCLUDED
+
+...
+
+#endif // GLOBALS_INCLUDED
+
+<strong>// Game.h</strong>
+
+#ifndef GAME_INCLUDED
+#define GAME_INCLUDED
+
+class City;		<em>Game uses City*</em>
+
+class Game
+{
+  ...
+};
+
+#endif // GAME_INCLUDED
+
+<strong>// History.h</strong>
+
+#ifndef HISTORY_INCLUDED
+#define HISTORY_INCLUDED
+
+#include "globals.h"	<em>History uses MAXROWS and MAXCOLS</em>
+
+class History
+{
+  ...
+};
+
+#endif // HISTORY_INCLUDED
+
+<strong>// City.h</strong>
+
+#ifndef CITY_INCLUDED
+#define CITY_INCLUDED
+
+#include "globals.h"	<em>City uses MAXFLATULANS</em>
+#include "History.h"	<em>City declares a History data member</em>
+
+class Player;		<em>City uses Player*</em>
+class Flatulan;		<em>City uses Flatulan*</em>
+
+class City
+{
+  ...
+};
+
+#endif // CITY_INCLUDED
+
+<strong>// Player.h</strong>
+
+#ifndef PLAYER_INCLUDED
+#define PLAYER_INCLUDED
+
+class City;		<em>Player uses City*</em>
+
+class Player
+{
+  ...
+};
+
+#endif // PLAYER_INCLUDED
+
+<strong>// Flatulan.h</strong>
+
+#ifndef FLATULAN_INCLUDED
+#define FLATULAN_INCLUDED
+
+class City; 		<em>Flatulan uses City*</em>
+
+class Flatulan
+{
+  ...
+};
+
+#endif // FLATULAN_INCLUDED
+
+<strong>// Game.cpp</strong>
+
+#include "Game.h"	<em>We define Game::Game, etc.</em>
+#include "City.h"	<em>We use City::City, etc.</em>
+#include "Player.h"	<em>We use Player::isPassedOut, etc.</em>
+#include "History.h"	<em>We use History::display</em>
+#include "globals.h"	<em>We use MAXFLATULANS, etc.</em>
+#include &lt;iostream>	<em>We use std::cout, etc.</em>
+#include &lt;string>	<em>We use std::string</em>
+#include &lt;cstdlib>	<em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// History.cpp</strong>
+
+#include "History.h"	<em>We define History::History, etc.</em>
+#include "globals.h"	<em>We use MAXROWS, etc.</em>
+#include &lt;iostream>	<em>We use std::cout, etc.</em>
+#include &lt;cstdlib>	<em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// City.cpp</strong>
+
+#include "City.h"	<em>We define City::City, etc.</em>
+#include "Player.h"	<em>We use Player::Player, etc.</em>
+#include "Flatulan.h"	<em>We use Flatulan::Flatulan, etc.</em>
+#include "History.h"	<em>We use History::History, etc.</em>
+#include "globals.h"	<em>We use MAXROWS, etc.</em>
+#include &lt;iostream>	<em>We use std::cout, etc.</em>
+#include &lt;cstdlib>	<em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// Player.cpp</strong>
+
+#include "Player.h"	<em>We define Player::Player, etc.</em>
+#include "City.h"	<em>We use City::rows, etc.</em>
+#include "globals.h"	<em>We use INITIAL_PLAYER_HEALTH, etc.</em>
+#include &lt;iostream>	<em>We use std::cout, etc.</em>
+#include &lt;cstdlib>	<em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// Flatulan.cpp</strong>
+
+#include "Flatulan.h"	<em>We define Flatulan::Flatulan, etc.</em>
+#include "Player.h"	<em>We use Player::row, etc.</em>
+#include "City.h"	<em>We use City::rows, etc.</em>
+#include "globals.h"	<em>We use randInt, etc.</em>
+#include &lt;iostream>	<em>We use std::cout, etc.</em>
+#include &lt;cstdlib>	<em>We use std::exit</em>
+using namespace std;
+
+...
+
+<strong>// utilities.cpp</strong>
+
+#include "globals.h"	<em>We implement randInt, etc.</em>
+#include &lt;random>	<em>We use std::random_device, etc.</em>
+#include &lt;utility>	<em>We use std::swap</em>
+using namespace std;
+
+...
+
+<strong>// main.cpp</strong>
+
+#include "Game.h"	<em>We use Game::Game, etc.</em>
+using namespace std;
+
+...
+</pre>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Projects/1/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+</html>

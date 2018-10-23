@@ -1,0 +1,676 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/4/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+<head>
+ <title>CS 32 Homework 4 Solution, Winter 2018</title>
+</head>
+<body>
+<div align="right">
+Winter 2018 CS 32 
+</div>
+<div align="center">
+<h2>Homework 4 Solution</h2>
+</div>
+<table cellpadding="3">
+<colgroup width="60%"></colgroup>
+<colgroup></colgroup>
+<tr><td><a href="#P1">Problem 1</a></td>
+    <td><a href="#P4">Problem 4</a></td></tr>
+<tr><td><a href="#P2">Problem 2</a></td>
+    <td><a href="#P5">Problem 5</a></td></tr>
+<tr><td><a href="#P3">Problem 3</a></td>
+    <td><a href="#P6">Problem 6</a></td></tr>
+</table>
+<h4><a id="P1"></a>Problem 1:</h4>
+<pre>
+// Map.h
+
+#ifndef MAP_INCLUDED
+#define MAP_INCLUDED
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+class Map
+{
+  public:
+    Map();               // Create an empty map (i.e., one with no key/value pairs).
+
+    bool empty() const;  // Return true if the map is empty, otherwise false.
+
+    int size() const;    // Return the number of key/value pairs in the map.
+
+    bool insert(const KeyType&amp; key, const ValueType&amp; value);
+      // If key is not equal to any key currently in the map, and if the
+      // key/value pair can be added to the map, then do so and return true.
+      // Otherwise, make no change to the map and return false (indicating
+      // that either the key is already in the map, or the map has a fixed
+      // capacity and is full).
+
+    bool update(const KeyType&amp; key, const ValueType&amp; value);
+      // If key is equal to a key currently in the map, then make that key no
+      // longer map to the value it currently maps to, but instead map to
+      // the value of the second parameter; return true in this case.
+      // Otherwise, make no change to the map and return false.
+
+    bool insertOrUpdate(const KeyType&amp; key, const ValueType&amp; value);
+      // If key is equal to a key currently in the map, then make that key no
+      // longer map to the value it currently maps to, but instead map to
+      // the value of the second parameter; return true in this case.
+      // If key is not equal to any key currently in the map, and if the
+      // key/value pair can be added to the map, then do so and return true.
+      // Otherwise, make no change to the map and return false (indicating
+      // that the key is not already in the map and the map has a fixed
+      // capacity and is full).
+
+    bool erase(const KeyType&amp; key);
+      // If key is equal to a key currently in the map, remove the key/value
+      // pair with that key from the map and return true.  Otherwise, make
+      // no change to the map and return false.
+     
+    bool contains(const KeyType&amp; key) const;
+      // Return true if key is equal to a key currently in the map, otherwise
+      // false.
+     
+    bool get(const KeyType&amp; key, ValueType&amp; value) const;
+      // If key is equal to a key currently in the map, set value to the
+      // value in the map that that key maps to and return true.  Otherwise,
+      // make no change to the value parameter of this function and return
+      // false.
+     
+    bool get(int i, KeyType&amp; key, ValueType&amp; value) const;
+      // If 0 &lt;= i &lt; size(), copy into the key and value parameters the
+      // key and value of one of the key/value pairs in the map and return
+      // true.  Otherwise, leave the key and value parameters unchanged and
+      // return false.
+
+    void swap(Map<strong>&lt;KeyType, ValueType></strong>&amp; other);
+      // Exchange the contents of this map with the other one.
+
+      // Housekeeping functions
+    ~Map();
+    Map(const Map<strong>&lt;KeyType, ValueType></strong>&amp; other);
+    Map<strong>&lt;KeyType, ValueType></strong>&amp; operator=(const Map<strong>&lt;KeyType, ValueType></strong>&amp; rhs);
+
+  private:
+      // Representation:
+      //   a circular doubly-linked list with a dummy node.
+      //   m_head points to the dummy node.
+      //   m_head->m_prev->m_next == m_head and m_head->m_next->m_prev == m_head
+      //   m_size == 0  iff  m_head->m_next == m_head->m_prev == m_head
+      //   If m_size > 0
+      //       m_head->next points to the node at position 0.
+      //       m_head->prev points to the node at position m_size-1.
+      //   Nodes are in no particular order.
+
+    struct Node
+    {
+        KeyType   m_key;
+        ValueType m_value;
+        Node*     m_next;
+        Node*     m_prev;
+    };
+
+    Node* m_head;
+    int   m_size;
+
+    Node* find(const KeyType&amp; key) const;
+      // Return pointer to Node whose m_key == key if there is one, else m_head
+
+    bool doInsertOrUpdate(const KeyType&amp; key, const ValueType&amp; value,
+                          bool mayInsert, bool mayUpdate);
+      // If the key is not present in the map and if mayInsert is true, insert
+      // the pair if there is room.  If the key is present and mayUpdate is
+      // true, update the pair with the given key.
+};
+
+// Declarations of non-member functions
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+bool combine(const Map<strong>&lt;KeyType, ValueType></strong>&amp; m1, const Map<strong>&lt;KeyType, ValueType></strong>&amp; m2,
+             Map<strong>&lt;KeyType, ValueType></strong>&amp; result); 
+      // If a key/value pair occurs in m1 or m2 or both, then it will occur in
+      // result upon return from this function.  Return true unless m1 and m2
+      // have a pair with the same key but different values; neither such pair
+      // will occur in result upon return.
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+void subtract(const Map<strong>&lt;KeyType, ValueType></strong>&amp; m1, const Map<strong>&lt;KeyType, ValueType></strong>&amp; m2,
+              Map<strong>&lt;KeyType, ValueType></strong>&amp; result); 
+      // Upon return, result contains those pairs in m1 whose keys don't
+      // appear in m2.
+
+// Inline implementations
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+inline
+int Map<strong>&lt;KeyType, ValueType></strong>::size() const
+{
+    return m_size;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+inline
+bool Map<strong>&lt;KeyType, ValueType></strong>::empty() const
+{
+    return size() == 0;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+inline
+bool Map<strong>&lt;KeyType, ValueType></strong>::contains(const KeyType&amp; key) const
+{
+    return find(key) != m_head;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+inline
+bool Map<strong>&lt;KeyType, ValueType></strong>::insert(const KeyType&amp; key, const ValueType&amp; value)
+{
+    return doInsertOrUpdate(key, value, true /* insert */, false /* no update */);
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+inline
+bool Map<strong>&lt;KeyType, ValueType></strong>::update(const KeyType&amp; key, const ValueType&amp; value)
+{
+    return doInsertOrUpdate(key, value, false /* no insert */, true /* update */);
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+inline
+bool Map<strong>&lt;KeyType, ValueType></strong>::insertOrUpdate(const KeyType&amp; key, const ValueType&amp; value)
+{
+    return doInsertOrUpdate(key, value, true /* insert */, true /* update */);
+}
+
+// Non-inline implementations
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+Map<strong>&lt;KeyType, ValueType></strong>::Map()
+ : m_size(0)
+{
+      // create dummy node
+    m_head = new Node;
+    m_head->m_next = m_head;
+    m_head->m_prev = m_head;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+Map<strong>&lt;KeyType, ValueType></strong>::~Map()
+{
+      // Delete the m_size non-dummy nodes plus the dummy node
+
+    for (Node* p = m_head->m_prev ; m_size >= 0; m_size--)
+    {
+        Node* toBeDeleted = p;
+        p = p->m_prev;
+        delete toBeDeleted;
+    }
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+Map<strong>&lt;KeyType, ValueType></strong>::Map(const Map<strong>&lt;KeyType, ValueType></strong>&amp; other)
+ : m_size(other.m_size)
+{
+      // Create dummy node; don't initialize its pointers
+
+    m_head = new Node;
+
+      // Initialize prev to last node created
+
+    Node* prev = m_head;
+
+      // Copy each non-dummy node from the other list; each iteration will set
+      // the m_next of the previous node copied
+
+    for (Node* p = other.m_head->m_next ; p != other.m_head; p = p->m_next)
+    {
+          // Create a copy of the node p points to
+        Node* pnew = new Node;
+        pnew->m_key = p->m_key;
+        pnew->m_value = p->m_value;
+        
+          // Connect the new node to the previous one
+        pnew->m_prev = prev;
+        prev->m_next = pnew;
+
+          // Reset prev to last node created
+        prev = pnew;
+    }
+
+      // Connect last node created to m_head 
+    m_head->m_prev = prev;
+    prev->m_next = m_head;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+Map<strong>&lt;KeyType, ValueType></strong>&amp; Map<strong>&lt;KeyType, ValueType></strong>::operator=(const Map<strong>&lt;KeyType, ValueType></strong>&amp; rhs)
+{
+    if (this != &amp;rhs)
+    {
+        Map<strong>&lt;KeyType, ValueType></strong> temp(rhs);
+        swap(temp);
+    }
+    return *this;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+bool Map<strong>&lt;KeyType, ValueType></strong>::erase(const KeyType&amp; key)
+{
+    Node* p = find(key);
+
+    if (p == m_head)  // not found
+        return false;
+
+      // unlink the node from the list and destroy it
+
+    p->m_prev->m_next = p->m_next;
+    p->m_next->m_prev = p->m_prev;
+    delete p;
+
+    m_size--;
+    return true;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+bool Map<strong>&lt;KeyType, ValueType></strong>::get(const KeyType&amp; key, ValueType&amp; value) const
+{
+    Node* p = find(key);
+    if (p == m_head)  // not found
+        return false;
+    value = p->m_value;
+    return true;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+bool Map<strong>&lt;KeyType, ValueType></strong>::get(int i, KeyType&amp; key, ValueType&amp; value) const
+{
+    if (i &lt; 0  ||  i >= m_size)
+        return false;
+
+      // Return the key and value at position i.  This is one way of ensuring
+      // the required behavior of get:  If the Map doesn't change in the
+      // interim,
+      // * calling get with each i in 0 &lt;= i &lt; size() gets each of the
+      //   Map pairs, and
+      // * calling get with the same value of i each time gets the same pair.
+
+      // If i is closer to the head of the list, go forward to reach that
+      // position; otherwise, start from tail and go backward.
+
+    Node* p;
+    if (i &lt; m_size / 2)  // closer to head
+    {
+        p = m_head->m_next;
+        for (int k = 0; k != i; k++)
+            p = p->m_next;
+    }
+    else  // closer to tail
+    {
+        p = m_head->m_prev;
+        for (int k = m_size-1; k != i; k--)
+            p = p->m_prev;
+    }
+
+    key = p->m_key;
+    value = p->m_value;
+    return true;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+void Map<strong>&lt;KeyType, ValueType></strong>::swap(Map<strong>&lt;KeyType, ValueType></strong>&amp; other)
+{
+      // swap head pointers
+    Node* tempHead = m_head;
+    m_head = other.m_head;
+    other.m_head = tempHead;
+
+      // swap sizes
+    int t = m_size;
+    m_size = other.m_size;
+    other.m_size = t;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+<strong>typename</strong> Map<strong>&lt;KeyType, ValueType></strong>::Node* Map<strong>&lt;KeyType, ValueType></strong>::find(const KeyType&amp; key) const
+{
+      // Do a linear search through the list
+
+    Node* p;
+    for (p = m_head->m_next; p != m_head &amp;&amp; p->m_key != key; p = p->m_next)
+        ;
+    return p;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+bool Map<strong>&lt;KeyType, ValueType></strong>::doInsertOrUpdate(const KeyType&amp; key, const ValueType&amp; value,
+                           bool mayInsert, bool mayUpdate)
+{
+    Node* p = find(key);
+
+    if (p != m_head)  // found
+    {
+        if (mayUpdate)
+            p->m_value = value;
+        return mayUpdate;
+    }
+    if (!mayInsert)  // not found, and not allowed to insert
+        return false;
+
+       // Create a new node
+    p = new Node;
+    p->m_key = key;
+    p->m_value = value;
+
+      // Insert new item at tail of list (arbitrary choice of position)
+      //     Connect it to tail
+    p->m_prev = m_head->m_prev;
+    p->m_prev->m_next = p;
+
+      //     Connect it to dummy node
+    p->m_next = m_head;
+    m_head->m_prev = p;
+
+    m_size++;
+    return true;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+bool combine(const Map<strong>&lt;KeyType, ValueType></strong>&amp; m1, const Map<strong>&lt;KeyType, ValueType></strong>&amp; m2,
+             Map<strong>&lt;KeyType, ValueType></strong>&amp; result)
+{
+      // For better performance, the bigger map should be the basis for
+      // the result, and we should iterate over the elements of the
+      // smaller one, adjusting the result as required.
+
+    const Map<strong>&lt;KeyType, ValueType></strong>* bigger;
+    const Map<strong>&lt;KeyType, ValueType></strong>* smaller;
+    if (m1.size() >= m2.size())
+    {
+        bigger = &m1;
+        smaller = &m2;
+    }
+    else
+    {
+        bigger = &m2;
+        smaller = &m1;
+    }
+
+      // Guard against the case that result is an alias for m1 or m2
+      // (i.e., that result is a reference to the same map that m1 or m2
+      // refers to) by building the answer in a local variable res.  When
+      // done, swap res with result; the old value of result (now in res) will
+      // be destroyed when res is destroyed.
+
+    bool status = true;
+    Map<strong>&lt;KeyType, ValueType></strong> res(*bigger);               // res starts as a copy of the bigger map
+    for (int n = 0; n &lt; smaller->size(); n++)  // for each pair in smaller
+    {
+        KeyType k;
+        ValueType vsmall;
+        smaller->get(n, k, vsmall);
+        ValueType vbig;
+        if (!res.get(k, vbig))      // key in smaller doesn't appear in bigger
+            res.insert(k, vsmall);  //     so add it to res
+        else if (vbig != vsmall)    // same key, different value
+        {                           //     so pair shouldn't be in res
+            res.erase(k);      
+            status = false;
+        }
+    }
+    result.swap(res);
+    return status;
+}
+
+<strong>template &lt;typename KeyType, typename ValueType></strong>
+void subtract(const Map<strong>&lt;KeyType, ValueType></strong>&amp; m1, const Map<strong>&lt;KeyType, ValueType></strong>&amp; m2,
+              Map<strong>&lt;KeyType, ValueType></strong>&amp; result)
+{
+      // Guard against the case that result is an alias for m1 or m2
+      // (i.e., that result is a reference to the same map that m1 or m2
+      // refers to) by building the answer in a local variable res.  When
+      // done, swap res with result; the old value of result (now in res) will
+      // be destroyed when res is destroyed.
+
+    if (m1.size() &lt;= m2.size())
+    {
+          // If m1 is smaller, if an item in m1 should be in the result because
+          // its key is not in m2, add it
+
+        Map<strong>&lt;KeyType, ValueType></strong> res;
+        for (int n = 0; n &lt; m1.size(); n++)
+        {
+            KeyType k;
+            ValueType v;
+            m1.get(n, k, v);
+            if (!m2.contains(k))
+                res.insert(k, v);
+        }
+        result.swap(res);
+    }
+    else
+    {
+          // If m1 is larger, copy it to the result and remove from result
+          // keys that are in m2
+
+        Map<strong>&lt;KeyType, ValueType></strong> res(m1);
+        for (int n = 0; n &lt; m2.size(); n++)
+        {
+            KeyType k;
+            ValueType v;
+            m2.get(n, k, v);
+            res.erase(k);
+        }
+        result.swap(res);
+    }
+}
+
+#endif // MAP_INCLUDED
+</pre>
+<p>
+You could alternatively have implemented the member functions inside the class
+declaration:
+</p>
+<pre>
+template &lt;typename KeyType, typename ValueType>
+class Map
+{
+    ...
+    int size() const
+    {
+        return m_size;
+    }
+    ...
+};
+</pre>
+<p>
+Since for this problem you were already starting with a lot of code
+written with the implementations outside the class declaration, it was less
+work to leave their implementations outside.
+</p>
+<h4><a id="P2"></a>Problem 2:</h4>
+<p>
+The instantiation of <code>Map&lt;Coord, int>::insert</code> calls the
+instantiation of <code>Map&lt;Coord, int>::doInsertOrUpdate</code>, which calls
+the instantiation of <code>Map&lt;Coord, int>::find</code>, which contains
+the expression <code>p->m_key != key</code>, where both operands are
+<code>Coord</code>.  We never defined <code>operator!=</code> for
+<code>Coord</code> operands.
+</p>
+<h4><a id="P3"></a>Problem 3:</h4>
+<ol type="a">
+<li>
+<pre>
+void listAll(const Class* c, string path)
+{
+    if (! path.empty())
+        path += "=>";
+    path += c->name();
+    cout &lt;&lt; path &lt;&lt; endl;
+    for (size_t k = 0; k != c->subclasses().size(); k++)
+	listAll(c->subclasses()[k], path);
+}
+</pre>
+<p>
+Other ways to write the <code>for</code> loop are
+</p>
+<pre>
+    for (vector&lt;Class*>::const_iterator p = c->subclasses().begin();
+					     p != c->subclasses().end(); p++)
+	listAll(*p, path);
+</pre>
+or (in C++11)
+<pre>
+    for (Class* sc : c->subclasses())  // or  for (auto sc : c->subclasses())
+	listAll(sc, path);
+</pre>
+</li>
+<li>
+<p>
+Without any static or global variables or any additional containers, there
+would be no way to keep track of the path from the root to each node of the
+tree.
+</p>
+</li>
+</ol>
+<h4><a id="P4"></a>Problem 4:</h4>
+<ol type="a">
+<li>
+<p>
+Consider the code in the k loop:
+</p>
+<pre>
+        for (int k = 0; k &lt; N; k++)
+	{
+	    if (k == i  ||  k == j)
+	        continue;
+            if (hasCommunicatedWith[i][k]  &amp;&amp;  hasCommunicatedWith[k][j])
+	        numIntermediaries[i][j]++;
+	}
+</pre>
+<p>
+This involves one initialization (int k = 0), which we can ignore, since it's
+dominated by the N repetitions of everything else.  The most work that each of
+the N iterations of the loop might do is a comparison (k &lt; N), an increment
+(k++), two equality tests (k == i and k == j), an and test (&amp;&amp;), an
+increment (++), and 3 double subscriptings.  These basic operations are
+each constant time, so this loop does no more than mN basic operations, for
+some constant m.  This inner loop is O(N).
+</p><p>
+For the rest of this analysis, we won't be so meticulous:  We'll drop low order
+terms where it won't affect the result.
+</p><p>
+The number of operations performed during one execution of the innermost
+loop body (which obviously accounts for most of the operations, since it's
+executed the most) is bounded by some constant m.  In all, that body
+accounts for sum(i from 0 to N-1) of sum(j from 0 to N-1) of
+sum(k from 0 to N-1) of m operations.
+</p><p>
+sum(i from 0 to N-1) of {sum(j from 0 to N-1) of [sum(k from 0 to N-1) of m]} ~<br/>
+m * sum(i from 0 to N-1) of {sum(j from 0 to N-1) of [sum(k from 0 to N-1) of 1]} ~<br/>
+m * sum(i from 0 to N-1) of {sum(j from 0 to N-1) of N} ~<br/>
+m * sum(i from 0 to N-1) of N*N ~<br/>
+m * N*N*N = O(N<sup>3</sup>)
+</p>
+</li>
+<li>
+<p>
+Again, the innermost statement accounts for the most operations performed, and
+it accounts for sum(i from 0 to N-1) of sum(j from 0 to i-1) of sum(k from 0
+to N-1) of m operations.  We'll retain the constant of proportionality just to
+get a feel for how much faster this can be.  (We assume m is about the same as
+Part a.)
+<p>
+sum(i from 0 to N-1) of {sum(j from 0 to i-1) of [sum(k from 0 to N-1) of m]} ~<br/>
+m * sum(i from 0 to N-1) of {sum(j from 0 to i-1) of [sum(k from 0 to N-1) of 1]} ~<br/>
+m * sum(i from 0 to N-1) of {sum(j from 0 to i-1) of N} ~<br/>
+m * sum(i from 0 to N-1) of i*N} ~<br/>
+m * N * sum(i from 0 to N-1) of i} ~<br/>
+m * N * ((N-1) * N / 2)
+<p>
+Since ((N-1) * N / 2) ~ N*N/2, the full sum is about (m/2) * N*N*N =
+O(N<sup>3</sup>).  For large N, this algorithm is about twice as fast as
+the one in Part a, but it's still order N<sup>3</sup>; doubling the size of a
+problem increases the running time about eightfold.
+</p>
+</li>
+</ol>
+<h4><a id="P5"></a>Problem 5:</h4>
+<p>
+First, notice that our implementation of the three-argument form of
+<code>get</code> takes a length of time proportional to the distance
+between the desired position and the <em>nearest</em> end of the list. 
+For position k in a list of size N, this is min(k, N-k). 
+<code>insert</code>, <code>erase</code>, and the two-argument form of
+<code>get</code> each call find, which can visit up to N nodes.
+</p>
+<p>
+The <code>size</code> function is constant time, so the initial block of code
+to determine the bigger Map is constant time.  The final swap is constant time
+as well.  The call to the copy constructor just before the for loop visits
+N nodes, so is O(N).  Now let's examine the loop.
+</p>
+<p>
+The statements in the loop are executed N times. Each time, the first call to
+<code>get</code> function visits min(k,N-k) nodes (which is bounded by N).  The
+<code>get</code> in the if condition visits up to N nodes, and each branch of
+the if (the <code>insert</code> or <code>erase</code>) visits up to N nodes.
+Thus, each loop iteration visit up to 3N nodes, which is O(N).  Since the
+loop visits O(N) nodes on each of the N iterations, the loop overall visits
+O(N<sup>2</sup>) nodes.  This dominates the O(N) and O(1) parts of the
+function, so the overall time complexity is O(N<sup>2</sup>).
+</p>
+<h4><a id="P6"></a>Problem 6:</h4>
+<p>
+Changes to the program as given are <strong>bold</strong>.
+</p>
+<pre>
+&hellip;
+inline
+bool compareSensorPtr(const Sensor* lhs, const Sensor* rhs)
+{
+    return <strong>compareSensor(*lhs, *rhs);</strong>
+}
+&hellip;
+void insertion_sort(vector&lt;Sensor>&amp; s, bool comp(const Sensor&amp;, const Sensor&amp;))
+{
+    <strong>for (size_t k = 1; k &lt; s.size(); k++)
+    {
+        Sensor currentSensor(s[k]);
+        size_t m = k;
+        for ( ; m > 0  &amp;&amp;  comp(currentSensor, s[m-1]); m--)
+            s[m] = s[m-1];
+        s[m] = currentSensor;
+    }</strong>
+}
+&hellip;
+      // Create a auxiliary copy of sensors, to faciliate the later reordering.
+      // We create it in a local scope, so that we also account for the
+      // destruction time.
+    {
+     vector&lt;Sensor> auxSensors(sensors);
+
+      // Create a vector of Sensor pointers, and set each pointer
+      // to point to the corresponding Sensor in auxSensors.
+     <strong>vector&lt;Sensor*> sensorPtrs;
+     for (size_t k = 0; k &lt; auxSensors.size(); k++)
+         sensorPtrs.push_back(&amp;auxSensors[k]);</strong>
+    
+      // Sort the vector of pointers using the STL sort algorithm
+      // with compareSensorPtr as the ordering relationship.
+     <strong>sort(sensorPtrs.begin(), sensorPtrs.end(), compareSensorPtr);</strong>
+
+      // Using the now-sorted vector of pointers, replace each Sensor
+      // in sensors with the Sensors from auxSensors in the correct order.
+     <strong>for (size_t k = 0; k &lt; sensorPtrs.size(); k++)
+         sensors[k] = *sensorPtrs[k];</strong>
+
+    } // auxSensors will be destroyed here
+&hellip;
+</pre>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/4/solution.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+</html>

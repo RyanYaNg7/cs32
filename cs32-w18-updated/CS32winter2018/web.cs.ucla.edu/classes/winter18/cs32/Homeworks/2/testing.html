@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC"-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/2/testing.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+<head>
+ <title>Homework 2 Test Data</title>
+</head>
+<body>
+<h2>Homework 2 Test Data</h2>
+<p>
+For this homework, we graded mazestack.cpp, mazequeue.cpp, and eval.cpp.
+</p><p>
+We ran your pathExists function from mazestack.cpp on four mazes, and the
+version from mazequeue.cpp on the same four mazes.  Each of the eight
+tests was worth 4 points.  Here are the mazes:
+</p>
+<pre>
+	string maze1[10] = {
+	  "XXXXXXXXXX'",
+	  "X.X..X...X'",
+	  "X.XX.X.XXX'",
+	  "X....X.X.X'",
+	  "XX.X.X...X'",
+	  "XXX..X.X.X'",
+	  "X...X...XX'",
+	  "X.XX..X.XX'",
+	  "X....X...X'",
+	  "XXXXXXXXXX'",
+	};
+	
+	string maze2[10] = {
+	  "XXXXXXXXXX'",
+	  "X.X..X...X'",
+	  "XXXX.X.XXX'",
+	  "X....X.X.X'",
+	  "XX.X.X...X'",
+	  "XXX..X.X.X'",
+	  "X...X...XX'",
+	  "X.XX..X.XX'",
+	  "X....X...X'",
+	  "XXXXXXXXXX'",
+	};
+	
+	string maze3[10] = {
+	  "XXXXXXXXXX'",
+	  "XX.....XXX'",
+	  "X..XX....X'",
+	  "X...X...XX'",
+	  "X.X.XXX..X'",
+	  "XXXX..X..X'",
+	  "XX....X..X'",
+	  "X.......XX'",
+	  "X..XXXXXXX'",
+	  "XXXXXXXXXX'",
+	};
+	
+	string maze4[10] = {
+	  "XXXXXXXXXX'",
+	  "XX.....XXX'",
+	  "X..XX....X'",
+	  "X...X...XX'",
+	  "X.X.XXX..X'",
+	  "XXXX..X..X'",
+	  "XX....X..X'",
+	  "X.X.....XX'",
+	  "X..XXXXXXX'",
+	  "XXXXXXXXXX'",
+	};
+
+	assert(pathExists(maze1, 10, 10, 8, 6, 1, 1));
+	assert(!pathExists(maze2, 10, 10, 8, 6, 1, 1));
+	assert(pathExists(maze3, 10, 10, 4, 3, 7, 1));
+	assert(!pathExists(maze4, 10, 10, 4, 3, 7, 1));
+</pre>
+<p>
+We tried your evaluate function from eval.cpp on 20 cases.  The map we
+tested with mapped t to 3, v to 5, w to 2, and x to -25.
+</p>
+<table border="1" cellspacing="0" cellpadding="5">
+<colgroup span="4" align="center"></colgroup>
+<tr><th>points</th><th>infix</th><th>evaluate<br/>returns</th><th>postfix</th><th>result</th></tr>
+<tr><td>4</td><td><code>w</code></td><td>0</td><td><code>w</td><td>2</td></tr>
+<tr><td>4</td><td><code>w+w</code></td><td>0</td><td><code>ww+</td><td>4</td></tr>
+<tr><td>4</td><td><code>w - v</code></td><td>0</td><td><code>wv-</td><td>-3</td></tr>
+<tr><td>4</td><td><code>w*t+v</code></td><td>0</td><td><code>wt*v+</td><td>11</td></tr>
+<tr><td>4</td><td><code>w+t*v</code></td><td>0</td><td><code>wtv*+</td><td>17</td></tr>
+<tr><td>4</td><td><code>w*(t+v)</code></td><td>0</td><td><code>wtv+*</td><td>16</td></tr>
+<tr><td>4</td><td><code>v-t-w</code></td><td>0</td><td><code>vt-w-</td><td>0</td></tr>
+<tr><td>4</td><td><code>w*(x/((w)+t))+t*v</code></td><td>0</td><td><code>wxwt+/*tv*+</td><td>5</td></tr>
+<tr><td>4</td><td><code>t/(x+v*(w+t))</code></td><td>3</td><td><code>txvwt+*+/</td><td>&nbsp;</td></tr>
+<tr><td>4</td><td><code>w+u+v</code></td><td>2</td><td><code>wu+v+</td><td>&nbsp;</td></tr>
+<tr><td>3</td><td><code>w+U+v</code></td><td>1</td><td><code>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>3</td><td><code>x//v</code></td><td>1</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>3</td><td><code>x(v+w)</code></td><td>1</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>3</td><td><code>w w</code></td><td>1</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>3</td><td><code>&nbsp;*w</code></td><td>1</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>3</td><td><code>w+()</code></td><td>1</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>3</td><td><code>(w+w</code></td><td>1</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>3</td><td><code>w+(w+w))</code></td><td>1</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>2</td><td><code>w+@+v</code></td><td>1</td><td><code>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>2</td><td><code>w+v@x+w</code></td><td>1</td><td><code>&nbsp;</td><td>&nbsp;</td></tr>
+</table>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/Homeworks/2/testing.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 07:10:23 GMT -->
+</html>

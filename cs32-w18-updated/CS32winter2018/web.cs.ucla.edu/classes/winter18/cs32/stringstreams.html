@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/stringstreams.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+<head>
+ <title>Stringstreams</title>
+</head>
+<body>
+<div align="center">
+<h2>Stringstreams</h2>
+</div>
+<p>
+Sometimes you have information that you would like to present in a way that
+would be trivial if it were delivered to the screen using <code>cout</code>.
+For example, suppose we want to write a double in the conventional way of
+representing a U.S. monetary amount:
+</p>
+<pre>
+	double amt;
+	... <em>suppose some code here gives </em>amt<em> the value</em> 123.4
+	cout.setf(ios::fixed);
+	cout.precision(2);
+	cout &lt;&lt; "$" &lt;&lt; amt;
+</pre>
+<p>
+(The middle two statements set the state of <code>cout</code> so that all
+doubles written from now on will be in fixed instead of scientific notation,
+and will display two digits to the right of the decimal point.)
+</p><p>
+But suppose instead that we didn't want to write the sequence of characters
+"$123.40" to the screen, but instead wanted to capture it into a string
+that we could do something with later.  Here's an easy way to do this:
+</p>
+<pre>
+	#include &lt;iostream> // defines the overloads of the &lt;&lt; operator
+	#include &lt;sstream>  // defines the type std::ostringstream
+	using namespace std;
+
+	...
+	double amt;
+	... <em>suppose some code here gives </em>amt<em> the value</em> 123.4
+	ostringstream oss;  // oss is a name of our choosing.
+	oss.setf(ios::fixed);
+	oss.precision(2);
+	oss &lt;&lt; "$" &lt;&lt; amt;  // puts "$123.40" in oss's internal storage
+	string s = oss.str();  // s gets "$123.40"
+</pre>
+<p>
+The type name <code>ostringstream</code> denotes an <em>output
+stringstream</em>.  We created one that we chose to call <code>oss</code>.
+Just as an output stream like <code>cout</code> uses the screen as
+destination for characters, and an <code>ofstream</code> (an output file
+stream) uses a file as a destination for characters, an
+<code>ostringstream</code> uses its own internal storage as a destination for
+characters.  You can later retrieve those characters as a string.
+</p><p>
+When we created <code>oss</code>, its internal storage is empty.  The
+operations we can perform on an <code>ostringstream</code> are the same
+ones we can perform on <code>cout</code> or an <code>ofstream</code>.
+To retrieve the characters later as a <code>string</code>, use the
+<code>ostringstream</code>'s member function <code>str()</code>.  Here's
+another example:
+</p>
+<pre>
+	#include &lt;iostream> // defines the overloads of the &lt;&lt; operator
+	#include &lt;sstream>  // defines the type std::ostringstream
+	#include &lt;iomanip>  // defines the manipulator setw
+	using namespace std;
+
+	...
+	ostringstream oss;
+	oss &lt;&lt; "-----\n";
+	int k;
+	... <em>suppose some code here gives </em>k<em> the value</em> 123
+	oss &lt;&lt; setw(5) &lt;&lt; k &lt;&lt; endl;
+	string s = oss.str();
+</pre>
+<p>
+The string <code>s</code> now contains <code>"-----\n&nbsp;&nbsp;123\n"</code>.
+(The <code>setw(5)</code> says that the next thing written (a number or a
+string) will be written in a field 5 characters wide, so there are two
+spaces before the <code>123</code>.)  Notice that we don't have to write
+everything to the <code>ostringstream</code> at one time; we can write
+something, then later on something additional, etc. This can make it
+easier to use than the C library's <code>sprintf</code> function.
+</p><p>
+Suppose we're writing a value in a field wider than we need to represent the
+value (e.g., writing 123 in a field more than 3 characters wide).  By default,
+the extra characters will be blanks, but we can change that by setting the
+stream's fill character:
+</p>
+<pre>
+	ostringstream oss;
+	int k;
+	... <em>suppose some code here gives </em>k<em> the value</em> 123
+	oss &lt;&lt; setw(5) &lt;&lt; k &lt;&lt; endl;
+	oss.fill('*');
+	oss &lt;&lt; setw(5) &lt;&lt; k &lt;&lt; endl;
+	oss &lt;&lt; setw(4) &lt;&lt; k &lt;&lt; endl;
+	oss.fill('0');
+	oss &lt;&lt; setw(5) &lt;&lt; k &lt;&lt; endl;
+	string s = oss.str();
+</pre>
+<p>
+The string <code>s</code> now contains
+<code>"&nbsp;&nbsp;123\n**123\n*123\n00123\n"</code>.
+</p><p>
+There is also the concept of an <em>input stringstream</em>, an
+<code>istringstream</code>, but this isn't useful for Project 3.
+</p>
+</body>
+
+<!-- Mirrored from web.cs.ucla.edu/classes/winter18/cs32/stringstreams.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 18 Mar 2018 06:31:21 GMT -->
+</html>
